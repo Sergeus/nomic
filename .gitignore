@@ -1,0 +1,14 @@
+# Generic Ignores #
+###################
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+thumbs.db
+
+# Java Files #
+##############
+*.jar
+*.class
+*.war
