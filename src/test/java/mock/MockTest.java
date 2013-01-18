@@ -42,5 +42,7 @@ public class MockTest extends TestCase {
 		}});
 		
 		simulation.run();
+		
+		context.assertIsSatisfied();
 	}
 }
