@@ -5,11 +5,16 @@ import junit.framework.TestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnit4Mockery;
+
 
 import agents.NomicAgent;
 
+@RunWith(JMock.class)
 public class MockTest extends TestCase {
-	Mockery context = new Mockery();
+	Mockery context = new JUnit4Mockery();
 	
 	@Test
 	public void mockTestInitialTest() {
