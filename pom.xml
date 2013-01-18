@@ -49,6 +49,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 		</dependency>
+		<dependency>
+			<groupId>jmock</groupId>
+			<artifactId>jmock</artifactId>
+			<version>20031129.200437</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
