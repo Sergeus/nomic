@@ -33,4 +33,8 @@ public class NomicAgent extends AbstractParticipant {
 		System.out.println("Test.");
 		super.incrementTime();
 	}
+	
+	public int UnitTestTest() {
+		return 2;
+	}
 }
