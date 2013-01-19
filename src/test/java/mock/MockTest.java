@@ -20,7 +20,7 @@ public class MockTest extends TestCase {
 	public void mockTestInitialTest() {
 		final Agent agent = context.mock(Agent.class);
 		
-		FakeSimulation simulation = new FakeSimulation((NomicAgent) agent);
+		FakeSimulation simulation = new FakeSimulation(agent);
 		
 		context.checking(new Expectations() {{
 			oneOf(agent).incrementTime();

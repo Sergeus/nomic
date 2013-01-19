@@ -1,11 +1,11 @@
 package mock;
-import agents.NomicAgent;
+import agents.Agent;
 
 
 public class FakeSimulation {
-	NomicAgent agent;
+	Agent agent;
 	
-	public FakeSimulation(NomicAgent ag) {
+	public FakeSimulation(Agent ag) {
 		agent = ag;
 	}
 	
