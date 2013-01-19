@@ -18,7 +18,7 @@ public class MockTest extends TestCase {
 	
 	@Test
 	public void mockTestInitialTest() {
-		final Agent agent = context.mock(NomicAgent.class);
+		final Agent agent = context.mock(Agent.class);
 		
 		FakeSimulation simulation = new FakeSimulation((NomicAgent) agent);
 		
