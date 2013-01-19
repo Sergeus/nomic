@@ -9,6 +9,7 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import agents.Agent;
 import agents.NomicAgent;
 
 @RunWith(JMock.class)
@@ -17,9 +18,9 @@ public class MockTest extends TestCase {
 	
 	@Test
 	public void mockTestInitialTest() {
-		final NomicAgent agent = context.mock(NomicAgent.class);
+		final Agent agent = context.mock(NomicAgent.class);
 		
-		FakeSimulation simulation = new FakeSimulation(agent);
+		FakeSimulation simulation = new FakeSimulation((NomicAgent) agent);
 		
 		context.checking(new Expectations() {{
 			oneOf(agent).incrementTime();

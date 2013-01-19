@@ -3,7 +3,6 @@ package agents;
 import java.util.Set;
 import java.util.UUID;
 
-import mock.Agent;
 import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
