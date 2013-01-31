@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import agents.Agent;
-import agents.NomicAgent;
 
 @RunWith(JMock.class)
 public class MockTest extends TestCase {

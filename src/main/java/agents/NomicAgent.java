@@ -30,7 +30,6 @@ public class NomicAgent extends AbstractParticipant implements Agent {
 	@Override
 	public void incrementTime() {
 		System.out.println("Nomic says 'hi'.");
-		System.out.println("Test.");
 		super.incrementTime();
 	}
 	
