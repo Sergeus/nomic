@@ -87,7 +87,7 @@ public class NomicServiceMockTest extends TestCase {
 			fail("Simple rule was not parsed directly." + e1.getMessage());
 		}
 		
-		conditions.add("$agent : NomicAgent(SequentialID == 2)");
+		conditions.add("$agent2 : NomicAgent(SequentialID == 2)");
 		
 		try {
 			service.addRule(imports, ruleName, conditions, actions);
