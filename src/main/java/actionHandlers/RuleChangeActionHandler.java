@@ -66,7 +66,7 @@ public class RuleChangeActionHandler implements ActionHandler {
 			ProposeRuleModification ruleMod = (ProposeRuleModification)action;
 			try {
 				service.addRule(ruleMod.getNewRule());
-				service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getNewRule());
+				service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new version of existing rule.", e);
 			}
