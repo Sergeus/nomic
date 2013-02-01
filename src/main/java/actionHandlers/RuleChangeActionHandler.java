@@ -60,27 +60,31 @@ public class RuleChangeActionHandler implements ActionHandler {
 		
 		NomicService service = getNomicService();
 		
-		RuleChangeType change = ((ProposeRuleChange)action).getRuleChangeType();
-		
-		if (change == RuleChangeType.MODIFICATION) {
-			ProposeRuleModification ruleMod = (ProposeRuleModification)action;
-			try {
-				service.addRule(ruleMod.getNewRule());
-				service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
-			} catch (DroolsParserException e) {
-				logger.warn("Unable to parse new version of existing rule.", e);
+		try {
+			RuleChangeType change = ((ProposeRuleChange)action).getRuleChangeType();
+			
+			if (change == RuleChangeType.MODIFICATION) {
+				ProposeRuleModification ruleMod = (ProposeRuleModification)action;
+				try {
+					service.addRule(ruleMod.getNewRule());
+					service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
+				} catch (DroolsParserException e) {
+					logger.warn("Unable to parse new version of existing rule.", e);
+				}
 			}
-		}
-		else if (change == RuleChangeType.ADDITION) {
-			ProposeRuleAddition ruleMod = (ProposeRuleAddition)action;
-			try {
-				service.addRule(ruleMod.getNewRule());
-			} catch (DroolsParserException e) {
-				logger.warn("Unable to parse new rule.", e);
+			else if (change == RuleChangeType.ADDITION) {
+				ProposeRuleAddition ruleMod = (ProposeRuleAddition)action;
+				try {
+					service.addRule(ruleMod.getNewRule());
+				} catch (DroolsParserException e) {
+					logger.warn("Unable to parse new rule.", e);
+				}
 			}
+			
+			session.insert(action);
+		} catch(ClassCastException e) {
+			throw new ActionHandlingException("Supplied action is the wrong class." + e.getMessage());
 		}
-		
-		session.insert(action);
 		return null;
 	}
 
