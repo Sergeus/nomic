@@ -66,8 +66,8 @@ public class NomicService extends EnvironmentService {
 		kbuilder.add(myResource, ResourceType.DRL);
 		
 		if (kbuilder.hasErrors()) {
-			System.out.println(kbuilder.getErrors().toString());
-			throw new DroolsParserException("Unable to parse new rule.");
+			throw new DroolsParserException("Unable to parse new rule.\n"
+					+ kbuilder.getErrors().toString());
 		}
 		
 		Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
