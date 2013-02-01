@@ -58,7 +58,7 @@ public class MockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).getKnowledgeBase(); returnValue(base);
+			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
