@@ -40,7 +40,7 @@ public class NomicService extends EnvironmentService {
 			rule += "import " + importe + " ";
 		}
 		
-		rule += "rule " + ruleName + " ";
+		rule += "rule \"" + ruleName + "\" ";
 		
 		rule += "when ";
 		

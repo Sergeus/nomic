@@ -1,5 +1,6 @@
 package mock;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -52,5 +53,38 @@ public class NomicServiceMockTest extends TestCase {
 		}
 		
 		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void NomicServiceMultipleStringRuleAdditionTest() {
+		final EnvironmentSharedStateAccess ss = context.mock(EnvironmentSharedStateAccess.class);
+		final StatefulKnowledgeSession session = context.mock(StatefulKnowledgeSession.class);
+		final EventBus e = context.mock(EventBus.class);
+		final KnowledgeBase base = context.mock(KnowledgeBase.class);
+		
+		context.checking(new Expectations() {{
+			oneOf(e).subscribe(with(any(NomicService.class)));
+			oneOf(session).getKnowledgeBase(); will(returnValue(base));
+			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
+		}});
+		
+		final NomicService service = new NomicService(ss, session, e);
+		
+		ArrayList<String> imports = new ArrayList<String>();
+		imports.add("agents.NomicAgent");
+		
+		String ruleName = "Dynamic Rule!";
+		
+		ArrayList<String> conditions = new ArrayList<String>();
+		conditions.add("$agent : NomicAgent(SequentialID == 1)");
+		
+		ArrayList<String> actions = new ArrayList<String>();
+		actions.add("System.out.println(\"Found agent 1!\");");
+		
+		try {
+			service.addRule(imports, ruleName, conditions, actions);
+		} catch (DroolsParserException e1) {
+			fail("Rule was not parsed correctly.");
+		}
 	}
 }
