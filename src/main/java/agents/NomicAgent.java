@@ -7,7 +7,7 @@ import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 
-public class NomicAgent extends AbstractParticipant implements Agent {
+public class NomicAgent extends AbstractParticipant {
 
 	private int SequentialID;
 	

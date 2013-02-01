@@ -6,40 +6,21 @@ import junit.framework.TestCase;
 
 import org.drools.KnowledgeBase;
 import org.drools.compiler.DroolsParserException;
-import org.drools.definition.KnowledgePackage;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.junit.runner.RunWith;
 
 import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 
-import agents.Agent;
-
 @RunWith(JMock.class)
-public class MockTest extends TestCase {
+public class NomicServiceMockTest extends TestCase {
 	Mockery context = new JUnit4Mockery();
-	
-	@Test
-	public void mockTestInitialTest() {
-		final Agent agent = context.mock(Agent.class);
-		
-		FakeSimulation simulation = new FakeSimulation(agent);
-		
-		context.checking(new Expectations() {{
-			oneOf(agent).incrementTime();
-		}});
-		
-		simulation.run();
-		
-		context.assertIsSatisfied();
-	}
 	
 	@Test
 	public void NomicServiceSingleStringRuleAdditionTest() {
