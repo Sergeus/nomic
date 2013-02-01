@@ -73,15 +73,16 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		final String oldRulePackage = "Old rule package";
 		
-		Action genericAction = context.mock(Action.class);
+		final Action genericAction = context.mock(Action.class);
 		
-		ProposeRuleAddition addition = new ProposeRuleAddition(0, mockAgent, newRule);
+		final ProposeRuleAddition addition = new ProposeRuleAddition(0, mockAgent, newRule);
 		
-		ProposeRuleModification modification = new ProposeRuleModification(0, mockAgent, newRule, oldRuleName, oldRulePackage);
+		final ProposeRuleModification modification = new ProposeRuleModification(0, mockAgent, newRule, oldRuleName, oldRulePackage);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).addRule(newRule);
+			oneOf(session).insert(addition);
 		}});
 		
 		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
@@ -95,6 +96,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(service).RemoveRule(oldRulePackage, oldRuleName);
 			oneOf(service).addRule(newRule);
+			oneOf(session).insert(modification);
 		}});
 		
 		try {
