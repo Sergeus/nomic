@@ -1,18 +1,17 @@
 package simulations;
 
+import java.io.StringReader;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
+import org.drools.builder.ResourceType;
+import org.drools.definition.KnowledgePackage;
+import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
-import org.drools.rule.Rule;
 import org.drools.runtime.StatefulKnowledgeSession;
-
-import agents.NomicAgent;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
 
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
@@ -22,6 +21,10 @@ import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
+import agents.NomicAgent;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 
 public class BasicSimulation extends InjectedSimulation {
 	
@@ -43,6 +46,28 @@ public class BasicSimulation extends InjectedSimulation {
 	protected void addToScenario(Scenario s) {
 		session.setGlobal("logger", this.logger);
 		session.setGlobal("storage", this.storage);
+		
+		String newRule = "import agents.NomicAgent "
+				+ "rule \"Dynamic rule!\""
+				+ "when"
+				+ "	$agent : NomicAgent(SequentialID == 1)"
+				+ "then"
+				+ "	System.out.println(\"Found agent 1!\");"
+				+ "end";
+		
+		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+		
+		Resource myResource = ResourceFactory.newReaderResource(new StringReader(newRule));
+		kbuilder.add(myResource, ResourceType.DRL);
+		
+		if (kbuilder.hasErrors()) {
+			System.out.println(kbuilder.getErrors().toString());
+			throw new RuntimeException("Unable to parse drl.");
+		}
+		
+		Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
+		
+		session.getKnowledgeBase().addKnowledgePackages(packages);
 		
 		for (int i=0; i < agents; i++) {
 			NomicAgent agent = new NomicAgent(Random.randomUUID(), "agent" + i);
