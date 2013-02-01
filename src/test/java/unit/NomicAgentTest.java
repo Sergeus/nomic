@@ -16,5 +16,4 @@ public class NomicAgentTest {
 		
 		assertTrue(agent.UnitTestTest() == 2);
 	}
-
 }

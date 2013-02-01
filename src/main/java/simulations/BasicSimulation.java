@@ -47,28 +47,6 @@ public class BasicSimulation extends InjectedSimulation {
 		session.setGlobal("logger", this.logger);
 		session.setGlobal("storage", this.storage);
 		
-		String newRule = "import agents.NomicAgent "
-				+ "rule \"Dynamic rule!\""
-				+ "when"
-				+ "	$agent : NomicAgent(SequentialID == 1)"
-				+ "then"
-				+ "	System.out.println(\"Found agent 1!\");"
-				+ "end";
-		
-		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-		
-		Resource myResource = ResourceFactory.newReaderResource(new StringReader(newRule));
-		kbuilder.add(myResource, ResourceType.DRL);
-		
-		if (kbuilder.hasErrors()) {
-			System.out.println(kbuilder.getErrors().toString());
-			throw new RuntimeException("Unable to parse drl.");
-		}
-		
-		Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
-		
-		session.getKnowledgeBase().addKnowledgePackages(packages);
-		
 		for (int i=0; i < agents; i++) {
 			NomicAgent agent = new NomicAgent(Random.randomUUID(), "agent" + i);
 			
