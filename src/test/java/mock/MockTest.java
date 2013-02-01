@@ -53,11 +53,11 @@ public class MockTest extends TestCase {
 		final EventBus e = context.mock(EventBus.class);
 		final KnowledgeBase base = context.mock(KnowledgeBase.class);
 		
-		final NomicService service = new NomicService(ss, session, e);
-		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(service);
+			oneOf(e).subscribe(new Object());
 		}});
+		
+		final NomicService service = new NomicService(ss, session, e);
 		
 		try {
 			service.addRule(newRule);
