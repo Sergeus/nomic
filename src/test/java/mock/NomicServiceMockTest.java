@@ -63,7 +63,7 @@ public class NomicServiceMockTest extends TestCase {
 		final KnowledgeBase base = context.mock(KnowledgeBase.class);
 		
 		context.checking(new Expectations() {{
-			exactly(3).of(e).subscribe(with(any(NomicService.class)));
+			exactly(1).of(e).subscribe(with(any(NomicService.class)));
 			exactly(3).of(session).getKnowledgeBase(); will(returnValue(base));
 			exactly(3).of(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
