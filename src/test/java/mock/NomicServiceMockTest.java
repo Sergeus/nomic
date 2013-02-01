@@ -24,7 +24,7 @@ public class NomicServiceMockTest extends TestCase {
 	Mockery context = new JUnit4Mockery();
 	
 	@Test
-	public void NomicServiceSingleStringRuleAdditionTest() {
+	public void SingleStringRuleAdditionTest() {
 		String newRule = "import agents.NomicAgent "
 				+ "rule \"Dynamic rule!\""
 				+ "when"
@@ -56,7 +56,7 @@ public class NomicServiceMockTest extends TestCase {
 	}
 	
 	@Test
-	public void NomicServiceMultipleStringRuleAdditionTest() {
+	public void MultipleStringRuleAdditionTest() {
 		final EnvironmentSharedStateAccess ss = context.mock(EnvironmentSharedStateAccess.class);
 		final StatefulKnowledgeSession session = context.mock(StatefulKnowledgeSession.class);
 		final EventBus e = context.mock(EventBus.class);
@@ -102,6 +102,28 @@ public class NomicServiceMockTest extends TestCase {
 		} catch (DroolsParserException e2) {
 			fail("Multiple actions failure.\n" + e2.getMessage());
 		}
+		
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void RemoveRuleTest() {
+		final EnvironmentSharedStateAccess ss = context.mock(EnvironmentSharedStateAccess.class);
+		final StatefulKnowledgeSession session = context.mock(StatefulKnowledgeSession.class);
+		final EventBus e = context.mock(EventBus.class);
+		final KnowledgeBase base = context.mock(KnowledgeBase.class);
+		
+		final String packageName = "testPackage";
+		final String ruleName = "testRule";
+		
+		context.checking(new Expectations() {{
+			oneOf(e).subscribe(with(any(NomicService.class)));
+			oneOf(session).getKnowledgeBase(); will(returnValue(base));
+			oneOf(base).removeRule(packageName, ruleName);
+		}});
+		
+		NomicService service = new NomicService(ss, session, e);
+		service.RemoveRule(packageName, ruleName);
 		
 		context.assertIsSatisfied();
 	}

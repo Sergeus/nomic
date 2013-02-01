@@ -41,7 +41,7 @@ public class RuleChangeActionHandler implements ActionHandler {
 	public NomicService getNomicService() {
 		if (nomicService == null) {
 			try {
-				serviceProvider.getEnvironmentService(NomicService.class);
+				nomicService = serviceProvider.getEnvironmentService(NomicService.class);
 			} catch (UnavailableServiceException e) {
 				logger.warn("Unable to get NomicService.");
 			}
