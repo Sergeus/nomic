@@ -1,9 +1,12 @@
 package mock;
 
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
 import org.drools.KnowledgeBase;
 import org.drools.compiler.DroolsParserException;
+import org.drools.definition.KnowledgePackage;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -54,7 +57,9 @@ public class MockTest extends TestCase {
 		final KnowledgeBase base = context.mock(KnowledgeBase.class);
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(new Object());
+			oneOf(e).subscribe(with(any(NomicService.class)));
+			oneOf(session).getKnowledgeBase(); returnValue(base);
+			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
 		final NomicService service = new NomicService(ss, session, e);
@@ -64,11 +69,6 @@ public class MockTest extends TestCase {
 		} catch (DroolsParserException e1) {
 			fail("Rule was not parsed correctly.");
 		}
-		
-		context.checking(new Expectations() {{
-			oneOf(session).getKnowledgeBase(); returnValue(base);
-			oneOf(base).addKnowledgePackages(null);
-		}});
 		
 		context.assertIsSatisfied();
 	}
