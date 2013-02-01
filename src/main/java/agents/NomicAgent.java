@@ -9,6 +9,16 @@ import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 
 public class NomicAgent extends AbstractParticipant implements Agent {
 
+	private int SequentialID;
+	
+	public int getSequentialID() {
+		return SequentialID;
+	}
+
+	public void setSequentialID(int sequentialID) {
+		SequentialID = sequentialID;
+	}
+
 	public NomicAgent(UUID id, String name) {
 		super(id, name);
 		// TODO Auto-generated constructor stub
@@ -30,6 +40,7 @@ public class NomicAgent extends AbstractParticipant implements Agent {
 	@Override
 	public void incrementTime() {
 		System.out.println("Nomic says 'hi'.");
+		
 		super.incrementTime();
 	}
 	

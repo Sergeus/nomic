@@ -16,7 +16,6 @@ thumbs.db
 # Eclipse Files #
 #################
 *.pydevproject
-.project
 .metadata
 bin/**
 tmp/**
@@ -29,3 +28,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+
+# Presage2 Stuff #
+##################
+target/

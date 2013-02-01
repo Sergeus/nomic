@@ -1,0 +1,29 @@
+//created on: 31-Jan-2013
+package Rules
+
+//list any import classes here.
+import agents.NomicAgent;
+
+//declare any global variables here
+global org.apache.log4j.Logger logger
+global uk.ac.imperial.presage2.core.db.StorageService storage
+
+
+
+rule "Your First Rule"
+
+    when
+        $agent : NomicAgent( SequentialID == 2)
+    then
+        System.out.println("Found agent 2!");
+
+end
+
+rule "Your Second Rule"
+    //include attributes such as "salience" here...
+    when
+        //conditions
+    then
+        //actions
+
+end
