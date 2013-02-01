@@ -3,27 +3,37 @@ package Rules
 
 //list any import classes here.
 import agents.NomicAgent;
+import facts.*;
 
 //declare any global variables here
 global org.apache.log4j.Logger logger
 global uk.ac.imperial.presage2.core.db.StorageService storage
 
-
-
-rule "Your First Rule"
-
-    when
-        $agent : NomicAgent( SequentialID == 2)
-    then
-        System.out.println("Found agent 2!");
-
+query "GetAllAgents"
+	agent : NomicAgent( )
 end
 
-rule "Your Second Rule"
-    //include attributes such as "salience" here...
+rule "Agent addition"
     when
-        //conditions
+        $agent : NomicAgent( )
     then
-        //actions
+        System.out.println("Found an agent!");
+end
 
+rule "Discard old turns"
+	when
+		$t : Turn($n : number)
+		$t2 : Turn(number < $n)
+	then
+		logger.info($t);
+		retract($t2);
+end
+
+rule "Whose turn is it"
+	when
+		$agent : NomicAgent($ID : sequentialID)
+		$turn : Turn((number % 3) == ($ID))
+	then
+		logger.info("It's this guy's turn: " + $agent.getName());
+		$turn.ActivePlayer = $agent;
 end

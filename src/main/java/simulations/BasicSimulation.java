@@ -13,6 +13,7 @@ import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import services.NomicService;
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
@@ -62,6 +63,7 @@ public class BasicSimulation extends InjectedSimulation {
 		Set<AbstractModule> modules = new HashSet<AbstractModule>();
 		
 		modules.add(new AbstractEnvironmentModule()
+				.addParticipantGlobalEnvironmentService(NomicService.class)
 				.setStorage(RuleStorage.class));
 		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
