@@ -63,9 +63,9 @@ public class NomicServiceMockTest extends TestCase {
 		final KnowledgeBase base = context.mock(KnowledgeBase.class);
 		
 		context.checking(new Expectations() {{
-			exactly(2).of(e).subscribe(with(any(NomicService.class)));
-			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
-			exactly(2).of(base).addKnowledgePackages(with(any(Collection.class)));
+			exactly(3).of(e).subscribe(with(any(NomicService.class)));
+			exactly(3).of(session).getKnowledgeBase(); will(returnValue(base));
+			exactly(3).of(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
 		final NomicService service = new NomicService(ss, session, e);
@@ -84,7 +84,7 @@ public class NomicServiceMockTest extends TestCase {
 		try {
 			service.addRule(imports, ruleName, conditions, actions);
 		} catch (DroolsParserException e1) {
-			fail("Simple rule was not parsed directly.");
+			fail("Simple rule was not parsed directly." + e1.getMessage());
 		}
 		
 		conditions.add("$agent : NomicAgent(SequentialID == 2)");
@@ -92,7 +92,15 @@ public class NomicServiceMockTest extends TestCase {
 		try {
 			service.addRule(imports, ruleName, conditions, actions);
 		} catch (DroolsParserException e2) {
-			fail("Multiple condition failure.");
+			fail("Multiple condition failure.\n" + e2.getMessage());
+		}
+		
+		actions.add("System.out.println(\"Testing multiple actions\");");
+		
+		try {
+			service.addRule(imports, ruleName, conditions, actions);
+		} catch (DroolsParserException e2) {
+			fail("Multiple actions failure.\n" + e2.getMessage());
 		}
 		
 		context.assertIsSatisfied();
