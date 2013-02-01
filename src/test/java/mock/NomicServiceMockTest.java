@@ -19,6 +19,7 @@ import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 
+@SuppressWarnings("deprecation")
 @RunWith(JMock.class)
 public class NomicServiceMockTest extends TestCase {
 	Mockery context = new JUnit4Mockery();
