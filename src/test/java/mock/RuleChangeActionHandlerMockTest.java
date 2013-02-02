@@ -48,9 +48,9 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		Action genericAction = context.mock(Action.class);
 		
-		ProposeRuleAddition addition = new ProposeRuleAddition(0, mockAgent, newRule);
+		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
 		
-		ProposeRuleModification modification = new ProposeRuleModification(0, mockAgent, newRule, oldRuleName, oldRulePackage);
+		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
 		
 		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
 		
@@ -75,9 +75,9 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		final Action genericAction = context.mock(Action.class);
 		
-		final ProposeRuleAddition addition = new ProposeRuleAddition(0, mockAgent, newRule);
+		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
 		
-		final ProposeRuleModification modification = new ProposeRuleModification(0, mockAgent, newRule, oldRuleName, oldRulePackage);
+		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));

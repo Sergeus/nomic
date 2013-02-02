@@ -32,8 +32,10 @@ end
 rule "Whose turn is it"
 	when
 		$agent : NomicAgent($ID : sequentialID)
-		$turn : Turn((number % 3) == ($ID))
+		$turn : Turn((number % 3) == ($ID) && activePlayer != $agent)
 	then
 		logger.info("It's this guy's turn: " + $agent.getName());
-		$turn.ActivePlayer = $agent;
+		modify ($turn) {
+			setActivePlayer($agent)
+		};
 end

@@ -8,8 +8,7 @@ public class ProposeRuleAddition extends ProposeRuleChange {
 	
 	String newRule;
 	
-	public ProposeRuleAddition(int t, NomicAgent agent, String newRule) {
-		super(t);
+	public ProposeRuleAddition(NomicAgent agent, String newRule) {
 		this.agent = agent;
 		this.newRule = newRule;
 		Type = RuleChangeType.ADDITION;

@@ -3,18 +3,18 @@ package services;
 import java.io.StringReader;
 import java.util.Collection;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import org.apache.log4j.Logger;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.DroolsParserException;
 import org.drools.definition.KnowledgePackage;
+import org.drools.definition.rule.Rule;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.QueryResults;
+import org.mvel2.sh.command.basic.Set;
 
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
@@ -22,6 +22,7 @@ import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
+import uk.ac.imperial.presage2.core.util.random.Random;
 import agents.NomicAgent;
 
 import com.google.inject.Inject;
@@ -34,11 +35,11 @@ public class NomicService extends EnvironmentService {
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
 	StatefulKnowledgeSession session;
-	
-	TurnType Turn = enums.TurnType.INIT;
 	int TurnNumber = 0;
 	
 	Turn CurrentTurn;
+	
+	NomicAgent placeHolderAgent = new NomicAgent(Random.randomUUID(), "placeholder");
 	
 	@Inject
 	public NomicService(EnvironmentSharedStateAccess sharedState,
@@ -46,16 +47,18 @@ public class NomicService extends EnvironmentService {
 		super(sharedState);
 		this.session = session;
 		e.subscribe(this);
+		CurrentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 	}
 	
 	@EventListener
 	public void onIncrementTime(EndOfTimeCycle e) {
-		if (Turn != TurnType.PROPOSE) {
-			Turn = TurnType.PROPOSE;
+		if (CurrentTurn.getType() != TurnType.PROPOSE) {
+			CurrentTurn.setType(TurnType.PROPOSE);
 		}
-		CurrentTurn = new Turn(++TurnNumber, Turn);
+		
+		CurrentTurn = new Turn(++TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
 		session.insert(CurrentTurn);
-		logger.info("Next turn: " + TurnNumber + ", " + Turn);
+		logger.info("Next turn: " + CurrentTurn.getNumber() + ", " + CurrentTurn.getType());
 	}
 	
 	@Override
@@ -64,7 +67,8 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public boolean isMyTurn(NomicAgent agent) {
-		return CurrentTurn.ActivePlayer == agent;
+		return CurrentTurn.getType() != TurnType.INIT &&
+				CurrentTurn.getActivePlayer().getID() == agent.getID();
 	}
 	
 	public QueryResults query(String query, NomicAgent agent) {
@@ -73,6 +77,7 @@ public class NomicService extends EnvironmentService {
 	
 	public void RemoveRule(String packageName, String ruleName) {
 		session.getKnowledgeBase().removeRule(packageName, ruleName);
+		session.fireAllRules();
 	}
 	
 	public void addRule(Collection<String> imports, String ruleName,
@@ -117,5 +122,26 @@ public class NomicService extends EnvironmentService {
 		Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
 		
 		session.getKnowledgeBase().addKnowledgePackages(packages);
+	}
+	
+	public Collection<Rule> getRules() {
+		Collection<KnowledgePackage> packages = session.getKnowledgeBase().getKnowledgePackages();
+		
+		Collection<Rule> rules = null;
+		
+		for (KnowledgePackage pack : packages) {
+			if (rules == null) {
+				rules = pack.getRules();
+			}
+			else {
+				rules.addAll(pack.getRules());
+			}
+		}
+		
+		return rules;
+	}
+	
+	public int getTurnNumber() {
+		return CurrentTurn.getNumber();
 	}
 }

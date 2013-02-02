@@ -58,6 +58,8 @@ public class RuleChangeActionHandler implements ActionHandler {
 	public Input handle(Action action, UUID actor)
 			throws ActionHandlingException {
 		
+		logger.info("Handling action: " + action);
+		
 		NomicService service = getNomicService();
 		
 		try {
@@ -66,6 +68,8 @@ public class RuleChangeActionHandler implements ActionHandler {
 			if (change == RuleChangeType.MODIFICATION) {
 				ProposeRuleModification ruleMod = (ProposeRuleModification)action;
 				try {
+					logger.info("Modifying rule \'" + ruleMod.getOldRuleName()
+							+ "\'");
 					service.addRule(ruleMod.getNewRule());
 					service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 				} catch (DroolsParserException e) {

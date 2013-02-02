@@ -13,9 +13,8 @@ public class ProposeRuleModification extends ProposeRuleChange implements Action
 	
 	String oldRulePackage;
 
-	public ProposeRuleModification(int t, NomicAgent agent, 
+	public ProposeRuleModification(NomicAgent agent, 
 			String newRule, String oldRuleName, String oldRulePackage) {
-		super(t);
 		this.agent = agent;
 		this.newRule = newRule;
 		this.oldRuleName = oldRuleName;

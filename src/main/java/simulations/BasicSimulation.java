@@ -22,6 +22,7 @@ import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
+import actionHandlers.RuleChangeActionHandler;
 import agents.NomicAgent;
 
 import com.google.inject.AbstractModule;
@@ -64,6 +65,7 @@ public class BasicSimulation extends InjectedSimulation {
 		
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
+				.addActionHandler(RuleChangeActionHandler.class)
 				.setStorage(RuleStorage.class));
 		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
