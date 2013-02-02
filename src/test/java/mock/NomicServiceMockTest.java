@@ -121,6 +121,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(packageName, ruleName);
+			oneOf(session).fireAllRules();
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
