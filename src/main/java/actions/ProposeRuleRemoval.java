@@ -1,8 +1,9 @@
 package actions;
 
+import enums.RuleChangeType;
 import agents.NomicAgent;
 
-public class ProposeRuleRemoval extends TimeStampedAction {
+public class ProposeRuleRemoval extends ProposeRuleChange {
 	NomicAgent agent;
 	
 	String oldRuleName, oldRulePackage;
@@ -11,6 +12,7 @@ public class ProposeRuleRemoval extends TimeStampedAction {
 		this.agent = agent;
 		this.oldRuleName = oldRuleName;
 		this.oldRulePackage = oldRulePackage;
+		this.Type = RuleChangeType.REMOVAL;
 	}
 
 	public NomicAgent getAgent() {
