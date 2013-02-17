@@ -77,6 +77,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		final ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, RemoveRuleName, RemoveRulePackage);
 		
 		context.checking(new Expectations() {{
+			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).RemoveRule(RemoveRulePackage, RemoveRuleName);
 			oneOf(session).insert(removal);
 		}});
@@ -109,6 +110,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
 		
 		context.checking(new Expectations() {{
+			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).RemoveRule(oldRulePackage, oldRuleName);
 			oneOf(service).addRule(newRule);
 			oneOf(session).insert(modification);
@@ -155,8 +157,14 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	}
 	
 	@Test
-	public void handleBadlyFormattedActionTest() {
+	public void handleBadlyFormattedActionTest() throws UnavailableServiceException {
 		final Action genericAction = context.mock(Action.class);
+		
+		final NomicService service = context.mock(NomicService.class);
+		
+		context.checking(new Expectations() {{
+			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
+		}});
 		
 		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
 		
