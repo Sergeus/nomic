@@ -158,6 +158,8 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	
 	@Test
 	public void handleBadlyFormattedActionTest() throws UnavailableServiceException {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		
 		final Action genericAction = context.mock(Action.class);
 		
 		final NomicService service = context.mock(NomicService.class);
