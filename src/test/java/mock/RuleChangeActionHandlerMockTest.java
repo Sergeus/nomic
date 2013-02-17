@@ -35,6 +35,8 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	final EventBus e = context.mock(EventBus.class);
 	final EnvironmentSharedStateAccess sharedState = context.mock(EnvironmentSharedStateAccess.class);
 	
+	
+	
 	@Test
 	public void canHandleTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -61,7 +63,37 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	}
 	
 	@Test
-	public void handleTest() throws DroolsParserException, UnavailableServiceException {
+	public void handleRemovalTest() throws DroolsParserException, UnavailableServiceException {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		
+		final NomicService service = context.mock(NomicService.class);
+		
+		NomicAgent mockAgent = context.mock(NomicAgent.class);
+		
+		final String RemoveRuleName = "Removed Rule";
+		
+		final String RemoveRulePackage = "Removed Rule Package";
+		
+		final ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, RemoveRuleName, RemoveRulePackage);
+		
+		context.checking(new Expectations() {{
+			oneOf(service).RemoveRule(RemoveRulePackage, RemoveRuleName);
+			oneOf(session).insert(removal);
+		}});
+		
+		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		
+		try {
+			handler.handle(removal, Random.randomUUID());
+		} catch (ActionHandlingException e) {
+			fail("Failed to handle rule removal");
+		}
+		
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void handleModificationTest() throws DroolsParserException, UnavailableServiceException {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final NomicService service = context.mock(NomicService.class);
@@ -74,17 +106,36 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		final String oldRulePackage = "Old rule package";
 		
-		final String RemoveRuleName = "Removed Rule";
-		
-		final String RemoveRulePackage = "Removed Rule Package";
-		
-		final Action genericAction = context.mock(Action.class);
-		
-		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
-		
 		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
 		
-		final ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, RemoveRuleName, RemoveRulePackage);
+		context.checking(new Expectations() {{
+			oneOf(service).RemoveRule(oldRulePackage, oldRuleName);
+			oneOf(service).addRule(newRule);
+			oneOf(session).insert(modification);
+		}});
+		
+		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		
+		try {
+			handler.handle(modification, Random.randomUUID());
+		} catch (ActionHandlingException e) {
+			fail("Failed to handle rule modification");
+		}
+		
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void handleAdditionTest() throws DroolsParserException, UnavailableServiceException {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		
+		final NomicService service = context.mock(NomicService.class);
+		
+		NomicAgent mockAgent = context.mock(NomicAgent.class);
+		
+		final String newRule = "Test rule";
+		
+		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
@@ -100,34 +151,20 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			fail("Failed to handle rule addition.");
 		}
 		
-		context.checking(new Expectations() {{
-			oneOf(service).RemoveRule(oldRulePackage, oldRuleName);
-			oneOf(service).addRule(newRule);
-			oneOf(session).insert(modification);
-		}});
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void handleBadlyFormattedActionTest() {
+		final Action genericAction = context.mock(Action.class);
 		
-		try {
-			handler.handle(modification, Random.randomUUID());
-		} catch (ActionHandlingException e) {
-			fail("Failed to handle rule modification");
-		}
+		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
 		
 		try {
 			handler.handle(genericAction, Random.randomUUID());
 			fail("Ate wrongly formatted action.");
 		} catch (ActionHandlingException e) {
 			
-		}
-		
-		context.checking(new Expectations() {{
-			oneOf(service).RemoveRule(RemoveRulePackage, RemoveRuleName);
-			oneOf(session).insert(removal);
-		}});
-		
-		try {
-			handler.handle(removal, Random.randomUUID());
-		} catch (ActionHandlingException e) {
-			fail("Failed to handle rule removal");
 		}
 		
 		context.assertIsSatisfied();
