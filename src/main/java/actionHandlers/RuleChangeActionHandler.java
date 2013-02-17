@@ -16,8 +16,8 @@ import uk.ac.imperial.presage2.core.messaging.Input;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
+import actions.ProposeRuleRemoval;
 
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.google.inject.Inject;
 
 import enums.RuleChangeType;
@@ -83,6 +83,10 @@ public class RuleChangeActionHandler implements ActionHandler {
 				} catch (DroolsParserException e) {
 					logger.warn("Unable to parse new rule.", e);
 				}
+			}
+			else if (change == RuleChangeType.REMOVAL) {
+				ProposeRuleRemoval ruleMod = (ProposeRuleRemoval)action;
+				service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 			}
 			
 			session.insert(action);

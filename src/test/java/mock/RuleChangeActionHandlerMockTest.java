@@ -23,6 +23,7 @@ import uk.ac.imperial.presage2.core.util.random.Random;
 import actionHandlers.RuleChangeActionHandler;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleModification;
+import actions.ProposeRuleRemoval;
 import agents.NomicAgent;
 
 @RunWith(JMock.class)
@@ -73,11 +74,17 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		final String oldRulePackage = "Old rule package";
 		
+		final String RemoveRuleName = "Removed Rule";
+		
+		final String RemoveRulePackage = "Removed Rule Package";
+		
 		final Action genericAction = context.mock(Action.class);
 		
 		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
 		
 		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
+		
+		final ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, RemoveRuleName, RemoveRulePackage);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
@@ -110,6 +117,17 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			fail("Ate wrongly formatted action.");
 		} catch (ActionHandlingException e) {
 			
+		}
+		
+		context.checking(new Expectations() {{
+			oneOf(service).RemoveRule(RemoveRulePackage, RemoveRuleName);
+			oneOf(session).insert(removal);
+		}});
+		
+		try {
+			handler.handle(removal, Random.randomUUID());
+		} catch (ActionHandlingException e) {
+			fail("Failed to handle rule removal");
 		}
 		
 		context.assertIsSatisfied();
