@@ -81,6 +81,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
+			oneOf(service).getTurnNumber();
 			oneOf(session).insert(removal);
 		}});
 		
@@ -113,6 +114,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
+			oneOf(service).getTurnNumber();
 			oneOf(session).insert(modification);
 		}});
 		
@@ -141,6 +143,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
+			oneOf(service).getTurnNumber();
 			oneOf(session).insert(addition);
 		}});
 		
