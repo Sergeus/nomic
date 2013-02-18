@@ -9,11 +9,10 @@ import uk.ac.imperial.presage2.core.util.random.Random;
 import agents.NomicAgent;
 
 public class NomicAgentTest {
-
 	@Test
-	public void test() {
+	public void ChooseVoteTest() {
 		NomicAgent agent = new NomicAgent(Random.randomUUID(), "testAgent");
 		
-		assertTrue(agent.UnitTestTest() == 2);
+		assertTrue(agent.chooseVote().getClass().isEnum());
 	}
 }

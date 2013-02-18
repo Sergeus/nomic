@@ -124,15 +124,11 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
-	public int UnitTestTest() {
-		return 2;
-	}
-	
 	public int getSequentialID() {
 		return SequentialID;
 	}
 	
-	private VoteType chooseVote() {
+	public VoteType chooseVote() {
 		Random rand = new Random();
 		if (rand.nextBoolean()) {
 			return VoteType.YES;
