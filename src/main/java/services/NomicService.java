@@ -22,8 +22,6 @@ import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
 import uk.ac.imperial.presage2.core.util.random.Random;
-import Exceptions.InvalidRuleProposalException;
-import Exceptions.NoExistentRuleChangeException;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
@@ -35,6 +33,8 @@ import com.google.inject.Inject;
 
 import enums.RuleChangeType;
 import enums.TurnType;
+import exceptions.InvalidRuleProposalException;
+import exceptions.NoExistentRuleChangeException;
 import facts.Turn;
 
 public class NomicService extends EnvironmentService {
@@ -80,8 +80,11 @@ public class NomicService extends EnvironmentService {
 			CurrentTurn = new Turn(++TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
 		}
 		else if (CurrentTurn.getType() == TurnType.VOTE) {
-			if (allVoted()) {
+			if (CurrentTurn.isAllVoted()) {
 				VotedThisTurn.clear();
+				if (currentRuleChange.getSucceeded()) {
+					ApplyRuleChange(currentRuleChange);
+				}
 				currentRuleChange = null;
 				CurrentTurn.setType(TurnType.PROPOSE);
 				CurrentTurn = new Turn(++TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);

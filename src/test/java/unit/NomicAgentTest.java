@@ -1,11 +1,11 @@
 package unit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import uk.ac.imperial.presage2.core.util.random.Random;
-
+import actions.ProposeRuleAddition;
 import agents.NomicAgent;
 
 public class NomicAgentTest {
@@ -13,6 +13,8 @@ public class NomicAgentTest {
 	public void ChooseVoteTest() {
 		NomicAgent agent = new NomicAgent(Random.randomUUID(), "testAgent");
 		
-		assertTrue(agent.chooseVote().getClass().isEnum());
+		ProposeRuleAddition ruleChange = new ProposeRuleAddition(agent, "Test Rule");
+		
+		assertTrue(agent.chooseVote(ruleChange).getClass().isEnum());
 	}
 }

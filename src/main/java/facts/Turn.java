@@ -9,12 +9,15 @@ public class Turn {
 	public TurnType type;
 	
 	public NomicAgent activePlayer;
+	
+	public boolean allVoted;
 
 	public Turn(int number, TurnType type, NomicAgent activePlayer) {
 		super();
 		this.number = number;
 		this.type = type;
 		this.activePlayer = activePlayer;
+		allVoted = false;
 	}
 
 	public int getNumber() {
@@ -37,6 +40,14 @@ public class Turn {
 		return activePlayer;
 	}
 	
+	public boolean isAllVoted() {
+		return allVoted;
+	}
+
+	public void setAllVoted(boolean allVoted) {
+		this.allVoted = allVoted;
+	}
+
 	public void setActivePlayer(NomicAgent activePlayer) {
 		System.out.println("Turn changing active player from " + this.activePlayer
 				+ " to " + activePlayer);

@@ -20,13 +20,13 @@ import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
-import Exceptions.InvalidRuleProposalException;
-import Exceptions.NoExistentRuleChangeException;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
 import agents.NomicAgent;
+import exceptions.InvalidRuleProposalException;
+import exceptions.NoExistentRuleChangeException;
 import facts.Turn;
 
 @SuppressWarnings("deprecation")

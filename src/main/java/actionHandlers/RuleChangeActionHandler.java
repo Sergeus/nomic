@@ -13,7 +13,6 @@ import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
-import Exceptions.InvalidRuleProposalException;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
@@ -23,6 +22,7 @@ import actions.TimeStampedAction;
 import com.google.inject.Inject;
 
 import enums.RuleChangeType;
+import exceptions.InvalidRuleProposalException;
 
 public class RuleChangeActionHandler implements ActionHandler {
 	

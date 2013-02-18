@@ -13,9 +13,12 @@ import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
+import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
+import actions.ProposeRuleRemoval;
 import actions.Vote;
 import enums.VoteType;
+import exceptions.NoExistentRuleChangeException;
 
 public class NomicAgent extends AbstractParticipant {
 
@@ -71,7 +74,11 @@ public class NomicAgent extends AbstractParticipant {
 			doRuleChanges();
 		}
 		else if (nomicService.canVoteNow(this)) {
-			doVoting();
+			try {
+				doVoting();
+			} catch (NoExistentRuleChangeException e) {
+				logger.warn("Even though I can vote now, there is no rule to change.");
+			}
 		}
 		else {
 			logger.info("I've decided to do nothing this turn.");
@@ -85,6 +92,7 @@ public class NomicAgent extends AbstractParticipant {
 		Collection<Rule> rules= nomicService.getRules();
 		
 		String oldRuleName = "Whose turn is it";
+		String newRuleName = "Whose backwards turn is it";
 		boolean success = false;
 		for (Rule rule : rules) {
 			if (rule.getName().compareTo(oldRuleName) == 0) {
@@ -92,7 +100,7 @@ public class NomicAgent extends AbstractParticipant {
 						new ProposeRuleModification(this, 
 								ReverseOrderRule, oldRuleName, rule.getPackageName());
 				
-				logger.info("Modifying turn order!");
+				logger.info("Proposing turn order modification.");
 				
 				try {
 					environment.act(ruleMod, getID(), authkey);
@@ -101,6 +109,9 @@ public class NomicAgent extends AbstractParticipant {
 					logger.info("Failed to modify rule.", e);
 				}
 			}
+			if (rule.getName().compareTo(newRuleName) == 0) {
+				
+			}
 		}
 		
 		if (!success) {
@@ -108,8 +119,10 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
-	private void doVoting() {
-		Vote vote = new Vote(this, chooseVote());
+	private void doVoting() throws NoExistentRuleChangeException {
+		ProposeRuleChange ruleChange = nomicService.getCurrentRuleChange();
+		
+		Vote vote = new Vote(this, chooseVote(ruleChange));
 		boolean success = false;
 		try {
 			environment.act(vote, getID(), authkey);
@@ -128,13 +141,21 @@ public class NomicAgent extends AbstractParticipant {
 		return SequentialID;
 	}
 	
-	public VoteType chooseVote() {
-		Random rand = new Random();
-		if (rand.nextBoolean()) {
-			return VoteType.YES;
+	public VoteType chooseVote(ProposeRuleChange ruleChange) {
+		if (ruleChange instanceof ProposeRuleModification) {
+			if (SequentialID == 0)
+				return VoteType.NO;
+			else
+				return VoteType.YES;
 		}
 		else {
-			return VoteType.NO;
+			Random rand = new Random();
+			if (rand.nextBoolean()) {
+				return VoteType.YES;
+			}
+			else {
+				return VoteType.NO;
+			}
 		}
 	}
 

@@ -5,6 +5,7 @@ package Rules
 import agents.NomicAgent;
 import actions.Vote;
 import actions.ProposeRuleChange;
+import enums.VoteType;
 import facts.*;
 
 //declare any global variables here
@@ -14,7 +15,7 @@ global uk.ac.imperial.presage2.core.db.StorageService storage
 rule "First agent found"
     when
         $agent : NomicAgent( )
-        not $n : NomicNumber( )
+        not $n : NomicNumber(attribute.compareTo("numberOfAgents") == 0)
     then
         System.out.println("The first agent!");
         insert(new NomicNumber(1, "numberOfAgents"));
@@ -51,7 +52,7 @@ rule "Whose turn is it"
 			setActivePlayer($agent)
 		};
 end
-
+/*
 rule "Casting Vote"
 	when
 		$vote : Vote($turnNumber : t, $name : Voter.getName(), $type : Vote)
@@ -61,4 +62,40 @@ rule "Casting Vote"
 		logger.info($name + " has voted " + $type + ".");
 		logger.info("This is concerning proposed change: " + $ruleChange.getRuleChangeType() 
 			+ " from turn " + $ruleChange.getT());
+end
+*/
+rule "Unanimous votes succeed for first two rounds"
+	when
+		$vote : Vote($turnNumber : t, vote == VoteType.YES)
+		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
+		$agents : NomicNumber(attribute.compareTo("numberOfAgents") == 0, number == $n.intValue())
+		$turn : Turn(number == $turnNumber, $turnNumber < ($agents.getNumber() * 2))
+		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false)
+	then
+		modify($ruleChange) {
+			setSucceeded(true);
+		};
+end
+
+rule "Majority votes succeed after second round"
+	when
+		$vote : Vote($turnNumber : t, vote == VoteType.YES)
+		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
+		$agents : NomicNumber(attribute.compareTo("numberOfAgents") == 0, number > ($n.intValue() / 2))
+		$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.getNumber() * 2))
+		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false)
+	then
+		modify($ruleChange) {
+			setSucceeded(true);
+		};
+end
+
+rule "All Agents Must Vote"
+	when
+		$turn : Turn($turnNumber : number, allVoted == false)
+		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber) count( $sgc ) )
+	then
+		modify($turn) {
+			setAllVoted(true);
+		};
 end
