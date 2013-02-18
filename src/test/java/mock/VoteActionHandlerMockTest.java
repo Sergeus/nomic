@@ -71,6 +71,7 @@ public class VoteActionHandlerMockTest extends TestCase {
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); 
 			will(returnValue(service));
 			oneOf(service).Vote(yes);
+			oneOf(service).getTurnNumber();
 			oneOf(session).insert(yes);
 		}});
 		
@@ -84,6 +85,7 @@ public class VoteActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(service).Vote(no);
+			oneOf(service).getTurnNumber();
 			oneOf(session).insert(no);
 		}});
 		
