@@ -1,16 +1,8 @@
 package simulations;
 
-import java.io.StringReader;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.builder.ResourceType;
-import org.drools.definition.KnowledgePackage;
-import org.drools.io.Resource;
-import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import services.NomicService;
@@ -23,6 +15,7 @@ import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
 import actionHandlers.RuleChangeActionHandler;
+import actionHandlers.VoteActionHandler;
 import agents.NomicAgent;
 
 import com.google.inject.AbstractModule;
@@ -66,6 +59,7 @@ public class BasicSimulation extends InjectedSimulation {
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
 				.addActionHandler(RuleChangeActionHandler.class)
+				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));
 		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));

@@ -1,6 +1,7 @@
 package agents;
 
 import java.util.Collection;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeRuleModification;
+import actions.Vote;
+import enums.VoteType;
 
 public class NomicAgent extends AbstractParticipant {
 
@@ -64,38 +67,61 @@ public class NomicAgent extends AbstractParticipant {
 	
 	@Override
 	public void incrementTime() {
-		if (nomicService.isMyTurn(this) && nomicService.getTurnNumber() > 5) {
-			logger.info("It's my turn!");
-			
-			Collection<Rule> rules= nomicService.getRules();
-			
-			String oldRuleName = "Whose turn is it";
-			boolean success = false;
-			for (Rule rule : rules) {
-				if (rule.getName().compareTo(oldRuleName) == 0) {
-					ProposeRuleModification ruleMod = 
-							new ProposeRuleModification(this, 
-									ReverseOrderRule, oldRuleName, rule.getPackageName());
-					
-					logger.info("Modifying turn order!");
-					
-					try {
-						environment.act(ruleMod, getID(), authkey);
-						success = true;
-					} catch (ActionHandlingException e) {
-						logger.info("Failed to modify rule.", e);
-					}
-				}
-			}
-			
-			if (!success) {
-				logger.info("No rule changes from me.");
-			}
+		if (nomicService.canProposeNow(this)) {
+			doRuleChanges();
+		}
+		else if (nomicService.canVoteNow(this)) {
+			doVoting();
 		}
 		else {
 			logger.info("I've decided to do nothing this turn.");
 		}
 		super.incrementTime();
+	}
+	
+	private void doRuleChanges() {
+		logger.info("It's my turn!");
+		
+		Collection<Rule> rules= nomicService.getRules();
+		
+		String oldRuleName = "Whose turn is it";
+		boolean success = false;
+		for (Rule rule : rules) {
+			if (rule.getName().compareTo(oldRuleName) == 0) {
+				ProposeRuleModification ruleMod = 
+						new ProposeRuleModification(this, 
+								ReverseOrderRule, oldRuleName, rule.getPackageName());
+				
+				logger.info("Modifying turn order!");
+				
+				try {
+					environment.act(ruleMod, getID(), authkey);
+					success = true;
+				} catch (ActionHandlingException e) {
+					logger.info("Failed to modify rule.", e);
+				}
+			}
+		}
+		
+		if (!success) {
+			logger.info("No rule changes from me.");
+		}
+	}
+	
+	private void doVoting() {
+		Vote vote = new Vote(this, chooseVote());
+		boolean success = false;
+		try {
+			environment.act(vote, getID(), authkey);
+			success = true;
+		} catch (ActionHandlingException e) {
+			logger.warn("My attempt to vote " + vote.getVote() + " has failed.");
+			e.printStackTrace();
+		}
+		
+		if (success) {
+			logger.info("I am voting " + vote.getVote() + " for this rule change.");
+		}
 	}
 	
 	public int UnitTestTest() {
@@ -104,6 +130,16 @@ public class NomicAgent extends AbstractParticipant {
 	
 	public int getSequentialID() {
 		return SequentialID;
+	}
+	
+	private VoteType chooseVote() {
+		Random rand = new Random();
+		if (rand.nextBoolean()) {
+			return VoteType.YES;
+		}
+		else {
+			return VoteType.NO;
+		}
 	}
 
 	public void setSequentialID(int sequentialID) {

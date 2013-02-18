@@ -13,10 +13,12 @@ import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
+import Exceptions.InvalidRuleProposalException;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
+import actions.TimeStampedAction;
 
 import com.google.inject.Inject;
 
@@ -62,36 +64,19 @@ public class RuleChangeActionHandler implements ActionHandler {
 		
 		NomicService service = getNomicService();
 		
+		if (action instanceof TimeStampedAction) {
+			((TimeStampedAction) action).setT(service.getTurnNumber());
+		}
+		
 		try {
-			RuleChangeType change = ((ProposeRuleChange)action).getRuleChangeType();
-			
-			if (change == RuleChangeType.MODIFICATION) {
-				ProposeRuleModification ruleMod = (ProposeRuleModification)action;
-				try {
-					logger.info("Modifying rule \'" + ruleMod.getOldRuleName()
-							+ "\'");
-					service.addRule(ruleMod.getNewRule());
-					service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
-				} catch (DroolsParserException e) {
-					logger.warn("Unable to parse new version of existing rule.", e);
-				}
-			}
-			else if (change == RuleChangeType.ADDITION) {
-				ProposeRuleAddition ruleMod = (ProposeRuleAddition)action;
-				try {
-					service.addRule(ruleMod.getNewRule());
-				} catch (DroolsParserException e) {
-					logger.warn("Unable to parse new rule.", e);
-				}
-			}
-			else if (change == RuleChangeType.REMOVAL) {
-				ProposeRuleRemoval ruleMod = (ProposeRuleRemoval)action;
-				service.RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
-			}
+			service.ProposeRuleChange((ProposeRuleChange)action);
 			
 			session.insert(action);
 		} catch(ClassCastException e) {
 			throw new ActionHandlingException("Supplied action is the wrong class." + e.getMessage());
+		} catch(InvalidRuleProposalException e) {
+			throw new ActionHandlingException("It is not time to propose rule changes now.\n" 
+					+ e.getMessage());
 		}
 		return null;
 	}

@@ -55,10 +55,13 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
 		
+		ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, oldRuleName, oldRulePackage);
+		
 		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
 		
 		assertTrue(handler.canHandle(addition));
 		assertTrue(handler.canHandle(modification));
+		assertTrue(handler.canHandle(removal));
 		assertFalse(handler.canHandle(genericAction));
 	}
 	
@@ -78,7 +81,6 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
-			oneOf(service).RemoveRule(RemoveRulePackage, RemoveRuleName);
 			oneOf(session).insert(removal);
 		}});
 		
@@ -111,8 +113,6 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
-			oneOf(service).RemoveRule(oldRulePackage, oldRuleName);
-			oneOf(service).addRule(newRule);
 			oneOf(session).insert(modification);
 		}});
 		
@@ -141,7 +141,6 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
-			oneOf(service).addRule(newRule);
 			oneOf(session).insert(addition);
 		}});
 		

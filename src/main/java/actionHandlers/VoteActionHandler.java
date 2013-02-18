@@ -12,6 +12,7 @@ import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
+import actions.TimeStampedAction;
 import actions.Vote;
 
 import com.google.inject.Inject;
@@ -51,7 +52,22 @@ public class VoteActionHandler implements ActionHandler {
 	@Override
 	public Input handle(Action action, UUID actor)
 			throws ActionHandlingException {
-		// TODO Auto-generated method stub
+		logger.info("Handling action " + action);
+		
+		NomicService service = getNomicService();
+		
+		if (action instanceof TimeStampedAction) {
+			((TimeStampedAction) action).setT(service.getTurnNumber());
+		}
+		
+		try {
+			Vote vote = (Vote)action;
+			service.Vote(vote);
+			session.insert(vote);
+		} catch(ClassCastException e) {
+			throw new ActionHandlingException("Supplied action is the wrong class." + e.getMessage());
+		}
+		
 		return null;
 	}
 

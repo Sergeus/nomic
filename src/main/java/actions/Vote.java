@@ -8,7 +8,7 @@ public class Vote extends TimeStampedAction {
 	
 	protected VoteType Vote;
 	
-	protected Vote(NomicAgent voter, VoteType vote) {
+	public Vote(NomicAgent voter, VoteType vote) {
 		Voter = voter;
 		
 		Vote = vote;
