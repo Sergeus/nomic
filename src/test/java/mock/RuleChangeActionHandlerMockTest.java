@@ -20,6 +20,7 @@ import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.util.random.Random;
+import Exceptions.InvalidRuleProposalException;
 import actionHandlers.RuleChangeActionHandler;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleModification;
@@ -66,7 +67,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	}
 	
 	@Test
-	public void handleRemovalTest() throws DroolsParserException, UnavailableServiceException {
+	public void handleRemovalTest() throws DroolsParserException, UnavailableServiceException, InvalidRuleProposalException {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final NomicService service = context.mock(NomicService.class);
@@ -82,6 +83,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).ProposeRuleChange(removal);
 			oneOf(session).insert(removal);
 		}});
 		
@@ -97,7 +99,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	}
 	
 	@Test
-	public void handleModificationTest() throws DroolsParserException, UnavailableServiceException {
+	public void handleModificationTest() throws DroolsParserException, UnavailableServiceException, InvalidRuleProposalException {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final NomicService service = context.mock(NomicService.class);
@@ -115,6 +117,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).ProposeRuleChange(modification);
 			oneOf(session).insert(modification);
 		}});
 		
@@ -130,7 +133,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 	}
 	
 	@Test
-	public void handleAdditionTest() throws DroolsParserException, UnavailableServiceException {
+	public void handleAdditionTest() throws DroolsParserException, UnavailableServiceException, InvalidRuleProposalException {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final NomicService service = context.mock(NomicService.class);
@@ -144,6 +147,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).ProposeRuleChange(addition);
 			oneOf(session).insert(addition);
 		}});
 		
