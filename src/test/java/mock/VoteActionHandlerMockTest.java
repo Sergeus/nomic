@@ -24,7 +24,6 @@ import actions.Vote;
 import agents.NomicAgent;
 import enums.VoteType;
 
-@SuppressWarnings("deprecation")
 @RunWith(JMock.class)
 public class VoteActionHandlerMockTest extends TestCase {
 	Mockery context = new JUnit4Mockery();

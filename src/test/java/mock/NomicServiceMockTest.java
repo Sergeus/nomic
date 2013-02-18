@@ -29,7 +29,6 @@ import exceptions.InvalidRuleProposalException;
 import exceptions.NoExistentRuleChangeException;
 import facts.Turn;
 
-@SuppressWarnings("deprecation")
 @RunWith(JMock.class)
 public class NomicServiceMockTest extends TestCase {
 	Mockery context = new JUnit4Mockery();
