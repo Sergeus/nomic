@@ -19,10 +19,15 @@ import org.junit.runner.RunWith;
 import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
+import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
+import Exceptions.InvalidRuleProposalException;
+import Exceptions.NoExistentRuleChangeException;
 import actions.ProposeRuleAddition;
+import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
 import agents.NomicAgent;
+import facts.Turn;
 
 @SuppressWarnings("deprecation")
 @RunWith(JMock.class)
@@ -174,6 +179,76 @@ public class NomicServiceMockTest extends TestCase {
 		}});
 		
 		service.ApplyRuleChange(modification);
+		
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void ProposeRuleChangeTest() {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		
+		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
+		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		
+		context.checking(new Expectations() {{
+			oneOf(e).subscribe(with(any(NomicService.class)));
+			oneOf(session).insert(with(any(Turn.class)));
+		}});
+		
+		NomicService service = new NomicService(ss, session, e);
+		
+		try {
+			service.ProposeRuleChange(ruleChange);
+			fail("Allowed rule change proposal when it wasn't proposition stage of turn");
+		} catch (InvalidRuleProposalException e) {
+			
+		}
+		
+		service.onIncrementTime(cycle);
+		
+		try {
+			service.ProposeRuleChange(ruleChange);
+		} catch (InvalidRuleProposalException e) {
+			fail("Refused rule proposal during valid turn stage");
+		}
+		
+		context.assertIsSatisfied();
+	}
+	
+	@Test
+	public void GetProposedRuleChangeTest() {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		
+		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
+		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		
+		context.checking(new Expectations() {{
+			oneOf(e).subscribe(with(any(NomicService.class)));
+			oneOf(session).insert(with(any(Turn.class)));
+		}});
+		
+		NomicService service = new NomicService(ss, session, e);
+		
+		try {
+			service.getCurrentRuleChange();
+			fail("Returned when there was no valid rule change");
+		} catch (NoExistentRuleChangeException e) {
+			
+		}
+		
+		service.onIncrementTime(cycle);
+		
+		try {
+			service.ProposeRuleChange(ruleChange);
+		} catch (InvalidRuleProposalException e) {
+			fail("Refused rule proposal during valid turn stage");
+		}
+		
+		try {
+			assertTrue(service.getCurrentRuleChange() == ruleChange);
+		} catch (NoExistentRuleChangeException e1) {
+			fail("Failed to return a rule change after it was set");
+		}
 		
 		context.assertIsSatisfied();
 	}
