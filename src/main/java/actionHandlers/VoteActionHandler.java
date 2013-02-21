@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 public class VoteActionHandler implements ActionHandler {
 
 	final StatefulKnowledgeSession session;
-	private final Logger logger = Logger.getLogger(RuleChangeActionHandler.class);
+	private final Logger logger = Logger.getLogger(ProposeRuleChangeActionHandler.class);
 	final EnvironmentServiceProvider serviceProvider;
 	
 	NomicService nomicService;

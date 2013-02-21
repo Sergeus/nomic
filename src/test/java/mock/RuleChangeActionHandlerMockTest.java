@@ -22,7 +22,7 @@ import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.util.random.Random;
-import actionHandlers.RuleChangeActionHandler;
+import actionHandlers.ProposeRuleChangeActionHandler;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
@@ -59,7 +59,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, oldRuleName, oldRulePackage);
 		
-		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
 		
 		assertTrue(handler.canHandle(addition));
 		assertTrue(handler.canHandle(modification));
@@ -88,7 +88,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(session).insert(removal);
 		}});
 		
-		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
 		
 		try {
 			handler.handle(removal, Random.randomUUID());
@@ -122,7 +122,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(session).insert(modification);
 		}});
 		
-		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
 		
 		try {
 			handler.handle(modification, Random.randomUUID());
@@ -152,7 +152,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(session).insert(addition);
 		}});
 		
-		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
 		
 		try {
 			handler.handle(addition, Random.randomUUID());
@@ -175,7 +175,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 		}});
 		
-		RuleChangeActionHandler handler = new RuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
 		
 		try {
 			handler.handle(genericAction, Random.randomUUID());

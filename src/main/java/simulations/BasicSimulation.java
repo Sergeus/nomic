@@ -14,7 +14,7 @@ import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
-import actionHandlers.RuleChangeActionHandler;
+import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
 import agents.NomicAgent;
 
@@ -58,7 +58,7 @@ public class BasicSimulation extends InjectedSimulation {
 		
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
-				.addActionHandler(RuleChangeActionHandler.class)
+				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));
 		

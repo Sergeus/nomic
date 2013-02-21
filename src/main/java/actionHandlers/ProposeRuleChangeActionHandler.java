@@ -24,16 +24,16 @@ import com.google.inject.Inject;
 import enums.RuleChangeType;
 import exceptions.InvalidRuleProposalException;
 
-public class RuleChangeActionHandler implements ActionHandler {
+public class ProposeRuleChangeActionHandler implements ActionHandler {
 	
 	final StatefulKnowledgeSession session;
-	private final Logger logger = Logger.getLogger(RuleChangeActionHandler.class);
+	private final Logger logger = Logger.getLogger(ProposeRuleChangeActionHandler.class);
 	final EnvironmentServiceProvider serviceProvider;
 	
 	NomicService nomicService;
 	
 	@Inject
-	public RuleChangeActionHandler(StatefulKnowledgeSession session,
+	public ProposeRuleChangeActionHandler(StatefulKnowledgeSession session,
 			EnvironmentServiceProvider serviceProvider) {
 		super();
 		this.session = session;
