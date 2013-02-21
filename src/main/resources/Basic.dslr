@@ -88,3 +88,13 @@ rule "All Agents Must Vote"
 			setAllVoted(true);
 		};
 end
+
+rule "Each Agent Can Only Vote Once Per Turn"
+	when
+		$vote : Vote($turnNumber : t, $agent: voter, $id : voteID)
+		$vote2 : Vote(t == $turnNumber, voter.getID() == $agent.getID(), voteID != $id)
+	then
+		logger.info($agent.getName() + " has attempted to vote twice, and been refused.");
+		logger.info("Turn number: " + $turnNumber);
+		retract($vote2);
+end
