@@ -52,18 +52,7 @@ rule "Whose turn is it"
 			setActivePlayer($agent)
 		};
 end
-/*
-rule "Casting Vote"
-	when
-		$vote : Vote($turnNumber : t, $name : Voter.getName(), $type : Vote)
-		$turn : Turn(number == $turnNumber)
-		$ruleChange : ProposeRuleChange(t == $turnNumber)
-	then
-		logger.info($name + " has voted " + $type + ".");
-		logger.info("This is concerning proposed change: " + $ruleChange.getRuleChangeType() 
-			+ " from turn " + $ruleChange.getT());
-end
-*/
+
 rule "Unanimous votes succeed for first two rounds"
 	when
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)

@@ -21,6 +21,7 @@ import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
+import uk.ac.imperial.presage2.core.simulator.Events;
 import uk.ac.imperial.presage2.core.util.random.Random;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
@@ -67,6 +68,11 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	@EventListener
+	public void onInitialize(Events.Initialised e) {
+		session.insert(CurrentTurn);
+	}
+	
+	@EventListener
 	public void onIncrementTime(EndOfTimeCycle e) {
 		if (CurrentTurn.getType() == TurnType.INIT) {
 			CurrentTurn.setType(TurnType.PROPOSE);
@@ -95,6 +101,7 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		session.insert(CurrentTurn);
+		session.fireAllRules();
 		logger.info("Next move, turn: " + CurrentTurn.getNumber() + ", " + CurrentTurn.getType());
 	}
 	
