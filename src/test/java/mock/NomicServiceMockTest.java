@@ -188,7 +188,7 @@ public class NomicServiceMockTest extends TestCase {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
-		final ParticipantsComplete cycle = context.mock(ParticipantsComplete.class);
+		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
@@ -204,7 +204,7 @@ public class NomicServiceMockTest extends TestCase {
 			
 		}
 		
-		service.onParticipantsComplete(cycle);
+		service.onIncrementTime(cycle);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);
@@ -220,7 +220,7 @@ public class NomicServiceMockTest extends TestCase {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
-		final ParticipantsComplete cycle = context.mock(ParticipantsComplete.class);
+		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
@@ -236,7 +236,7 @@ public class NomicServiceMockTest extends TestCase {
 			
 		}
 		
-		service.onParticipantsComplete(cycle);
+		service.onIncrementTime(cycle);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);
