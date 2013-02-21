@@ -20,6 +20,7 @@ import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
+import uk.ac.imperial.presage2.core.simulator.ParticipantsComplete;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
@@ -187,7 +188,7 @@ public class NomicServiceMockTest extends TestCase {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
-		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		final ParticipantsComplete cycle = context.mock(ParticipantsComplete.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
@@ -203,7 +204,7 @@ public class NomicServiceMockTest extends TestCase {
 			
 		}
 		
-		service.onIncrementTime(cycle);
+		service.onParticipantsComplete(cycle);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);
@@ -219,7 +220,7 @@ public class NomicServiceMockTest extends TestCase {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
-		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		final ParticipantsComplete cycle = context.mock(ParticipantsComplete.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
@@ -235,7 +236,7 @@ public class NomicServiceMockTest extends TestCase {
 			
 		}
 		
-		service.onIncrementTime(cycle);
+		service.onParticipantsComplete(cycle);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);

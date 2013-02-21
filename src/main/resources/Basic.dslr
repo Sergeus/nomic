@@ -44,8 +44,8 @@ end
 rule "Whose turn is it"
 	when
 		$agent : NomicAgent($ID : sequentialID)
-		$n : NomicNumber(attribute.compareTo("numberOfAgents") == 0)
-		$turn : Turn((number % $n.getNumber()) == ($ID) && activePlayer != $agent)
+		$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )
+		$turn : Turn((number % $n.intValue()) == ($ID) && activePlayer != $agent)
 	then
 		logger.info("It's this guy's turn: " + $agent.getName());
 		modify ($turn) {
