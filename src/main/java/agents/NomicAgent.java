@@ -29,7 +29,7 @@ public class NomicAgent extends AbstractParticipant {
 			+ "when"
 			+ "	$agent : NomicAgent($ID : sequentialID)"
 			+ "	$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )"
-			+ "	$turn : Turn((($n.intValue() - 1)  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
+			+ "	$turn : Turn((($n.intValue())  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
 			+ "then"
 			+ "	logger.info(\"It's this guy's turn: \" + $agent.getName());"
 			+ "	modify ($turn) {"

@@ -14,6 +14,8 @@ import org.drools.definition.rule.Rule;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.process.ProcessInstance;
+import org.drools.runtime.rule.FactHandle;
 
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
@@ -49,7 +51,9 @@ public class NomicService extends EnvironmentService {
 	
 	private ArrayList<NomicAgent> VotedThisTurn;
 	
-	Turn CurrentTurn;
+	Turn currentTurn;
+	
+	FactHandle turnHandle;
 	
 	NomicAgent placeHolderAgent = new NomicAgent(Random.randomUUID(), "placeholder");
 	
@@ -61,7 +65,7 @@ public class NomicService extends EnvironmentService {
 		super(sharedState);
 		this.session = session;
 		e.subscribe(this);
-		CurrentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
+		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
 		agents = new ArrayList<NomicAgent>();
 		VotedThisTurn = new ArrayList<NomicAgent>();
@@ -69,40 +73,37 @@ public class NomicService extends EnvironmentService {
 	
 	@EventListener
 	public void onInitialize(Events.Initialised e) {
-		session.insert(CurrentTurn);
+		turnHandle = session.insert(currentTurn);
 	}
 	
 	@EventListener
 	public void onIncrementTime(EndOfTimeCycle e) {
-		if (CurrentTurn.getType() == TurnType.INIT) {
-			CurrentTurn.setType(TurnType.PROPOSE);
-			CurrentTurn = new Turn(TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
+		if (currentTurn.getType() == TurnType.INIT) {
+			currentTurn.setType(TurnType.PROPOSE);
+			currentTurn.setNumber(TurnNumber);
 		}
-		else if (CurrentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
-			CurrentTurn.setType(TurnType.VOTE);
-			CurrentTurn = new Turn(TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
+		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
+			currentTurn.setType(TurnType.VOTE);
 		}
-		else if (CurrentTurn.getType() == TurnType.PROPOSE && currentRuleChange == null) {
-			CurrentTurn = new Turn(++TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
+		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange == null) {
+			currentTurn.setNumber(++TurnNumber);
 		}
-		else if (CurrentTurn.getType() == TurnType.VOTE) {
-			if (CurrentTurn.isAllVoted()) {
+		else if (currentTurn.getType() == TurnType.VOTE) {
+			if (currentTurn.isAllVoted()) {
 				VotedThisTurn.clear();
 				if (currentRuleChange.getSucceeded()) {
 					ApplyRuleChange(currentRuleChange);
 				}
 				currentRuleChange = null;
-				CurrentTurn.setType(TurnType.PROPOSE);
-				CurrentTurn = new Turn(++TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
-			}
-			else {
-				CurrentTurn = new Turn(TurnNumber, CurrentTurn.type, CurrentTurn.activePlayer);
+				currentTurn.setType(TurnType.PROPOSE);
+				currentTurn.setNumber(++TurnNumber);
 			}
 		}
 		
-		session.insert(CurrentTurn);
+		session.update(turnHandle, currentTurn);
+		
 		session.fireAllRules();
-		logger.info("Next move, turn: " + CurrentTurn.getNumber() + ", " + CurrentTurn.getType());
+		logger.info("Next move, turn: " + currentTurn.getNumber() + ", " + currentTurn.getType());
 	}
 	
 	private boolean allVoted() {
@@ -121,17 +122,16 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public boolean canProposeNow(NomicAgent agent) {
-		return CurrentTurn.getType() == TurnType.PROPOSE &&
-				CurrentTurn.getActivePlayer().getID() == agent.getID();
+		return currentTurn.getType() == TurnType.PROPOSE &&
+				currentTurn.getActivePlayer().getID() == agent.getID();
 	}
 	
 	public boolean canVoteNow(NomicAgent agent) {
-		return CurrentTurn.type == TurnType.VOTE && !VotedThisTurn.contains(agent);
+		return currentTurn.type == TurnType.VOTE && !VotedThisTurn.contains(agent);
 	}
 	
 	public void RemoveRule(String packageName, String ruleName) {
 		session.getKnowledgeBase().removeRule(packageName, ruleName);
-		session.fireAllRules();
 	}
 	
 	public void Vote(Vote vote) {
@@ -140,7 +140,7 @@ public class NomicService extends EnvironmentService {
 	
 	public void ProposeRuleChange(ProposeRuleChange ruleChange) 
 			throws InvalidRuleProposalException {
-		if (CurrentTurn.type != TurnType.PROPOSE) {
+		if (currentTurn.type != TurnType.PROPOSE) {
 			throw new InvalidRuleProposalException("This turn has passed its proposal stage.");
 		}
 		
@@ -161,10 +161,11 @@ public class NomicService extends EnvironmentService {
 			try {
 				logger.info("Modifying rule \'" + ruleMod.getOldRuleName()
 						+ "\'");
-				addRule(ruleMod.getNewRule());
 				RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
+				addRule(ruleMod.getNewRule());
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new version of existing rule.", e);
+				// TODO: add old rule back
 			}
 		}
 		else if (change == RuleChangeType.ADDITION) {
@@ -243,6 +244,6 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public int getTurnNumber() {
-		return CurrentTurn.getNumber();
+		return currentTurn.getNumber();
 	}
 }
