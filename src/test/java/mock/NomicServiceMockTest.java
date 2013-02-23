@@ -189,7 +189,7 @@ public class NomicServiceMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).update(with(any(FactHandle.class)),with(any(Turn.class)));
+			oneOf(session).update(null,with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -221,7 +221,7 @@ public class NomicServiceMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).update(with(any(FactHandle.class)),with(any(Turn.class)));
+			oneOf(session).update(null,with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
