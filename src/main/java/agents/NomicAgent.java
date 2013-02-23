@@ -76,6 +76,7 @@ public class NomicAgent extends AbstractParticipant {
 	
 	@Override
 	public void incrementTime() {
+		logger.info("I have " + getPoints() + " points.");
 		if (nomicService.canProposeNow(this)) {
 			logger.info("It's my turn to propose a rule!");
 			doRuleChanges();
@@ -163,7 +164,7 @@ public class NomicAgent extends AbstractParticipant {
 		return points;
 	}
 
-	public void setPoints(int points) {
+	public synchronized void setPoints(int points) {
 		this.points = points;
 	}
 	

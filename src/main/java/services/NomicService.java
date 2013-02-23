@@ -112,6 +112,7 @@ public class NomicService extends EnvironmentService {
 				currentRuleChange = null;
 				currentTurn.setType(TurnType.PROPOSE);
 				currentTurn.setNumber(++TurnNumber);
+				currentTurn.setAllVoted(false);
 			}
 		}
 		

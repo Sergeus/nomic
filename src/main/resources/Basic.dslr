@@ -41,6 +41,7 @@ rule "Unanimous votes succeed for first two rounds"
 end
 
 rule "Majority votes succeed after second round"
+	salience 20
 	when
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)
 		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
@@ -59,6 +60,8 @@ rule "All Agents Must Vote"
 	when
 		$turn : Turn($turnNumber : number, allVoted == false)
 		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber) count( $sgc ) )
+		$agents : Number() from accumulate ( $a : NomicAgent( ) count( $a ) )
+		eval($agents.intValue() == $n.intValue())
 	then
 		modify($turn) {
 			setAllVoted(true);
@@ -82,3 +85,42 @@ rule "Winner Is First To 100 Points"
 		logger.info($agent.getName() + " wins.");
 		insert(new Win($agent));
 end
+
+rule "Proposing a losing vote costs you 10 points"
+	salience 10
+	when
+		$turn : Turn($turnNumber : number, allVoted == true)
+		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false, $agent : proposer)
+	then
+		logger.info($agent.getName() + " loses 10 points for proposing a failed rule!");
+		modify($agent) {
+			setPoints($agent.getPoints() - 10);
+		};
+end
+
+rule "Voting against a successful proposal gains you 10 points"
+	salience 10
+	when
+		$turn : Turn($turnNumber : number, allVoted == true)
+		$vote : Vote(vote == VoteType.NO, $agent : voter, t == $turnNumber)
+		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == true)
+	then
+		logger.info($agent.getName() + " gains 10 points for voting against a successful proposal.");
+		modify($agent) {
+			setPoints($agent.getPoints() + 10);
+		}
+end
+
+rule "You gain 1d6 points at the end of your turn"
+	salience 10
+	when
+		$turn : Turn($turnNumber : number, allVoted == true, $agent : activePlayer)
+	then
+		if (rand == null)
+			rand = new java.util.Random();
+		int r = rand.nextInt(6) + 1;
+		logger.info($agent.getName() + " gains " + r + " points at the end of their turn.");
+		modify($agent) {
+			setPoints($agent.getPoints() + r);
+		}
+end 
