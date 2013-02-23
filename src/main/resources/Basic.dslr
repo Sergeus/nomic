@@ -12,26 +12,6 @@ import facts.*;
 global org.apache.log4j.Logger logger
 global uk.ac.imperial.presage2.core.db.StorageService storage
 
-rule "First agent found"
-    when
-        $agent : NomicAgent( )
-        not $n : NomicNumber(attribute.compareTo("numberOfAgents") == 0)
-    then
-        System.out.println("The first agent!");
-        insert(new NomicNumber(1, "numberOfAgents"));
-end
-
-rule "Agent addition"
-	when
-		$agent : NomicAgent($ID : sequentialID )
-		$n : NomicNumber(number <= $ID && attribute.compareTo("numberOfAgents") == 0)
-	then
-		System.out.println("Found another agent!");
-		modify ($n) {
-			setNumber($n.getNumber() + 1);
-		}
-end
-
 rule "Discard old turns"
 	when
 		$t : Turn($n : number)
@@ -57,10 +37,12 @@ rule "Unanimous votes succeed for first two rounds"
 	when
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)
 		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
-		$agents : NomicNumber(attribute.compareTo("numberOfAgents") == 0, number == $n.intValue())
-		$turn : Turn(number == $turnNumber, $turnNumber < ($agents.getNumber() * 2))
+		$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )
+		eval($agents == $n)
+		$turn : Turn(number == $turnNumber, $turnNumber < ($agents.intValue() * 2))
 		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false)
 	then
+		logger.info("Unanimous vote succeeded");
 		modify($ruleChange) {
 			setSucceeded(true);
 		};
@@ -70,10 +52,12 @@ rule "Majority votes succeed after second round"
 	when
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)
 		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
-		$agents : NomicNumber(attribute.compareTo("numberOfAgents") == 0, number > ($n.intValue() / 2))
-		$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.getNumber() * 2))
+		$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )
+		eval($n.intValue() > ($agents.intValue() / 2))
+		$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2))
 		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false)
 	then
+		logger.info("Majority vote succeeded");
 		modify($ruleChange) {
 			setSucceeded(true);
 		};
