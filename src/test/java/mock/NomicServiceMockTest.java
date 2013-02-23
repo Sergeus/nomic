@@ -125,7 +125,6 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(packageName, ruleName);
-			oneOf(session).fireAllRules();
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -162,7 +161,6 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
-			oneOf(session).fireAllRules();
 		}});
 		
 		service.ApplyRuleChange(removal);
@@ -175,7 +173,6 @@ public class NomicServiceMockTest extends TestCase {
 			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
-			oneOf(session).fireAllRules();
 		}});
 		
 		service.ApplyRuleChange(modification);
@@ -193,7 +190,6 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).insert(with(any(Turn.class)));
-			oneOf(session).fireAllRules();
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -226,7 +222,6 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).insert(with(any(Turn.class)));
-			oneOf(session).fireAllRules();
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
