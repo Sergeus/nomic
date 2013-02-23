@@ -38,7 +38,7 @@ rule "Unanimous votes succeed for first two rounds"
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)
 		$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )
 		$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )
-		eval($agents == $n)
+		eval($agents.intValue() == $n.intValue())
 		$turn : Turn(number == $turnNumber, $turnNumber < ($agents.intValue() * 2))
 		$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false)
 	then
@@ -81,4 +81,11 @@ rule "Each Agent Can Only Vote Once Per Turn"
 		logger.info($agent.getName() + " has attempted to vote twice, and been refused.");
 		logger.info("Turn number: " + $turnNumber);
 		retract($vote2);
+end
+
+rule "Winner Is First To 100 Points"
+	when
+		$agent : NomicAgent(points >= 100)
+	then
+		logger.info($agent.getName() + " wins.");
 end

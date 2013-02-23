@@ -16,7 +16,9 @@ import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
 import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
+import agents.DestructiveAgent;
 import agents.NomicAgent;
+import agents.SelfishAgent;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -27,6 +29,12 @@ public class BasicSimulation extends InjectedSimulation {
 	
 	@Parameter(name="agents")
 	public int agents;
+	
+	@Parameter(name="dagents")
+	public int dagents;
+	
+	@Parameter(name="sagents")
+	public int sagents;
 
 	public BasicSimulation(Set<AbstractModule> modules) {
 		super(modules);
@@ -42,13 +50,36 @@ public class BasicSimulation extends InjectedSimulation {
 		session.setGlobal("logger", this.logger);
 		session.setGlobal("storage", this.storage);
 		
+		int id = 0;
+		
 		for (int i=0; i < agents; i++) {
-			NomicAgent agent = new NomicAgent(Random.randomUUID(), "agent" + i);
+			NomicAgent agent = new NomicAgent(Random.randomUUID(), "agent" + id);
 			
-			agent.setSequentialID(i);
+			agent.setSequentialID(id);
 			
 			s.addParticipant(agent);
 			session.insert(agent);
+			id++;
+		}
+		
+		for (int i=0; i < dagents; i++) {
+			DestructiveAgent agent = new DestructiveAgent(Random.randomUUID(), "agent" + id);
+			
+			agent.setSequentialID(id);
+			
+			s.addParticipant(agent);
+			session.insert(agent);
+			id++;
+		}
+		
+		for (int i=0; i < sagents; i++) {
+			SelfishAgent agent = new SelfishAgent(Random.randomUUID(), "agent" + id);
+			
+			agent.setSequentialID(id);
+			
+			s.addParticipant(agent);
+			session.insert(agent);
+			id++;
 		}
 	}
 

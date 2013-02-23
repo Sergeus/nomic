@@ -12,6 +12,8 @@ import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
+import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
+import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
@@ -25,11 +27,11 @@ public class NomicAgent extends AbstractParticipant {
 	String ReverseOrderRule = "import agents.NomicAgent "
 			+ "import facts.* "
 			+ "global org.apache.log4j.Logger logger "
-			+ "rule \"Whose backwards turn is it\" "
+			+ "rule \"Backwards Turns\" "
 			+ "when"
 			+ "	$agent : NomicAgent($ID : sequentialID)"
 			+ "	$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )"
-			+ "	$turn : Turn((($n.intValue())  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
+			+ "	$turn : Turn((($n.intValue() - 1)  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
 			+ "then"
 			+ "	logger.info(\"It's this guy's turn: \" + $agent.getName());"
 			+ "	modify ($turn) {"
@@ -40,6 +42,10 @@ public class NomicAgent extends AbstractParticipant {
 	private int SequentialID;
 	
 	NomicService nomicService;
+	
+	Random rand = new Random();
+	
+	int points = 0;
 
 	public NomicAgent(UUID id, String name) {
 		super(id, name);
@@ -71,6 +77,7 @@ public class NomicAgent extends AbstractParticipant {
 	@Override
 	public void incrementTime() {
 		if (nomicService.canProposeNow(this)) {
+			logger.info("It's my turn to propose a rule!");
 			doRuleChanges();
 		}
 		else if (nomicService.canVoteNow(this)) {
@@ -81,18 +88,16 @@ public class NomicAgent extends AbstractParticipant {
 			}
 		}
 		else {
-			logger.info("I've decided to do nothing this turn.");
+			logger.info("It isn't my turn, and we're not voting.");
 		}
 		super.incrementTime();
 	}
 	
-	private void doRuleChanges() {
-		logger.info("It's my turn!");
-		
+	protected void doRuleChanges() {
 		Collection<Rule> rules= nomicService.getRules();
 		
 		String oldRuleName = "Whose turn is it";
-		String newRuleName = "Whose backwards turn is it";
+		String newRuleName = "Backwards Turns";
 		boolean success = false;
 		for (Rule rule : rules) {
 			if (rule.getName().compareTo(oldRuleName) == 0) {
@@ -142,24 +147,31 @@ public class NomicAgent extends AbstractParticipant {
 	}
 	
 	public VoteType chooseVote(ProposeRuleChange ruleChange) {
-		if (ruleChange instanceof ProposeRuleModification) {
-			if (SequentialID == 0)
-				return VoteType.NO;
-			else
-				return VoteType.YES;
+		if (rand.nextBoolean()) {
+			return VoteType.YES;
 		}
 		else {
-			Random rand = new Random();
-			if (rand.nextBoolean()) {
-				return VoteType.YES;
-			}
-			else {
-				return VoteType.NO;
-			}
+			return VoteType.NO;
 		}
 	}
 
 	public void setSequentialID(int sequentialID) {
 		SequentialID = sequentialID;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+	
+	public void voteSucceeded(ProposeRuleChange ruleChange) {
+		
+	}
+	
+	public void voteFailed(ProposeRuleChange ruleChange) {
+		
 	}
 }

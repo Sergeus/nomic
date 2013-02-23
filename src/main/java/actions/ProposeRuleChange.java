@@ -1,14 +1,18 @@
 package actions;
 
+import agents.NomicAgent;
 import enums.RuleChangeType;
 
 public abstract class ProposeRuleChange extends TimeStampedAction {
+	protected NomicAgent proposer;
+	
 	protected RuleChangeType Type;
 	
 	protected boolean succeeded;
 	
-	public ProposeRuleChange() {
+	public ProposeRuleChange(NomicAgent proposer) {
 		super();
+		this.proposer = proposer;
 	}
 	
 	public RuleChangeType getRuleChangeType() {
@@ -21,5 +25,9 @@ public abstract class ProposeRuleChange extends TimeStampedAction {
 	
 	public void setSucceeded(boolean succeeded) {
 		this.succeeded = succeeded;
+	}
+
+	public NomicAgent getProposer() {
+		return proposer;
 	}
 }

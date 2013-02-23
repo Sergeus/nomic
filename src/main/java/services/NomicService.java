@@ -93,6 +93,15 @@ public class NomicService extends EnvironmentService {
 				VotedThisTurn.clear();
 				if (currentRuleChange.getSucceeded()) {
 					ApplyRuleChange(currentRuleChange);
+					for (NomicAgent agent : agents) {
+						agent.voteSucceeded(currentRuleChange);
+					}
+				}
+				else {
+					logger.info("This proposal has failed to pass.");
+					for (NomicAgent agent : agents) {
+						agent.voteFailed(currentRuleChange);
+					}
 				}
 				currentRuleChange = null;
 				currentTurn.setType(TurnType.PROPOSE);
@@ -104,15 +113,6 @@ public class NomicService extends EnvironmentService {
 		
 		session.fireAllRules();
 		logger.info("Next move, turn: " + currentTurn.getNumber() + ", " + currentTurn.getType());
-	}
-	
-	private boolean allVoted() {
-		for (int i=0; i < agents.size(); i++) {
-			if (!VotedThisTurn.contains(agents.get(i))) {
-				return false;
-			}
-		}
-		return true;
 	}
 	
 	@Override
@@ -245,5 +245,13 @@ public class NomicService extends EnvironmentService {
 	
 	public int getTurnNumber() {
 		return currentTurn.getNumber();
+	}
+	
+	public int getRoundNumber() {
+		return (int) Math.floor(currentTurn.getNumber() / agents.size());
+	}
+	
+	public int getNumberOfAgents() {
+		return agents.size();
 	}
 }
