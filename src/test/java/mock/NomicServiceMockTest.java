@@ -186,10 +186,13 @@ public class NomicServiceMockTest extends TestCase {
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
 		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		final FactHandle mockHandle = context.mock(FactHandle.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).update(null,with(any(Turn.class)));
+			oneOf(session).getFactHandle(with(any(Turn.class)));
+			will(returnValue(mockHandle));
+			oneOf(session).update(mockHandle,with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -218,10 +221,14 @@ public class NomicServiceMockTest extends TestCase {
 		
 		final ProposeRuleChange ruleChange = context.mock(ProposeRuleChange.class);
 		final EndOfTimeCycle cycle = context.mock(EndOfTimeCycle.class);
+		final FactHandle mockHandle = context.mock(FactHandle.class);
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).update(null,with(any(Turn.class)));
+			oneOf(session).getFactHandle(with(any(Turn.class)));
+			will(returnValue(mockHandle));
+			oneOf(session).update(mockHandle,with(any(Turn.class)));
+			
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);

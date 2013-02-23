@@ -100,7 +100,7 @@ public class NomicService extends EnvironmentService {
 			}
 		}
 		
-		session.update(turnHandle, currentTurn);
+		session.update(session.getFactHandle(currentTurn), currentTurn);
 		
 		session.fireAllRules();
 		logger.info("Next move, turn: " + currentTurn.getNumber() + ", " + currentTurn.getType());
