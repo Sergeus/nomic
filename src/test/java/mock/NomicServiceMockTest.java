@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.drools.KnowledgeBase;
 import org.drools.compiler.DroolsParserException;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.rule.FactHandle;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -20,7 +21,6 @@ import services.NomicService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
-import uk.ac.imperial.presage2.core.simulator.ParticipantsComplete;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
@@ -189,7 +189,7 @@ public class NomicServiceMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).insert(with(any(Turn.class)));
+			oneOf(session).update(with(any(FactHandle.class)),with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -221,7 +221,7 @@ public class NomicServiceMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(e).subscribe(with(any(NomicService.class)));
-			oneOf(session).insert(with(any(Turn.class)));
+			oneOf(session).update(with(any(FactHandle.class)),with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
