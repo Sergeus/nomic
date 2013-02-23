@@ -20,49 +20,51 @@ public class DestructiveAgent extends NomicAgent {
 	
 	int votesRequired;
 	
-	String MajorityRule = "import agents.NomicAgent; "
-		+	"import actions.Vote; "
-		+	"import actions.ProposeRuleChange; "
-		+	"import enums.VoteType; "
-		+	"import facts.*; "
-		+	"global org.apache.log4j.Logger logger "
-		+"rule \"Majority votes succeed after second round\" "
-		+ "when "
-		+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
-		+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
-		+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
-		+ 	"eval($n.intValue() > " + (votesRequired - 1) + ") "
-		+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
-		+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
-		+"then "
-		+	"logger.info(\"Majority vote succeeded\"); "
-		+	"modify($ruleChange) { "
-		+		"setSucceeded(true); "
-		+	"}; "
-		+	"end";
+	String MajorityRule;
 	
-	String IWinRule = "import agents.NomicAgent; "
-			+ "global org.apache.log4j.Logger logger "
-			+ "rule \"Agent " + getSequentialID() + " Wins\""
-			+ "when "
-			+ 	"$agent : NomicAgent($id : sequentialID, $id == " + getSequentialID() + ") "
-			+ "then "
-			+	"logger.info(\"Agent" + getSequentialID() + " Wins\"); "
-			+ "end";
+	String IWinRule;
 	
 	public DestructiveAgent(UUID id, String name) {
 		super(id, name);
 	}
 	
 	@Override
-	public void incrementTime() {
-		if (getTime().intValue() == 0) {
-			votesRequired = (int) (Math.floor(nomicService.getNumberOfAgents() / 2) + 1);
-			
-			logger.info("Setting votes required to " + votesRequired + ".");
-		}
+	public void initialise() {
+		super.initialise();
 		
-		super.incrementTime();
+		IWinRule = "import agents.NomicAgent; "
+				+ "import facts.*; "
+				+ "global org.apache.log4j.Logger logger "
+				+ "rule \"Agent " + getSequentialID() + " Wins\""
+				+ "when "
+				+ 	"$agent : NomicAgent($id : sequentialID, $id == " + getSequentialID() + ") "
+				+ "then "
+				+	"logger.info(\"Agent" + getSequentialID() + " Wins\"); "
+				+	"insert(new Win($agent)); "
+				+ "end";
+	}
+	
+	private void UpdateMajorityRule() {
+		MajorityRule = "import agents.NomicAgent; "
+				+	"import actions.Vote; "
+				+	"import actions.ProposeRuleChange; "
+				+	"import enums.VoteType; "
+				+	"import facts.*; "
+				+	"global org.apache.log4j.Logger logger "
+				+"rule \"Majority votes succeed after second round\" "
+				+ "when "
+				+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
+				+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
+				+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
+				+ 	"eval($n.intValue() >= " + (votesRequired - 1) + ") "
+				+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
+				+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
+				+"then "
+				+	"logger.info(\"Majority vote succeeded\"); "
+				+	"modify($ruleChange) { "
+				+		"setSucceeded(true); "
+				+	"}; "
+				+	"end";
 	}
 	
 	@Override
@@ -84,6 +86,17 @@ public class DestructiveAgent extends NomicAgent {
 	}
 	
 	@Override
+	public void incrementTime() {
+		if (getTime().intValue() == 0) {
+			votesRequired = (int) (Math.floor(nomicService.getNumberOfAgents() / 2) + 1);
+			
+			logger.info("Setting votes required to " + votesRequired + ".");
+		}
+		
+		super.incrementTime();
+	}
+	
+	@Override
 	protected void doRuleChanges() {
 		boolean success = false;
 		
@@ -92,6 +105,8 @@ public class DestructiveAgent extends NomicAgent {
 			
 			for (Rule rule : rules) {
 				if (rule.getName().compareTo("Majority votes succeed after second round") == 0) {
+					UpdateMajorityRule();
+					
 					ProposeRuleModification modification = new ProposeRuleModification(this, 
 							MajorityRule, rule.getName(), rule.getPackageName());
 					

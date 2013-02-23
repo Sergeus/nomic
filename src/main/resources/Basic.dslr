@@ -11,15 +11,7 @@ import facts.*;
 //declare any global variables here
 global org.apache.log4j.Logger logger
 global uk.ac.imperial.presage2.core.db.StorageService storage
-
-rule "Discard old turns"
-	when
-		$t : Turn($n : number)
-		$t2 : Turn(number < $n)
-	then
-		logger.info($t);
-		retract($t2);
-end
+global java.util.Random rand;
 
 rule "Whose turn is it"
 	when
@@ -88,4 +80,5 @@ rule "Winner Is First To 100 Points"
 		$agent : NomicAgent(points >= 100)
 	then
 		logger.info($agent.getName() + " wins.");
+		insert(new Win($agent));
 end

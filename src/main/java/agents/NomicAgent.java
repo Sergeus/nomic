@@ -174,4 +174,8 @@ public class NomicAgent extends AbstractParticipant {
 	public void voteFailed(ProposeRuleChange ruleChange) {
 		
 	}
+	
+	public void Win() {
+		nomicService.Win(this);
+	}
 }

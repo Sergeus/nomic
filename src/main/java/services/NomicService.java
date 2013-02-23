@@ -24,6 +24,7 @@ import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
 import uk.ac.imperial.presage2.core.simulator.Events;
+import uk.ac.imperial.presage2.core.simulator.FinalizeEvent;
 import uk.ac.imperial.presage2.core.util.random.Random;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
@@ -59,6 +60,8 @@ public class NomicService extends EnvironmentService {
 	
 	ProposeRuleChange currentRuleChange;
 	
+	NomicAgent Winner;
+	
 	@Inject
 	public NomicService(EnvironmentSharedStateAccess sharedState,
 			StatefulKnowledgeSession session, EventBus e) {
@@ -78,7 +81,10 @@ public class NomicService extends EnvironmentService {
 	
 	@EventListener
 	public void onIncrementTime(EndOfTimeCycle e) {
-		if (currentTurn.getType() == TurnType.INIT) {
+		if (Winner != null) {
+			currentTurn.setType(TurnType.GAMEOVER);
+		}
+		else if (currentTurn.getType() == TurnType.INIT) {
 			currentTurn.setType(TurnType.PROPOSE);
 			currentTurn.setNumber(TurnNumber);
 		}
@@ -115,6 +121,13 @@ public class NomicService extends EnvironmentService {
 		logger.info("Next move, turn: " + currentTurn.getNumber() + ", " + currentTurn.getType());
 	}
 	
+	@EventListener
+	public void onFinalizeEvent(FinalizeEvent e) {
+		if (Winner != null) {
+			logger.info("THIS SIMULATION'S WINNER IS: " + Winner.getName() + "!");
+		}
+	}
+	
 	@Override
 	public void registerParticipant(EnvironmentRegistrationRequest req) {
 		agents.add((NomicAgent)req.getParticipant());
@@ -136,6 +149,11 @@ public class NomicService extends EnvironmentService {
 	
 	public void Vote(Vote vote) {
 		VotedThisTurn.add(vote.getVoter());
+	}
+	
+	public void Win(NomicAgent agent) {
+		logger.info(agent.getName() + " has won!");
+		Winner = agent;
 	}
 	
 	public void ProposeRuleChange(ProposeRuleChange ruleChange) 

@@ -1,5 +1,5 @@
 package enums;
 
 public enum TurnType {
-	INIT, PROPOSE, VOTE;
+	INIT, PROPOSE, VOTE, GAMEOVER;
 }
