@@ -192,7 +192,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getFactHandle(with(any(Turn.class)));
 			will(returnValue(mockHandle));
-			oneOf(session).update(mockHandle,with(any(Turn.class)));
+			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, session, e);
@@ -227,7 +227,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getFactHandle(with(any(Turn.class)));
 			will(returnValue(mockHandle));
-			oneOf(session).update(mockHandle,with(any(Turn.class)));
+			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 			
 		}});
 		
