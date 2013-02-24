@@ -3,6 +3,9 @@ package services;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.drools.builder.KnowledgeBuilder;
@@ -14,7 +17,6 @@ import org.drools.definition.rule.Rule;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.rule.FactHandle;
 
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
@@ -50,7 +52,7 @@ public class NomicService extends EnvironmentService {
 	
 	private ArrayList<NomicAgent> agents;
 	
-	private ArrayList<NomicAgent> VotedThisTurn;
+	private Map<UUID,Vote> votesThisTurn;
 	
 	Turn currentTurn;
 	
@@ -71,7 +73,7 @@ public class NomicService extends EnvironmentService {
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
 		agents = new ArrayList<NomicAgent>();
-		VotedThisTurn = new ArrayList<NomicAgent>();
+		votesThisTurn = new HashMap<UUID, Vote>();
 	}
 	
 	@EventListener
@@ -96,7 +98,7 @@ public class NomicService extends EnvironmentService {
 		}
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
-				VotedThisTurn.clear();
+				votesThisTurn.clear();
 				if (currentRuleChange.getSucceeded()) {
 					ApplyRuleChange(currentRuleChange);
 					for (NomicAgent agent : agents) {
@@ -141,7 +143,7 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public boolean canVoteNow(NomicAgent agent) {
-		return currentTurn.type == TurnType.VOTE && !VotedThisTurn.contains(agent);
+		return currentTurn.type == TurnType.VOTE;
 	}
 	
 	public void RemoveRule(String packageName, String ruleName) {
@@ -149,7 +151,7 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public void Vote(Vote vote) {
-		VotedThisTurn.add(vote.getVoter());
+		votesThisTurn.put(vote.getVoter().getID(), vote);
 	}
 	
 	public void Win(NomicAgent agent) {
@@ -272,5 +274,9 @@ public class NomicService extends EnvironmentService {
 	
 	public int getNumberOfAgents() {
 		return agents.size();
+	}
+	
+	public Vote getVote(UUID pid) {
+		return votesThisTurn.get(pid);
 	}
 }

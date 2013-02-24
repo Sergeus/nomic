@@ -114,7 +114,7 @@ end
 rule "You gain 1d6 points at the end of your turn"
 	salience 10
 	when
-		$turn : Turn($turnNumber : number, allVoted == true, $agent : activePlayer)
+		$turn : Turn(allVoted == true, $agent : activePlayer)
 	then
 		if (rand == null)
 			rand = new java.util.Random();

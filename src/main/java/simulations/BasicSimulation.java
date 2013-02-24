@@ -5,7 +5,10 @@ import java.util.Set;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import plugins.VoteStoragePlugin;
+
 import services.NomicService;
+import uk.ac.imperial.presage2.core.plugin.PluginModule;
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
@@ -93,11 +96,13 @@ public class BasicSimulation extends InjectedSimulation {
 				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));
 		
+		//modules.add(new PluginModule()
+		//		.addPlugin(VoteStoragePlugin.class));
+		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
 		
 		modules.add(NetworkModule.noNetworkModule());
 		
 		return modules;
 	}
-
 }
