@@ -16,6 +16,7 @@ import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
+import org.drools.runtime.ObjectFilter;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 
@@ -64,12 +65,15 @@ public class NomicService extends EnvironmentService {
 	
 	NomicAgent Winner;
 	
+	EventBus eb;
+	
 	@Inject
 	public NomicService(EnvironmentSharedStateAccess sharedState,
 			StatefulKnowledgeSession session, EventBus e) {
 		super(sharedState);
 		this.session = session;
 		e.subscribe(this);
+		this.eb = e;
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
 		agents = new ArrayList<NomicAgent>();
@@ -262,6 +266,34 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		return rules;
+	}
+	
+	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
+		StatefulKnowledgeSession newSession = session.getKnowledgeBase().newStatefulKnowledgeSession();
+		
+		newSession.insert(session.getGlobals());
+		
+		for (Object object : session.getObjects(new ObjectFilter() {
+			
+			@Override
+			public boolean accept(Object object) {
+				return object instanceof NomicAgent;
+			}
+		})) {
+			newSession.insert(object);
+		}
+		
+		for ( Object object : session.getObjects()) {
+			newSession.insert(object);
+		}
+		
+		newSession.fireAllRules();
+		
+		return newSession;
+	}
+	
+	public void subscribe(NomicAgent agent) {
+		eb.subscribe(agent);
 	}
 	
 	public int getTurnNumber() {

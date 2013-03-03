@@ -3,6 +3,8 @@ package Rules
 
 //list any import classes here.
 import agents.NomicAgent;
+import agents.SelfishAgent;
+import agents.Test;
 import actions.Vote;
 import actions.ProposeRuleChange;
 import enums.VoteType;
@@ -124,3 +126,11 @@ rule "You gain 1d6 points at the end of your turn"
 			setPoints($agent.getPoints() + r);
 		}
 end 
+
+rule "Selfish Agent Test"
+	when
+		Test ( )
+		$agent : SelfishAgent ( )
+	then
+		System.out.println("Lololol" + $agent.getName());
+end

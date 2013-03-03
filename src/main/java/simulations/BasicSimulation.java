@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import plugins.RuleChangeStoragePlugin;
 import plugins.VoteStoragePlugin;
 
 import services.NomicService;
@@ -96,8 +97,9 @@ public class BasicSimulation extends InjectedSimulation {
 				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));
 		
-		//modules.add(new PluginModule()
-		//		.addPlugin(VoteStoragePlugin.class));
+		modules.add(new PluginModule()
+				.addPlugin(VoteStoragePlugin.class)
+				.addPlugin(RuleChangeStoragePlugin.class));
 		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
 		

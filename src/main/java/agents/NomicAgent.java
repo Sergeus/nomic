@@ -69,6 +69,7 @@ public class NomicAgent extends AbstractParticipant {
 		
 		try {
 			this.nomicService = getEnvironmentService(NomicService.class);
+			nomicService.subscribe(this);
 		} catch (UnavailableServiceException e) {
 			logger.warn("Couldn't get Nomic Environment Service.", e);
 		}
