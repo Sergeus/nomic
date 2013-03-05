@@ -5,9 +5,7 @@ import java.util.Set;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 
-import plugins.RuleChangeStoragePlugin;
-import plugins.VoteStoragePlugin;
-
+import plugins.StoragePlugin;
 import services.NomicService;
 import uk.ac.imperial.presage2.core.plugin.PluginModule;
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
@@ -98,8 +96,7 @@ public class BasicSimulation extends InjectedSimulation {
 				.setStorage(RuleStorage.class));
 		
 		modules.add(new PluginModule()
-				.addPlugin(VoteStoragePlugin.class)
-				.addPlugin(RuleChangeStoragePlugin.class));
+				.addPlugin(StoragePlugin.class));
 		
 		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
 		

@@ -63,6 +63,8 @@ public class NomicService extends EnvironmentService {
 	
 	ProposeRuleChange currentRuleChange;
 	
+	ProposeRuleChange previousRuleChange;
+	
 	NomicAgent Winner;
 	
 	EventBus eb;
@@ -115,6 +117,7 @@ public class NomicService extends EnvironmentService {
 						agent.voteFailed(currentRuleChange);
 					}
 				}
+				previousRuleChange = currentRuleChange;
 				currentRuleChange = null;
 				currentTurn.setType(TurnType.PROPOSE);
 				currentTurn.setNumber(++TurnNumber);
@@ -132,6 +135,9 @@ public class NomicService extends EnvironmentService {
 	public void onFinalizeEvent(FinalizeEvent e) {
 		if (Winner != null) {
 			logger.info("THIS SIMULATION'S WINNER IS: " + Winner.getName() + "!");
+		}
+		else {
+			logger.info("THIS SIMULATION HAS NO WINNER!");
 		}
 	}
 	
@@ -310,5 +316,17 @@ public class NomicService extends EnvironmentService {
 	
 	public Vote getVote(UUID pid) {
 		return votesThisTurn.get(pid);
+	}
+	
+	public ProposeRuleChange getPreviousRuleChange() {
+		return previousRuleChange;
+	}
+	
+	public boolean isGameWon() {
+		return Winner != null;
+	}
+	
+	public NomicAgent getWinner() {
+		return Winner;
 	}
 }
