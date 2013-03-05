@@ -22,6 +22,8 @@ import actions.Vote;
 
 import com.google.inject.Inject;
 
+import exceptions.NoExistentRuleChangeException;
+
 public class StoragePlugin implements Plugin {
 	
 	private final Logger logger = Logger.getLogger(StoragePlugin.class);
@@ -67,27 +69,30 @@ public class StoragePlugin implements Plugin {
 			// Rule change section
 			ProposeRuleChange ruleChange = nomicService.getPreviousRuleChange();
 			
-			PersistentEnvironment env = storage.getSimulation().getEnvironment();
-			
-			System.out.println("Storing vote RESULTS.");
-			
-			env.setProperty("Proposer", ruleChange.getT(), ruleChange.getProposer().getName());
-			env.setProperty("Type", ruleChange.getT(), ruleChange.getRuleChangeType().toString());
-			env.setProperty("Success", ruleChange.getT(), "" + ruleChange.getSucceeded());
-			
-			if (ruleChange instanceof ProposeRuleAddition) {
-				ProposeRuleAddition addition = (ProposeRuleAddition)ruleChange;
-				env.setProperty("NewRule", ruleChange.getT(), addition.getNewRule());
-			}
-			else if (ruleChange instanceof ProposeRuleModification) {
-				ProposeRuleModification modification = (ProposeRuleModification)ruleChange;
-				env.setProperty("OldRuleName", ruleChange.getT(), modification.getOldRuleName());
-				env.setProperty("NewRule", ruleChange.getT(), modification.getNewRule());
-			}
-			else if (ruleChange instanceof ProposeRuleRemoval) {
-				ProposeRuleRemoval removal = (ProposeRuleRemoval)ruleChange;
-				env.setProperty("OldRuleName", ruleChange.getT(), removal.getOldRuleName());
-			}
+			if (ruleChange != null)
+				StoreChange(ruleChange);
+		}
+	}
+	
+	private void StoreChange(ProposeRuleChange ruleChange) {
+		PersistentEnvironment env = storage.getSimulation().getEnvironment();
+		
+		env.setProperty("Proposer", ruleChange.getT(), ruleChange.getProposer().getName());
+		env.setProperty("Type", ruleChange.getT(), ruleChange.getRuleChangeType().toString());
+		env.setProperty("Success", ruleChange.getT(), "" + ruleChange.getSucceeded());
+		
+		if (ruleChange instanceof ProposeRuleAddition) {
+			ProposeRuleAddition addition = (ProposeRuleAddition)ruleChange;
+			env.setProperty("NewRule", ruleChange.getT(), addition.getNewRule());
+		}
+		else if (ruleChange instanceof ProposeRuleModification) {
+			ProposeRuleModification modification = (ProposeRuleModification)ruleChange;
+			env.setProperty("OldRuleName", ruleChange.getT(), modification.getOldRuleName());
+			env.setProperty("NewRule", ruleChange.getT(), modification.getNewRule());
+		}
+		else if (ruleChange instanceof ProposeRuleRemoval) {
+			ProposeRuleRemoval removal = (ProposeRuleRemoval)ruleChange;
+			env.setProperty("OldRuleName", ruleChange.getT(), removal.getOldRuleName());
 		}
 	}
 	
@@ -107,11 +112,18 @@ public class StoragePlugin implements Plugin {
 	@Override
 	public void onSimulationComplete() {
 		if (storage != null) {
+			// Store last rule change
+			try {
+				StoreChange(nomicService.getCurrentRuleChange());
+			} catch (NoExistentRuleChangeException e) {
+				logger.warn("Final rule change not available.");
+			}
+			
+			// Store final simulation information
 			storage.getSimulation().addParameter("Won", "" + nomicService.isGameWon());
 			
 			if (nomicService.isGameWon())
 				storage.getSimulation().addParameter("Winner", nomicService.getWinner().getName());
 		}
 	}
-
 }

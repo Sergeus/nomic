@@ -15,15 +15,15 @@ public class SelfishAgent extends NomicAgent {
 	
 	@Override
 	public void incrementTime() {
-//		experimentSession = nomicService.getNewStatefulKnowledgeSession();
-//		
-//		logger.info("Alternate knowledge session exists here.");
-//		
-//		experimentSession.insert(new Test());
-//		
-//		experimentSession.fireAllRules();
-//		
-//		experimentSession.dispose();
+		experimentSession = nomicService.getNewStatefulKnowledgeSession();
+		
+		logger.info("Alternate knowledge session exists here.");
+		
+		experimentSession.insert(new Test());
+		
+		experimentSession.fireAllRules();
+		
+		experimentSession.dispose();
 		
 		super.incrementTime();
 	}

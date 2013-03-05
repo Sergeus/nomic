@@ -8,16 +8,14 @@ import java.util.UUID;
 import org.drools.definition.rule.Rule;
 
 import services.NomicService;
+import services.ScenarioService;
 import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
-import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
-import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
-import actions.ProposeRuleRemoval;
 import actions.Vote;
 import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
@@ -42,6 +40,8 @@ public class NomicAgent extends AbstractParticipant {
 	private int SequentialID;
 	
 	NomicService nomicService;
+	
+	ScenarioService scenarioService;
 	
 	Random rand = new Random();
 	
@@ -69,7 +69,7 @@ public class NomicAgent extends AbstractParticipant {
 		
 		try {
 			this.nomicService = getEnvironmentService(NomicService.class);
-			nomicService.subscribe(this);
+			this.scenarioService = getEnvironmentService(ScenarioService.class);
 		} catch (UnavailableServiceException e) {
 			logger.warn("Couldn't get Nomic Environment Service.", e);
 		}

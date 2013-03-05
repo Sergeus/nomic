@@ -7,6 +7,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import plugins.StoragePlugin;
 import services.NomicService;
+import services.ScenarioService;
 import uk.ac.imperial.presage2.core.plugin.PluginModule;
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
@@ -91,6 +92,7 @@ public class BasicSimulation extends InjectedSimulation {
 		
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
+				.addParticipantEnvironmentService(ScenarioService.class)
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));

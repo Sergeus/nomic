@@ -242,6 +242,13 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public void addRule(String rule) throws DroolsParserException {
+		
+		Collection<KnowledgePackage> packages = parseRule(rule);
+		
+		session.getKnowledgeBase().addKnowledgePackages(packages);
+	}
+	
+	public Collection<KnowledgePackage> parseRule(String rule) throws DroolsParserException {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		
 		Resource myResource = ResourceFactory.newReaderResource(new StringReader(rule));
@@ -252,9 +259,7 @@ public class NomicService extends EnvironmentService {
 					+ kbuilder.getErrors().toString());
 		}
 		
-		Collection<KnowledgePackage> packages = kbuilder.getKnowledgePackages();
-		
-		session.getKnowledgeBase().addKnowledgePackages(packages);
+		return kbuilder.getKnowledgePackages();
 	}
 	
 	public Collection<Rule> getRules() {
@@ -279,27 +284,9 @@ public class NomicService extends EnvironmentService {
 		
 		newSession.insert(session.getGlobals());
 		
-		for (Object object : session.getObjects(new ObjectFilter() {
-			
-			@Override
-			public boolean accept(Object object) {
-				return object instanceof NomicAgent;
-			}
-		})) {
-			newSession.insert(object);
-		}
-		
-		for ( Object object : session.getObjects()) {
-			newSession.insert(object);
-		}
-		
 		newSession.fireAllRules();
 		
 		return newSession;
-	}
-	
-	public void subscribe(NomicAgent agent) {
-		eb.subscribe(agent);
 	}
 	
 	public int getTurnNumber() {
