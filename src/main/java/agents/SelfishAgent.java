@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import actions.ProposeRuleChange;
+import enums.VoteType;
+
 public class SelfishAgent extends NomicAgent {
 	
 	StatefulKnowledgeSession experimentSession;
@@ -15,18 +18,14 @@ public class SelfishAgent extends NomicAgent {
 	
 	@Override
 	public void incrementTime() {
-		experimentSession = nomicService.getNewStatefulKnowledgeSession();
-		
-		logger.info("Alternate knowledge session exists here.");
-		
-		experimentSession.insert(this);
-		
-		experimentSession.insert(new Test());
-		
-		experimentSession.fireAllRules();
-		
-		experimentSession.dispose();
-		
 		super.incrementTime();
+	}
+	
+	@Override
+	public VoteType chooseVote(ProposeRuleChange ruleChange) {
+		logger.info("Run subsimulation for rule query now. Wish me luck.");
+		scenarioService.RunQuerySimulation(ruleChange, 10);
+		
+		return super.chooseVote(ruleChange);
 	}
 }

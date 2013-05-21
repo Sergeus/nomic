@@ -184,8 +184,11 @@ public class NomicAgent extends AbstractParticipant {
 	}
 	
 	public ProxyAgent getRepresentativeProxy() {
-		ProxyAgent proxy = new ProxyAgent(uk.ac.imperial.presage2.core.util.random.Random.randomUUID(), getName());
+		ProxyAgent proxy = new ProxyAgent(uk.ac.imperial.presage2.core.util.random.Random.randomUUID(), 
+				"proxy " + getName());
 		proxy.SetOwner(this);
+		proxy.setPoints(getPoints());
+		proxy.setSequentialID(getSequentialID());
 		
 		return proxy;
 	}

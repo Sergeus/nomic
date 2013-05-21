@@ -73,15 +73,20 @@ public class NomicService extends EnvironmentService {
 	
 	@Inject
 	public NomicService(EnvironmentSharedStateAccess sharedState,
-			StatefulKnowledgeSession session, EventBus e) {
+			StatefulKnowledgeSession session) {
 		super(sharedState);
 		this.session = session;
-		e.subscribe(this);
-		this.eb = e;
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
 		agents = new ArrayList<NomicAgent>();
+		agentIDs = new ArrayList<UUID>();
 		votesThisTurn = new HashMap<UUID, Vote>();
+	}
+	
+	@Inject
+	public void SetEventBus(EventBus e) {
+		e.subscribe(this);
+		this.eb = e;
 	}
 	
 	@EventListener
@@ -147,6 +152,7 @@ public class NomicService extends EnvironmentService {
 	public void registerParticipant(EnvironmentRegistrationRequest req) {
 		agents.add((NomicAgent)req.getParticipant());
 		agentIDs.add(req.getParticipantID());
+		//session.insert(req.getParticipant());
 		super.registerParticipant(req);
 	}
 	
@@ -285,7 +291,9 @@ public class NomicService extends EnvironmentService {
 	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
 		StatefulKnowledgeSession newSession = session.getKnowledgeBase().newStatefulKnowledgeSession();
 		
-		newSession.insert(session.getGlobals());
+		newSession.setGlobal("logger", session.getGlobal("logger"));
+		newSession.setGlobal("rand", session.getGlobal("rand"));
+		newSession.setGlobal("storage", session.getGlobal("storage"));
 		
 		for (Object object : session.getObjects())
 		{
@@ -321,6 +329,10 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		return proxies;
+	}
+	
+	public void OverrideKnowledgeSession(StatefulKnowledgeSession session) {
+		this.session = session;
 	}
 	
 	public Vote getVote(UUID pid) {

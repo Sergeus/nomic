@@ -52,12 +52,11 @@ public class NomicServiceMockTest extends TestCase {
 		String newRule = correctRule;
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		final NomicService service = new NomicService(ss, session, e);
+		final NomicService service = new NomicService(ss, session);
 		
 		try {
 			service.addRule(newRule);
@@ -72,12 +71,11 @@ public class NomicServiceMockTest extends TestCase {
 	public void MultipleStringRuleAdditionTest() {
 		
 		context.checking(new Expectations() {{
-			exactly(1).of(e).subscribe(with(any(NomicService.class)));
 			exactly(3).of(session).getKnowledgeBase(); will(returnValue(base));
 			exactly(3).of(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		final NomicService service = new NomicService(ss, session, e);
+		final NomicService service = new NomicService(ss, session);
 		
 		ArrayList<String> imports = new ArrayList<String>();
 		imports.add("agents.NomicAgent");
@@ -122,12 +120,11 @@ public class NomicServiceMockTest extends TestCase {
 		final String ruleName = "testRule";
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(packageName, ruleName);
 		}});
 		
-		NomicService service = new NomicService(ss, session, e);
+		NomicService service = new NomicService(ss, session);
 		service.RemoveRule(packageName, ruleName);
 		
 		context.assertIsSatisfied();
@@ -144,12 +141,11 @@ public class NomicServiceMockTest extends TestCase {
 		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		NomicService service = new NomicService(ss, session, e);
+		NomicService service = new NomicService(ss, session);
 		service.ApplyRuleChange(addition);
 		
 		context.assertIsSatisfied();
@@ -189,14 +185,13 @@ public class NomicServiceMockTest extends TestCase {
 		final FactHandle mockHandle = context.mock(FactHandle.class);
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getFactHandle(with(any(Turn.class)));
 			will(returnValue(mockHandle));
 			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 			oneOf(session).fireAllRules();
 		}});
 		
-		NomicService service = new NomicService(ss, session, e);
+		NomicService service = new NomicService(ss, session);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);
@@ -225,14 +220,13 @@ public class NomicServiceMockTest extends TestCase {
 		final FactHandle mockHandle = context.mock(FactHandle.class);
 		
 		context.checking(new Expectations() {{
-			oneOf(e).subscribe(with(any(NomicService.class)));
 			oneOf(session).getFactHandle(with(any(Turn.class)));
 			will(returnValue(mockHandle));
 			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 			oneOf(session).fireAllRules();
 		}});
 		
-		NomicService service = new NomicService(ss, session, e);
+		NomicService service = new NomicService(ss, session);
 		
 		try {
 			service.getCurrentRuleChange();

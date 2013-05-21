@@ -27,6 +27,13 @@ rule "Whose turn is it"
 		};
 end
 
+rule "Test rule for insertions"
+	when
+		$agent : NomicAgent($ID : sequentialID)
+	then
+		logger.info("Found agent with seq ID " + $ID + " and name " + $agent.getName());
+end
+
 rule "Unanimous votes succeed for first two rounds"
 	when
 		$vote : Vote($turnNumber : t, vote == VoteType.YES)
