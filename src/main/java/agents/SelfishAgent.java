@@ -19,6 +19,8 @@ public class SelfishAgent extends NomicAgent {
 		
 		logger.info("Alternate knowledge session exists here.");
 		
+		experimentSession.insert(this);
+		
 		experimentSession.insert(new Test());
 		
 		experimentSession.fireAllRules();

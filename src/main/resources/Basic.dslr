@@ -19,7 +19,7 @@ rule "Whose turn is it"
 	when
 		$agent : NomicAgent($ID : sequentialID)
 		$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )
-		$turn : Turn((number % $n.intValue()) == ($ID) && activePlayer != $agent)
+		$turn : Turn($n > 0 && (number % $n.intValue()) == ($ID) && activePlayer != $agent)
 	then
 		logger.info("It's this guy's turn: " + $agent.getName());
 		modify ($turn) {

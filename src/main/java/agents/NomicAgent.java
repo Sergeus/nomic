@@ -29,7 +29,7 @@ public class NomicAgent extends AbstractParticipant {
 			+ "when"
 			+ "	$agent : NomicAgent($ID : sequentialID)"
 			+ "	$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )"
-			+ "	$turn : Turn((($n.intValue() - 1)  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
+			+ "	$turn : Turn($n > 0 && (($n.intValue() - 1)  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
 			+ "then"
 			+ "	logger.info(\"It's this guy's turn: \" + $agent.getName());"
 			+ "	modify ($turn) {"
@@ -42,6 +42,8 @@ public class NomicAgent extends AbstractParticipant {
 	NomicService nomicService;
 	
 	ScenarioService scenarioService;
+	
+	String MyRulesFile;
 	
 	Random rand = new Random();
 	
@@ -179,5 +181,12 @@ public class NomicAgent extends AbstractParticipant {
 	
 	public void Win() {
 		nomicService.Win(this);
+	}
+	
+	public ProxyAgent getRepresentativeProxy() {
+		ProxyAgent proxy = new ProxyAgent(uk.ac.imperial.presage2.core.util.random.Random.randomUUID(), getName());
+		proxy.SetOwner(this);
+		
+		return proxy;
 	}
 }

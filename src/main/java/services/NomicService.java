@@ -16,7 +16,6 @@ import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
-import org.drools.runtime.ObjectFilter;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 
@@ -35,6 +34,7 @@ import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
 import actions.Vote;
 import agents.NomicAgent;
+import agents.ProxyAgent;
 
 import com.google.inject.Inject;
 
@@ -52,6 +52,8 @@ public class NomicService extends EnvironmentService {
 	int TurnNumber = 0;
 	
 	private ArrayList<NomicAgent> agents;
+	
+	private ArrayList<UUID> agentIDs;
 	
 	private Map<UUID,Vote> votesThisTurn;
 	
@@ -144,6 +146,7 @@ public class NomicService extends EnvironmentService {
 	@Override
 	public void registerParticipant(EnvironmentRegistrationRequest req) {
 		agents.add((NomicAgent)req.getParticipant());
+		agentIDs.add(req.getParticipantID());
 		super.registerParticipant(req);
 	}
 	
@@ -284,7 +287,13 @@ public class NomicService extends EnvironmentService {
 		
 		newSession.insert(session.getGlobals());
 		
-		newSession.fireAllRules();
+		for (Object object : session.getObjects())
+		{
+			if (!(object instanceof NomicAgent))
+				newSession.insert(object);
+		}
+		
+		newSession.getAgenda().clear();
 		
 		return newSession;
 	}
@@ -299,6 +308,19 @@ public class NomicService extends EnvironmentService {
 	
 	public int getNumberOfAgents() {
 		return agents.size();
+	}
+	
+	public Collection<UUID> getAgentIDs() {
+		return agentIDs;
+	}
+	
+	public Collection<ProxyAgent> getProxyAgents() {
+		Collection<ProxyAgent> proxies = new ArrayList<ProxyAgent>();
+		for (NomicAgent agent : agents) {
+			proxies.add(agent.getRepresentativeProxy());
+		}
+		
+		return proxies;
 	}
 	
 	public Vote getVote(UUID pid) {

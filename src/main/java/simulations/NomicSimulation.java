@@ -26,7 +26,7 @@ import agents.SelfishAgent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 
-public class BasicSimulation extends InjectedSimulation {
+public class NomicSimulation extends InjectedSimulation {
 	
 	StatefulKnowledgeSession session;
 	
@@ -39,7 +39,7 @@ public class BasicSimulation extends InjectedSimulation {
 	@Parameter(name="sagents")
 	public int sagents;
 
-	public BasicSimulation(Set<AbstractModule> modules) {
+	public NomicSimulation(Set<AbstractModule> modules) {
 		super(modules);
 	}
 	
