@@ -4,9 +4,15 @@ import java.util.UUID;
 
 public class ProxyAgent extends NomicAgent {
 	
-	NomicAgent Owner;
+	private NomicAgent owner;
 	
-	boolean Winner = false;
+	private boolean Winner = false;
+	
+	private Integer preference = 50;
+	
+	private boolean preferenceLocked = false;
+	
+	private boolean avatar;
 
 	public ProxyAgent(UUID id, String name) {
 		super(id, name);
@@ -18,16 +24,16 @@ public class ProxyAgent extends NomicAgent {
 		Winner = true;
 	}
 	
-	public void SetOwner(NomicAgent owner) {
-		Owner = owner;
+	public void setOwner(NomicAgent owner) {
+		this.owner = owner;
 	}
 	
-	public NomicAgent GetOwner() {
-		return Owner;
+	public NomicAgent getOwner() {
+		return owner;
 	}
 	
 	public UUID GetOwnerID() {
-		return Owner.getID();
+		return owner.getID();
 	}
 	
 	public boolean isWinner() {
@@ -42,11 +48,51 @@ public class ProxyAgent extends NomicAgent {
 	public void incrementTime() {
 		logger.info("EPIC PROXY LOLZ");
 		
-		if (Owner instanceof SelfishAgent) {
-			
-		}
-		
 		super.incrementTime();
 	}
+	
+	@Override
+	public String getProxyRulesFile() {
+		return owner.getProxyRulesFile();
+	}
+	
+	/**
+	 * Returns true if this agent is the representative of the agent that created
+	 * the subsimulation.
+	 * @return
+	 */
+	public boolean IsAvatar() {
+		return avatar;
+	}
+	
+	public void SetAvatar(boolean avatar) {
+		this.avatar = avatar;
+	}
 
+	public Integer getPreference() {
+		return preference;
+	}
+
+	public void setPreference(Integer preference) {
+		if (!preferenceLocked)
+			this.preference = preference;
+	}
+	
+	public void increasePreference(Integer amount) {
+		if (!preferenceLocked)
+			this.preference += amount;
+	}
+	
+	public void decreasePreference(Integer amount) {
+		if (!preferenceLocked)
+			this.preference -= amount;
+	}
+
+	public boolean isPreferenceLocked() {
+		return preferenceLocked;
+	}
+
+	public void setPreferenceLocked(boolean preferenceLocked) {
+		this.preferenceLocked = preferenceLocked;
+	}
 }

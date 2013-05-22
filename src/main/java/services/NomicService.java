@@ -35,6 +35,7 @@ import actions.ProposeRuleRemoval;
 import actions.Vote;
 import agents.NomicAgent;
 import agents.ProxyAgent;
+import agents.Test;
 
 import com.google.inject.Inject;
 
@@ -112,7 +113,6 @@ public class NomicService extends EnvironmentService {
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
 				votesThisTurn.clear();
-				logger.info("All of the votings.");
 				if (currentRuleChange.getSucceeded()) {
 					logger.info("This proposal has succeeded.");
 					ApplyRuleChange(currentRuleChange);
@@ -134,11 +134,9 @@ public class NomicService extends EnvironmentService {
 			}
 		}
 		
-		for (NomicAgent agent : agents) {
-			logger.info("Agent list: " + agent.getName());
-		}
-		
 		session.update(session.getFactHandle(currentTurn), currentTurn);
+		
+		session.insert(new Test());
 		
 		session.fireAllRules();
 		logger.info("Next move, turn: " + currentTurn.getNumber() + ", " + currentTurn.getType());
@@ -263,6 +261,12 @@ public class NomicService extends EnvironmentService {
 		session.getKnowledgeBase().addKnowledgePackages(packages);
 	}
 	
+	public void AddRuleFile(String filePath) throws DroolsParserException {
+		Collection<KnowledgePackage> packages = parseRuleFile(filePath);
+		
+		session.getKnowledgeBase().addKnowledgePackages(packages);
+	}
+	
 	public Collection<KnowledgePackage> parseRule(String rule) throws DroolsParserException {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		
@@ -275,6 +279,24 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		return kbuilder.getKnowledgePackages();
+	}
+	
+	public Collection<KnowledgePackage> parseRuleFile(String filePath)
+			throws DroolsParserException {
+		
+		logger.info("Parsing rule file at " + filePath);
+		KnowledgeBuilder kBuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+		
+		Resource myResource = ResourceFactory.newFileResource(filePath);
+		kBuilder.add(myResource, ResourceType.DRL);
+		
+		if (kBuilder.hasErrors()) {
+			throw new DroolsParserException("Unable to parse new rule from file.\n"
+					+ filePath + "\n"
+					+ kBuilder.getErrors().toString());
+		}
+		
+		return kBuilder.getKnowledgePackages();
 	}
 	
 	public Collection<Rule> getRules() {
@@ -372,5 +394,14 @@ public class NomicService extends EnvironmentService {
 	
 	public NomicAgent getWinner() {
 		return Winner;
+	}
+	
+	public Map<Integer, Integer> getPointsMap() {
+		HashMap<Integer, Integer> agentsToPoints = new HashMap<Integer, Integer>();
+		for (NomicAgent agent : agents) {
+			agentsToPoints.put(agent.getSequentialID(), agent.getSequentialID());
+		}
+		
+		return agentsToPoints;
 	}
 }

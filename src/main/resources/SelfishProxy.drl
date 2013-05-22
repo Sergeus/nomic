@@ -1,0 +1,104 @@
+//created on: 22-May-2013
+package SelfishProxy
+
+import agents.*;
+import facts.*;
+
+
+
+global org.apache.log4j.Logger logger
+
+
+
+rule "Me winning is great"
+
+    when
+        $win : Win ( $agent : winner )
+        eval( $agent instanceof ProxyAgent )
+        $proxy : ProxyAgent ( IsAvatar() ) from $win.getWinner()
+    then
+    	logger.info("I have won and this is good.");
+    	$proxy.setPreference(100);
+    	$proxy.setPreferenceLocked(true);
+end
+
+rule "Me gaining points is good"
+
+	when
+		// Bug, if controller has 10, proxy has 20, and proxy loses 5, proxy gains preference
+		$agent : ProxyAgent($avatarPoints : points, $controller : owner)
+		eval($agent.IsAvatar() && $controller.getPoints() < $avatarPoints)
+	then
+		logger.info("I have gained points and this is good.");
+		$agent.increasePreference(15);
+end
+
+rule "Me losing points is bad"
+
+	when
+		// Bug corresponds to above, but backwards
+		$agent : ProxyAgent($avatarPoints : points, $controller : owner, $agent.IsAvatar(), $controller.getPoints() > $avatarPoints)
+	then
+		logger.info("I have lost points and this is bad.");
+		$agent.decreasePreference(15);
+end
+
+rule "Other people having less points than me is good"
+
+	when
+		$agent : ProxyAgent($points : points )
+		$avatar : ProxyAgent($avatarPoints : points)
+		eval (!$agent.IsAvatar() && $avatar.IsAvatar() && $points < $avatarPoints)
+	then
+		logger.info("Someone else has less points than me and this is good.");
+		$avatar.increasePreference(5);
+end
+
+rule "Other people having more points than me is bad"
+
+	when
+		$agent : ProxyAgent($points : points )
+		$avatar : ProxyAgent($avatarPoints : points)
+		eval (!$agent.IsAvatar() && $avatar.IsAvatar() && $points > $avatarPoints)
+	then
+		logger.info("Someone else has more points than me and I don't like that.");
+		$avatar.decreasePreference(5);
+end
+
+
+rule "Other people winning is terrible"
+
+	when
+		Win($agent : winner)
+		eval ($agent instanceof ProxyAgent)
+		$proxy : ProxyAgent ( ) from $agent
+		$avatar : ProxyAgent( )
+		eval( !$proxy.IsAvatar() && $avatar.IsAvatar())
+	then
+		logger.info("Someone else has won and that is terrible.");
+		$avatar.setPreference(0);
+		$avatar.setPreferenceLocked(true);
+end
+
+rule "It being my turn is good"
+
+	when
+		$avatar : ProxyAgent( IsAvatar() )
+		Turn( activePlayer == $avatar )
+	then
+		logger.info("It is my turn and that is good.");
+		$avatar.increasePreference(5);
+end
+
+rule "It being other people's turn is bad"
+
+	when
+		$avatar : ProxyAgent ( IsAvatar() )
+		Turn ( activePlayer != $avatar )
+	then
+		logger.info("It is someone else's turn and I don't like that.");
+		$avatar.decreasePreference(2);
+end
+		
+		
+		

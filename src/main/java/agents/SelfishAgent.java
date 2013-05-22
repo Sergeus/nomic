@@ -8,8 +8,6 @@ import actions.ProposeRuleChange;
 import enums.VoteType;
 
 public class SelfishAgent extends NomicAgent {
-	
-	StatefulKnowledgeSession experimentSession;
 
 	public SelfishAgent(UUID id, String name) {
 		super(id, name);
@@ -26,6 +24,13 @@ public class SelfishAgent extends NomicAgent {
 		logger.info("Run subsimulation for rule query now. Wish me luck.");
 		scenarioService.RunQuerySimulation(ruleChange, 10);
 		
-		return super.chooseVote(ruleChange);
+		logger.info("This simulation had a preference of: " + scenarioService.getPreference());
+		
+		return chooseVoteFromProbability(scenarioService.getPreference());
+	}
+	
+	@Override
+	public String getProxyRulesFile() {
+		return "src/main/resources/SelfishProxy.drl";
 	}
 }

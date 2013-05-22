@@ -3,6 +3,7 @@ package simulations;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.drools.compiler.DroolsParserException;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import services.NomicService;
@@ -22,6 +23,7 @@ import uk.ac.imperial.presage2.util.environment.EnvironmentMembersService;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
 import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
+import actions.ProposeRuleChange;
 import agents.ProxyAgent;
 import agents.Test;
 
@@ -31,9 +33,13 @@ public class SubScenarioSimulation extends NomicSimulation {
 	
 	ScenarioService scenarioService;
 	
-	public SubScenarioSimulation(Set<AbstractModule> modules, ScenarioService scenarioService) {
+	ProposeRuleChange testedRuleChange;
+	
+	public SubScenarioSimulation(Set<AbstractModule> modules, ScenarioService scenarioService,
+			ProposeRuleChange testedRuleChange) {
 		super(modules);
 		this.scenarioService = scenarioService;
+		this.testedRuleChange = testedRuleChange;
 	}
 
 	@Override
@@ -42,6 +48,9 @@ public class SubScenarioSimulation extends NomicSimulation {
 		for (ProxyAgent proxy : scenarioService.getProxyAgents()) {
 			s.addParticipant(proxy);
 			session.insert(proxy);
+			
+			if (scenarioService.IsController(proxy.getOwner()))
+				LoadProxyRules(proxy);
 		}
 	}
 	
@@ -71,5 +80,25 @@ public class SubScenarioSimulation extends NomicSimulation {
 		session.setGlobal("logger", superSession.getGlobal("logger"));
 		session.setGlobal("rand", superSession.getGlobal("rand"));
 		session.setGlobal("storage", superSession.getGlobal("storage"));
+	}
+	
+	public void LoadProxyRules(ProxyAgent avatar) {
+		String filePath = avatar.getProxyRulesFile();
+		try {
+			NomicService nomicService = getEnvironmentService(NomicService.class);
+			nomicService.AddRuleFile(filePath);
+			
+			//nomicService.ApplyRuleChange(testedRuleChange);
+		} catch (UnavailableServiceException e) {
+			logger.warn("Nomic service unavailable for proxy agent rule addition.", e);
+		} catch (DroolsParserException e) {
+			logger.warn("Proxy rules for file " + filePath + " could not be parsed.", e);
+		}
+	}
+	
+	public <T extends EnvironmentService> T getEnvironmentService(Class<T> serviceType) 
+			throws UnavailableServiceException {
+		AbstractEnvironment env = (AbstractEnvironment) getScenario().getEnvironment();
+		return env.getEnvironmentService(serviceType);
 	}
 }

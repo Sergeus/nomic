@@ -158,6 +158,15 @@ public class NomicAgent extends AbstractParticipant {
 			return VoteType.NO;
 		}
 	}
+	
+	public VoteType chooseVoteFromProbability(Integer chance) {
+		if (rand.nextInt(100) < chance) {
+			return VoteType.YES;
+		}
+		else {
+			return VoteType.NO;
+		}
+	}
 
 	public void setSequentialID(int sequentialID) {
 		SequentialID = sequentialID;
@@ -186,10 +195,14 @@ public class NomicAgent extends AbstractParticipant {
 	public ProxyAgent getRepresentativeProxy() {
 		ProxyAgent proxy = new ProxyAgent(uk.ac.imperial.presage2.core.util.random.Random.randomUUID(), 
 				"proxy " + getName());
-		proxy.SetOwner(this);
+		proxy.setOwner(this);
 		proxy.setPoints(getPoints());
 		proxy.setSequentialID(getSequentialID());
 		
 		return proxy;
+	}
+	
+	public String getProxyRulesFile() {
+		return "src/main/resources/TestProxy.drl";
 	}
 }
