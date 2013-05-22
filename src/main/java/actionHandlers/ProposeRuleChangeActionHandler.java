@@ -26,17 +26,15 @@ import exceptions.InvalidRuleProposalException;
 
 public class ProposeRuleChangeActionHandler implements ActionHandler {
 	
-	final StatefulKnowledgeSession session;
+	StatefulKnowledgeSession session;
 	private final Logger logger = Logger.getLogger(ProposeRuleChangeActionHandler.class);
 	final EnvironmentServiceProvider serviceProvider;
 	
 	NomicService nomicService;
 	
 	@Inject
-	public ProposeRuleChangeActionHandler(StatefulKnowledgeSession session,
-			EnvironmentServiceProvider serviceProvider) {
+	public ProposeRuleChangeActionHandler(EnvironmentServiceProvider serviceProvider) {
 		super();
-		this.session = session;
 		this.serviceProvider = serviceProvider;
 	}
 	
@@ -44,6 +42,7 @@ public class ProposeRuleChangeActionHandler implements ActionHandler {
 		if (nomicService == null) {
 			try {
 				nomicService = serviceProvider.getEnvironmentService(NomicService.class);
+				session = nomicService.getActiveStatefulKnowledgeSession();
 			} catch (UnavailableServiceException e) {
 				logger.warn("Unable to get NomicService.");
 			}

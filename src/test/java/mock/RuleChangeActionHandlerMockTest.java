@@ -59,7 +59,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, oldRuleName, oldRulePackage);
 		
-		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(serviceProvider);
 		
 		assertTrue(handler.canHandle(addition));
 		assertTrue(handler.canHandle(modification));
@@ -85,10 +85,11 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
 			oneOf(service).ProposeRuleChange(removal);
+			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(removal);
 		}});
 		
-		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(serviceProvider);
 		
 		try {
 			handler.handle(removal, Random.randomUUID());
@@ -119,10 +120,11 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
 			oneOf(service).ProposeRuleChange(modification);
+			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(modification);
 		}});
 		
-		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(serviceProvider);
 		
 		try {
 			handler.handle(modification, Random.randomUUID());
@@ -149,10 +151,11 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
 			oneOf(service).ProposeRuleChange(addition);
+			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(addition);
 		}});
 		
-		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(serviceProvider);
 		
 		try {
 			handler.handle(addition, Random.randomUUID());
@@ -173,9 +176,10 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
+			oneOf(service).getActiveStatefulKnowledgeSession();
 		}});
 		
-		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(session, serviceProvider);
+		ProposeRuleChangeActionHandler handler = new ProposeRuleChangeActionHandler(serviceProvider);
 		
 		try {
 			handler.handle(genericAction, Random.randomUUID());

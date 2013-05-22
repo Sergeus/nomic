@@ -75,8 +75,6 @@ public class ScenarioService extends EnvironmentService {
 		
 		subScenarioSimulation.load();
 		
-		subScenarioSimulation.OverrideKnowledgeSession(getReplacementSession());
-		
 		subScenarioSimulation.run();
 	}
 	

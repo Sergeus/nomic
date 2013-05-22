@@ -7,10 +7,13 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import services.NomicService;
 import services.ScenarioService;
+import uk.ac.imperial.presage2.core.environment.ActionHandler;
+import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
+import uk.ac.imperial.presage2.core.simulator.RunnableSimulation.SimulationState;
 import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironment;
@@ -35,9 +38,10 @@ public class SubScenarioSimulation extends NomicSimulation {
 
 	@Override
 	protected void addToScenario(Scenario s) {
+		LoadSuperState();
 		for (ProxyAgent proxy : scenarioService.getProxyAgents()) {
 			s.addParticipant(proxy);
-			scenarioService.getReplacementSession().insert(proxy);
+			session.insert(proxy);
 		}
 	}
 	
@@ -59,22 +63,13 @@ public class SubScenarioSimulation extends NomicSimulation {
 		return modules;
 	}
 	
-	@Override
-	@EventListener
-	public void onNewTimeCycle(EndOfTimeCycle e) {
-		session.insert(new Test());
-		super.onNewTimeCycle(e);
-	}
-	
-	public void OverrideKnowledgeSession(StatefulKnowledgeSession session) {
-		this.session = session;
-		
-		try {
-			AbstractEnvironment env = (AbstractEnvironment) getScenario().getEnvironment();
-			NomicService nomicService = env.getEnvironmentService(NomicService.class);
-			nomicService.OverrideKnowledgeSession(session);
-		} catch (UnavailableServiceException e) {
-			logger.warn("Unable to get nomic service for subsimulation.", e);
-		}
+	public void LoadSuperState() {
+		StatefulKnowledgeSession superSession = scenarioService.getReplacementSession();
+		session.getKnowledgeBase().addKnowledgePackages(
+				superSession.getKnowledgeBase()
+				.getKnowledgePackages());
+		session.setGlobal("logger", superSession.getGlobal("logger"));
+		session.setGlobal("rand", superSession.getGlobal("rand"));
+		session.setGlobal("storage", superSession.getGlobal("storage"));
 	}
 }

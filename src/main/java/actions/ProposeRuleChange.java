@@ -25,6 +25,7 @@ public abstract class ProposeRuleChange extends TimeStampedAction {
 	
 	public void setSucceeded(boolean succeeded) {
 		this.succeeded = succeeded;
+		System.out.println("Successful proposal object from " + proposer.getName());
 	}
 
 	public NomicAgent getProposer() {

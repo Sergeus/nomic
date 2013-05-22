@@ -39,7 +39,7 @@ public class VoteActionHandlerMockTest extends TestCase {
 		
 		final NomicAgent mockAgent = context.mock(NomicAgent.class);
 		
-		VoteActionHandler handler = new VoteActionHandler(session, serviceProvider);
+		VoteActionHandler handler = new VoteActionHandler(serviceProvider);
 		
 		Vote yes = new Vote(mockAgent, VoteType.YES);
 		
@@ -64,13 +64,14 @@ public class VoteActionHandlerMockTest extends TestCase {
 		
 		final Action genericAction = context.mock(Action.class);
 		
-		VoteActionHandler handler = new VoteActionHandler(session, serviceProvider);
+		VoteActionHandler handler = new VoteActionHandler(serviceProvider);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); 
 			will(returnValue(service));
 			oneOf(service).Vote(yes);
 			oneOf(service).getTurnNumber();
+			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(yes);
 		}});
 		

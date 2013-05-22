@@ -27,7 +27,7 @@ rule "Whose turn is it"
 		};
 end
 
-rule "Test rule for insertions"
+rule "Test rule for agent insertions"
 	when
 		$agent : NomicAgent($ID : sequentialID)
 	then
@@ -72,6 +72,7 @@ rule "All Agents Must Vote"
 		$agents : Number() from accumulate ( $a : NomicAgent( ) count( $a ) )
 		eval($agents.intValue() == $n.intValue())
 	then
+		logger.info("All agents have voted.");
 		modify($turn) {
 			setAllVoted(true);
 		};

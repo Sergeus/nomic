@@ -112,7 +112,9 @@ public class NomicService extends EnvironmentService {
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
 				votesThisTurn.clear();
+				logger.info("All of the votings.");
 				if (currentRuleChange.getSucceeded()) {
+					logger.info("This proposal has succeeded.");
 					ApplyRuleChange(currentRuleChange);
 					for (NomicAgent agent : agents) {
 						agent.voteSucceeded(currentRuleChange);
@@ -130,6 +132,10 @@ public class NomicService extends EnvironmentService {
 				currentTurn.setNumber(++TurnNumber);
 				currentTurn.setAllVoted(false);
 			}
+		}
+		
+		for (NomicAgent agent : agents) {
+			logger.info("Agent list: " + agent.getName());
 		}
 		
 		session.update(session.getFactHandle(currentTurn), currentTurn);
@@ -291,19 +297,40 @@ public class NomicService extends EnvironmentService {
 	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
 		StatefulKnowledgeSession newSession = session.getKnowledgeBase().newStatefulKnowledgeSession();
 		
+		
 		newSession.setGlobal("logger", session.getGlobal("logger"));
 		newSession.setGlobal("rand", session.getGlobal("rand"));
 		newSession.setGlobal("storage", session.getGlobal("storage"));
 		
 		for (Object object : session.getObjects())
 		{
-			if (!(object instanceof NomicAgent))
+			if (WantToCopyToNewSession(object))
 				newSession.insert(object);
 		}
 		
 		newSession.getAgenda().clear();
 		
 		return newSession;
+	}
+	
+	private boolean WantToCopyToNewSession(Object object) {
+		if (object instanceof NomicAgent)
+			return false;
+		
+		if (object instanceof Turn)
+			return false;
+		
+		if (object instanceof Vote && ((Vote)object).getT() == getTurnNumber())
+			return false;
+		
+		if (object instanceof ProposeRuleChange && ((ProposeRuleChange)object).getT() == getTurnNumber())
+			return false;
+		
+		return true;
+	}
+	
+	public StatefulKnowledgeSession getActiveStatefulKnowledgeSession() {
+		return session;
 	}
 	
 	public int getTurnNumber() {
@@ -329,10 +356,6 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		return proxies;
-	}
-	
-	public void OverrideKnowledgeSession(StatefulKnowledgeSession session) {
-		this.session = session;
 	}
 	
 	public Vote getVote(UUID pid) {

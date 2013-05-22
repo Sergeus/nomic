@@ -19,17 +19,15 @@ import com.google.inject.Inject;
 
 public class VoteActionHandler implements ActionHandler {
 
-	final StatefulKnowledgeSession session;
+	StatefulKnowledgeSession session;
 	private final Logger logger = Logger.getLogger(ProposeRuleChangeActionHandler.class);
 	final EnvironmentServiceProvider serviceProvider;
 	
 	NomicService nomicService;
 	
 	@Inject
-	public VoteActionHandler(StatefulKnowledgeSession session,
-			EnvironmentServiceProvider serviceProvider) {
+	public VoteActionHandler(EnvironmentServiceProvider serviceProvider) {
 		super();
-		this.session = session;
 		this.serviceProvider = serviceProvider;
 	}
 	
@@ -37,6 +35,7 @@ public class VoteActionHandler implements ActionHandler {
 		if (nomicService == null) {
 			try {
 				nomicService = serviceProvider.getEnvironmentService(NomicService.class);
+				session = nomicService.getActiveStatefulKnowledgeSession();
 			} catch (UnavailableServiceException e) {
 				logger.warn("Unable to get NomicService.");
 			}
