@@ -130,8 +130,6 @@ rule "You gain 1d6 points at the end of your turn"
 			rand = new java.util.Random();
 		int r = rand.nextInt(6) + 1;
 		logger.info($agent.getName() + " gains " + r + " points at the end of their turn.");
-		logger.info("This is on turn " + $turn.getNumber());
-		
 		modify($agent) {
 			setPoints($agent.getPoints() + r);
 		};

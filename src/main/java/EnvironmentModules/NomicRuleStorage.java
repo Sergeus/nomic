@@ -176,7 +176,9 @@ public class NomicRuleStorage implements SharedStateStorage,
 		baseConf.setOption(EventProcessingOption.STREAM);
 //		baseConf.setOption(ShareBetaNodesOption.NO);
 //		baseConf.setOption(ShareAlphaNodesOption.NO);
-		//baseConf.setOption(ClassLoaderCacheOption.DISABLED);
+		logger.info(baseConf.getOption(ClassLoaderCacheOption.class));
+		baseConf.setOption(ClassLoaderCacheOption.DISABLED);
+		logger.info(baseConf.getOption(ClassLoaderCacheOption.class));
 
 		KnowledgeSessionConfiguration sessionConf = KnowledgeBaseFactory
 				.newKnowledgeSessionConfiguration();

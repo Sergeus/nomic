@@ -1,0 +1,46 @@
+//created on: 24-May-2013
+package DestructiveProxy
+
+
+import agents.*;
+import facts.*;
+import actions*;
+
+
+global org.apache.log4j.Logger logger
+
+
+rule "Anyone winning is bad"
+	salience 10
+    when
+        Win ( )
+        $avatar : ProxyAgent ( IsAvatar() )
+    then
+        logger.info("This has led to someone winning, which I don't like.");
+        $avatar.setPreference(0);
+        $avatar.setPreferenceLocked(true);
+
+end
+
+rule "Successful proposals not by me are bad"
+    
+    when
+        ProposeRuleChange (succeeded == true,  $agent : proposer )
+        eval ( $agent instanceof ProxyAgent )
+        $proxy : ProxyAgent ( !IsAvatar() ) from $agent
+    	$avatar : ProxyAgent ( IsAvatar() )
+    then
+        logger.info("Someone else has proposed a successful rule change, this is bad.");
+        $avatar.decreasePreference(10);
+
+end
+
+rule "Successful rule removal is good"
+
+	when
+		ProposeRuleRemoval ( succeeded == true )
+		$avatar : ProxyAgent ( IsAvatar() )
+	then
+		logger.info("A rule has been removed and that is good.");
+		$avatar.increasePreference(20);
+end

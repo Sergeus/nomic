@@ -71,9 +71,8 @@ rule "Other people winning is terrible"
 	when
 		Win($agent : winner)
 		eval ($agent instanceof ProxyAgent)
-		$proxy : ProxyAgent ( ) from $agent
-		$avatar : ProxyAgent( )
-		eval( !$proxy.IsAvatar() && $avatar.IsAvatar())
+		$proxy : ProxyAgent ( !IsAvatar() ) from $agent
+		$avatar : ProxyAgent( IsAvatar() )
 	then
 		logger.info("Someone else has won and that is terrible.");
 		$avatar.setPreference(0);
@@ -100,5 +99,14 @@ rule "It being other people's turn is bad"
 		$avatar.decreasePreference(2);
 end
 		
+rule "Other people losing points is good"
+
+	when
+		$proxy : ProxyAgent ( !IsAvatar(), getPoints() < owner.getPoints() )
+		$avatar : ProxyAgent ( IsAvatar() )
+	then
+		logger.info("Someone else has lost points and I like that.");
+		$avatar.increasePreference(7);
 		
+end
 		

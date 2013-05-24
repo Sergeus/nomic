@@ -7,6 +7,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import plugins.StoragePlugin;
 import services.NomicService;
+import services.RuleClassificationService;
 import services.ScenarioService;
 import uk.ac.imperial.presage2.core.plugin.PluginModule;
 import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
@@ -92,6 +93,7 @@ public class NomicSimulation extends InjectedSimulation {
 		
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
+				.addParticipantGlobalEnvironmentService(RuleClassificationService.class)
 				.addParticipantEnvironmentService(ScenarioService.class)
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)

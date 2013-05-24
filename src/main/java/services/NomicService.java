@@ -86,13 +86,13 @@ public class NomicService extends EnvironmentService {
 		super(sharedState);
 		this.session = session;
 		
-		logger.info("Receiving a stateful knowledge session with kbase sessions: ");
-		
-		for (StatefulKnowledgeSession sesh : session.getKnowledgeBase().getStatefulKnowledgeSessions()) {
-			logger.info("ID: " + sesh.getId() + " ToString: " + sesh.toString());
-		}
-		
-		logger.info("KnowledgeBase ToString: " + session.getKnowledgeBase().toString());
+//		logger.info("Receiving a stateful knowledge session with kbase sessions: ");
+//		
+//		for (StatefulKnowledgeSession sesh : session.getKnowledgeBase().getStatefulKnowledgeSessions()) {
+//			logger.info("ID: " + sesh.getId() + " ToString: " + sesh.toString());
+//		}
+//		
+//		logger.info("KnowledgeBase ToString: " + session.getKnowledgeBase().toString());
 		
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		

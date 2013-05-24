@@ -167,4 +167,9 @@ public class DestructiveAgent extends NomicAgent {
 		
 		super.voteSucceeded(ruleChange);
 	}
+	
+	@Override
+	public String getProxyRulesFile() {
+		return "src/main/resources/DestructiveProxy.drl";
+	}
 }

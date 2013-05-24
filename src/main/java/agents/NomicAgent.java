@@ -105,7 +105,7 @@ public class NomicAgent extends AbstractParticipant {
 		String newRuleName = "Backwards Turns";
 		boolean success = false;
 		
-		boolean test = true;
+		boolean test = false;
 		if (test) {
 			ProposeRuleRemoval removal = new ProposeRuleRemoval(this, "Test rule for agent insertions", "Rules");
 			logger.info("Proposing test removal");
