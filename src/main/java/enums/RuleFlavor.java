@@ -13,4 +13,16 @@ public enum RuleFlavor {
 	 * Makes easily understood, non-complex changes
 	 */
 	SIMPLE,
+	/**
+	 * Last resort changes that can be used to swing the game/when there is nothing else good to do
+	 */
+	DESPERATION,
+	/**
+	 * Good for everyone
+	 */
+	BENEFICIAL,
+	/**
+	 * Introduces/removes some kind of win condition
+	 */
+	WINCONDITION,
 }

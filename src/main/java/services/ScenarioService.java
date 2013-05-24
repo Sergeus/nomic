@@ -1,12 +1,12 @@
 package services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.drools.definition.rule.Rule;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import simulations.SubScenarioSimulation;
@@ -24,6 +24,43 @@ import com.google.inject.AbstractModule;
 
 public class ScenarioService extends EnvironmentService {
 	
+	class SimResults {
+		Integer SubID;
+		Integer SubLength;
+		Integer AvatarPreference;
+		
+		public SimResults(Integer subID, Integer subLength,
+				Integer avatarPreference) {
+			this.SubID = subID;
+			this.SubLength = subLength;
+			this.AvatarPreference = avatarPreference;
+		}
+
+		public Integer getSubID() {
+			return SubID;
+		}
+
+		public void setSubID(Integer subID) {
+			SubID = subID;
+		}
+
+		public Integer getSubLength() {
+			return SubLength;
+		}
+
+		public void setSubLength(Integer subLength) {
+			SubLength = subLength;
+		}
+
+		public Integer getAvatarPreference() {
+			return AvatarPreference;
+		}
+
+		public void setAvatarPreference(Integer avatarPreference) {
+			AvatarPreference = avatarPreference;
+		}
+	}
+	
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
 	final private EnvironmentServiceProvider serviceProvider;
@@ -36,9 +73,11 @@ public class ScenarioService extends EnvironmentService {
 	
 	private SubScenarioSimulation subScenarioSimulation;
 	
-	NomicAgent controller;
+	private NomicAgent controller;
 	
-	ProxyAgent avatar;
+	private ProxyAgent avatar;
+	
+	private ArrayList<SimResults> SubSimulationResults;
 
 	public ScenarioService(EnvironmentSharedStateAccess ss, EnvironmentServiceProvider provider,
 			Participant p) {
@@ -48,6 +87,8 @@ public class ScenarioService extends EnvironmentService {
 		if (p instanceof NomicAgent) {
 			controller = (NomicAgent)p;
 		}
+		
+		SubSimulationResults = new ArrayList<ScenarioService.SimResults>();
 	}
 	
 	public NomicService getSuperNomicService() {
@@ -133,6 +174,12 @@ public class ScenarioService extends EnvironmentService {
 			avatar.setPreference(0);
 		
 		avatar.setPreferenceLocked(true);
+		
+		SimResults results = new SimResults(SubSimulationResults.size(), 
+				subScenarioSimulation.getSimulationFinishTime().intValue(),
+				avatar.getPreference());
+		
+		SubSimulationResults.add(results);
 	}
 	
 	public StatefulKnowledgeSession getReplacementSession() {
@@ -169,5 +216,22 @@ public class ScenarioService extends EnvironmentService {
 	
 	public Map<Integer, Integer> getPointsAtEnd() {
 		return getSubNomicService().getPointsMap();
+	}
+
+	public int getNumSubSimsRun() {
+		return SubSimulationResults.size();
+	}
+	
+	public int getAverageSubSimLength() {
+		int length = 0;
+		
+		if (SubSimulationResults.size() == 0)
+			return 0;
+		
+		for (SimResults results : SubSimulationResults) {
+			length += results.getSubLength();
+		}
+		length /= SubSimulationResults.size();
+		return length;
 	}
 }

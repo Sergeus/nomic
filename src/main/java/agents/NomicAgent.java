@@ -216,7 +216,19 @@ public class NomicAgent extends AbstractParticipant {
 		return proxy;
 	}
 	
+	public int getSubsimulationLength(ProposeRuleChange ruleChange) {
+		return 10;
+	}
+	
 	public String getProxyRulesFile() {
 		return "src/main/resources/TestProxy.drl";
+	}
+	
+	public int getNumSubSimsRun() {
+		return scenarioService.getNumSubSimsRun();
+	}
+	
+	public int getAverageSubSimLength() {
+		return scenarioService.getAverageSubSimLength();
 	}
 }

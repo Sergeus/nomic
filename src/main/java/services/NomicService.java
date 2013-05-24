@@ -190,6 +190,24 @@ public class NomicService extends EnvironmentService {
 		super.registerParticipant(req);
 	}
 	
+	public Integer getNumSubSimsRun(UUID agentID) {
+		for (NomicAgent agent : agents) {
+			if (agent.getID() == agentID)
+				return agent.getNumSubSimsRun();
+		}
+		
+		return 0;
+	}
+	
+	public Integer getAverageSubSimLength(UUID agentID) {
+		for (NomicAgent agent : agents) {
+			if (agent.getID() == agentID)
+				return agent.getAverageSubSimLength();
+		}
+		
+		return 0;
+	}
+	
 	public boolean canProposeNow(NomicAgent agent) {
 		return currentTurn.getType() == TurnType.PROPOSE &&
 				currentTurn.getActivePlayer().getID() == agent.getID();

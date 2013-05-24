@@ -119,6 +119,12 @@ public class StoragePlugin implements Plugin {
 				logger.warn("Final rule change not available.", e);
 			}
 			
+			// Store final agent information
+			for (UUID pid : membersService.getParticipants()) {
+				storage.getAgent(pid).setProperty("NumSubSims", nomicService.getNumSubSimsRun(pid).toString());
+				storage.getAgent(pid).setProperty("AverageSubSimLength", nomicService.getAverageSubSimLength(pid).toString());
+			}
+			
 			// Store final simulation information
 			storage.getSimulation().addParameter("Won", "" + nomicService.isGameWon());
 			

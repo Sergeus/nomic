@@ -22,7 +22,7 @@ public class SelfishAgent extends NomicAgent {
 	@Override
 	public VoteType chooseVote(ProposeRuleChange ruleChange) {
 		logger.info("Run subsimulation for rule query now. Wish me luck.");
-		scenarioService.RunQuerySimulation(ruleChange, 10);
+		scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
 		
 		logger.info("This simulation had a preference of: " + scenarioService.getPreference());
 		

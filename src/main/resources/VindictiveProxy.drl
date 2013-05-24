@@ -1,0 +1,59 @@
+//created on: 24-May-2013
+package VindictiveProxy
+
+import agents.*;
+import facts.*;
+
+global org.apache.log4j.Logger logger
+
+
+rule "Someone who isn't my nemesis winning is great"
+
+    when
+        Win ( $agent : winner )
+        $avatar : VindictiveProxyAgent ( IsAvatar(), nemesisName != $agent.getOwner().getName() )
+    then
+    	logger.info("Someone who isn't my nemesis has won and this is good.");
+    	$avatar.setPreference(100);
+    	$avatar.setPreferenceLocked(true);
+end
+
+rule "My nemesis winning is terrible"
+
+    when
+    	Win ( $agent : winner )
+        $avatar : VindictiveProxyAgent( IsAvatar(), nemesisName == $agent.getOwner().getName() )
+    then
+        logger.info("My nemesis has won! This is terrible!");
+        $avatar.setPreference(0);
+		$avatar.setPreferenceLocked(true);
+end
+
+rule "My nemesis gaining points is bad"
+
+	when
+		$avatar : VindictiveProxyAgent ( IsAvatar() )
+		$nemesis : ProxyAgent ( points > getOwner().getPoints(), getOwner().getName() == $avatar.getNemesisName() )
+	then
+		logger.info("My nemesis has gained points, which is bad.");
+		$avatar.decreasePreference(15);
+end
+
+rule "Me having more points than my nemesis is good"
+
+	when
+		$nemesis : ProxyAgent( $nName : name, $nPoints : points )
+		$avatar : VindictiveProxyAgent( IsAvatar(), nemesisName == $nName, getPoints() > $nPoints )
+	then
+		logger.info("I have more points than my nemesis, which is good.");
+		$avatar.increasePreference(8);
+end
+
+rule "Me having less points than my nemesis is bad"
+	when
+		$nemesis : ProxyAgent( $nName : name, $nPoints : points )
+		$avatar : VindictiveProxyAgent( IsAvatar(), nemesisName == $nName, getPoints() < $nPoints )
+	then
+		logger.info("I have fewer points than my nemesis, which is bad!");
+		$avatar.decreasePreference(8);
+end
