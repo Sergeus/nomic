@@ -1,6 +1,7 @@
 package services;
 
 import java.io.StringReader;
+import java.nio.channels.AcceptPendingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,16 +9,23 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.drools.RuleBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.DroolsParserException;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
+import org.drools.event.AgendaEventListener;
+import org.drools.event.rule.ActivationCancelledEvent;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
+import org.drools.rule.EntryPoint;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.conf.KeepReferenceOption;
 import org.drools.runtime.rule.FactHandle;
+import org.drools.runtime.rule.WorkingMemoryEntryPoint;
 
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
@@ -77,6 +85,15 @@ public class NomicService extends EnvironmentService {
 			StatefulKnowledgeSession session) {
 		super(sharedState);
 		this.session = session;
+		
+		logger.info("Receiving a stateful knowledge session with kbase sessions: ");
+		
+		for (StatefulKnowledgeSession sesh : session.getKnowledgeBase().getStatefulKnowledgeSessions()) {
+			logger.info("ID: " + sesh.getId() + " ToString: " + sesh.toString());
+		}
+		
+		logger.info("KnowledgeBase ToString: " + session.getKnowledgeBase().toString());
+		
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
 		agents = new ArrayList<NomicAgent>();
@@ -150,6 +167,21 @@ public class NomicService extends EnvironmentService {
 		}
 	}
 	
+	private String TestRule = "import agents.Test; "
+			+ " rule \"Refresher\" "
+			+ " when "
+			+ " Test( ) "
+			+ " then "
+			+ " end ";
+	
+	public void refreshSession() {
+		logger.info("Refreshing shit.");
+		
+		logger.info(session.getKnowledgeBase().getStatefulKnowledgeSessions().size());
+		
+		logger.info(session.getKnowledgeBase().getKnowledgePackage("Rules").getName());
+	}
+	
 	@Override
 	public void registerParticipant(EnvironmentRegistrationRequest req) {
 		agents.add((NomicAgent)req.getParticipant());
@@ -167,7 +199,7 @@ public class NomicService extends EnvironmentService {
 		return currentTurn.type == TurnType.VOTE;
 	}
 	
-	public void RemoveRule(String packageName, String ruleName) {
+	public void RemoveRule(String packageName, String ruleName) {		
 		session.getKnowledgeBase().removeRule(packageName, ruleName);
 	}
 	
@@ -197,6 +229,12 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public void ApplyRuleChange(ProposeRuleChange ruleChange) {
+		logger.info("I am a Nomic Service applying a rule change.");
+		logger.info("My agents are: ");
+		for (NomicAgent agent : agents) {
+			logger.info(agent.getName());
+		}
+		
 		RuleChangeType change = ruleChange.getRuleChangeType();
 		if (change == RuleChangeType.MODIFICATION) {
 			ProposeRuleModification ruleMod = (ProposeRuleModification)ruleChange;
@@ -316,7 +354,6 @@ public class NomicService extends EnvironmentService {
 	
 	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
 		StatefulKnowledgeSession newSession = session.getKnowledgeBase().newStatefulKnowledgeSession();
-		
 		
 		newSession.setGlobal("logger", session.getGlobal("logger"));
 		newSession.setGlobal("rand", session.getGlobal("rand"));

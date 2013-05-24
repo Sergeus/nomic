@@ -116,7 +116,7 @@ public class StoragePlugin implements Plugin {
 			try {
 				StoreChange(nomicService.getCurrentRuleChange());
 			} catch (NoExistentRuleChangeException e) {
-				logger.warn("Final rule change not available.");
+				logger.warn("Final rule change not available.", e);
 			}
 			
 			// Store final simulation information

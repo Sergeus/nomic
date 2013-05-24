@@ -118,7 +118,7 @@ rule "Voting against a successful proposal gains you 10 points"
 		logger.info($agent.getName() + " gains 10 points for voting against a successful proposal.");
 		modify($agent) {
 			setPoints($agent.getPoints() + 10);
-		}
+		};
 end
 
 rule "You gain 1d6 points at the end of your turn"
@@ -130,9 +130,12 @@ rule "You gain 1d6 points at the end of your turn"
 			rand = new java.util.Random();
 		int r = rand.nextInt(6) + 1;
 		logger.info($agent.getName() + " gains " + r + " points at the end of their turn.");
+		logger.info("This is on turn " + $turn.getNumber());
+		
 		modify($agent) {
 			setPoints($agent.getPoints() + r);
-		}
+		};
+		logger.info("Successful point gain.");
 end 
 
 rule "Selfish Agent Test"
@@ -141,4 +144,11 @@ rule "Selfish Agent Test"
 		$agent : SelfishAgent ( )
 	then
 		System.out.println("Lololol" + $agent.getName());
+end
+
+rule "Refresher"
+	when
+		Test ( )
+	then
+		logger.info("Refreshing");
 end

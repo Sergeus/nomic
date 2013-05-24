@@ -2,6 +2,9 @@ package agents;
 
 import java.util.UUID;
 
+import actions.ProposeRuleChange;
+import enums.VoteType;
+
 public class ProxyAgent extends NomicAgent {
 	
 	private NomicAgent owner;
@@ -54,6 +57,11 @@ public class ProxyAgent extends NomicAgent {
 	@Override
 	public String getProxyRulesFile() {
 		return owner.getProxyRulesFile();
+	}
+	
+	@Override
+	public VoteType chooseVote(ProposeRuleChange ruleChange) {
+		return super.chooseVote(ruleChange);
 	}
 	
 	/**

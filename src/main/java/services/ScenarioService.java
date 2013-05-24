@@ -1,11 +1,12 @@
 package services;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.drools.definition.rule.Rule;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import simulations.SubScenarioSimulation;
@@ -15,7 +16,6 @@ import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBusModule;
 import uk.ac.imperial.presage2.core.participant.Participant;
-import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import actions.ProposeRuleChange;
 import agents.NomicAgent;
 import agents.ProxyAgent;
@@ -23,6 +23,8 @@ import agents.ProxyAgent;
 import com.google.inject.AbstractModule;
 
 public class ScenarioService extends EnvironmentService {
+	
+	private final Logger logger = Logger.getLogger(this.getClass());
 	
 	final private EnvironmentServiceProvider serviceProvider;
 	
@@ -104,6 +106,24 @@ public class ScenarioService extends EnvironmentService {
 		subScenarioSimulation.load();
 		
 		subScenarioSimulation.run();
+		
+//		logger.info("Super service rules.");
+//		
+//		for (Rule rule : getSuperNomicService().getRules()) {
+//			logger.info(rule.getName());
+//		}
+//		
+//		logger.info("Sub service rules.");
+//		
+//		for (Rule rule : getSubNomicService().getRules()) {
+//			logger.info(rule.getName());
+//		}
+		
+		//logger.info("Super session kbase sessions: ");
+		
+		testSession.dispose();
+		
+		getSuperNomicService().refreshSession();
 		
 		avatar.setPreferenceLocked(false);
 		

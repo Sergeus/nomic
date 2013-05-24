@@ -13,10 +13,10 @@ import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
 import uk.ac.imperial.presage2.core.util.random.Random;
-import uk.ac.imperial.presage2.rules.RuleModule;
-import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
+import EnvironmentModules.NomicRuleModule;
+import EnvironmentModules.NomicRuleStorage;
 import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
 import agents.DestructiveAgent;
@@ -95,12 +95,12 @@ public class NomicSimulation extends InjectedSimulation {
 				.addParticipantEnvironmentService(ScenarioService.class)
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
-				.setStorage(RuleStorage.class));
+				.setStorage(NomicRuleStorage.class));
 		
 		modules.add(new PluginModule()
 				.addPlugin(StoragePlugin.class));
 		
-		modules.add(new RuleModule().addClasspathDrlFile("Basic.dslr"));
+		modules.add(new NomicRuleModule().addClasspathDrlFile("Basic.dslr"));
 		
 		modules.add(NetworkModule.noNetworkModule());
 		

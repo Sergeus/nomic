@@ -16,6 +16,7 @@ import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
+import actions.ProposeRuleRemoval;
 import actions.Vote;
 import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
@@ -103,6 +104,18 @@ public class NomicAgent extends AbstractParticipant {
 		String oldRuleName = "Whose turn is it";
 		String newRuleName = "Backwards Turns";
 		boolean success = false;
+		
+		boolean test = true;
+		if (test) {
+			ProposeRuleRemoval removal = new ProposeRuleRemoval(this, "Test rule for agent insertions", "Rules");
+			logger.info("Proposing test removal");
+			try {
+				environment.act(removal, getID(), authkey);
+			} catch (ActionHandlingException e) {
+				logger.warn("Shit", e);
+			}
+		}
+		else {
 		for (Rule rule : rules) {
 			if (rule.getName().compareTo(oldRuleName) == 0) {
 				ProposeRuleModification ruleMod = 
@@ -121,6 +134,7 @@ public class NomicAgent extends AbstractParticipant {
 			if (rule.getName().compareTo(newRuleName) == 0) {
 				
 			}
+		}
 		}
 		
 		if (!success) {
