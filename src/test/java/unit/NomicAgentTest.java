@@ -13,7 +13,7 @@ public class NomicAgentTest {
 	public void ChooseVoteTest() {
 		NomicAgent agent = new NomicAgent(Random.randomUUID(), "testAgent");
 		
-		ProposeRuleAddition ruleChange = new ProposeRuleAddition(agent, "Test Rule");
+		ProposeRuleAddition ruleChange = new ProposeRuleAddition(agent, "Test", "Test Rule");
 		
 		assertTrue(agent.chooseVote(ruleChange).getClass().isEnum());
 	}

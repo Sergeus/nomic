@@ -119,7 +119,7 @@ public class NomicAgent extends AbstractParticipant {
 		for (Rule rule : rules) {
 			if (rule.getName().compareTo(oldRuleName) == 0) {
 				ProposeRuleModification ruleMod = 
-						new ProposeRuleModification(this, 
+						new ProposeRuleModification(this, "Backwards Turns",
 								ReverseOrderRule, oldRuleName, rule.getPackageName());
 				
 				logger.info("Proposing turn order modification.");

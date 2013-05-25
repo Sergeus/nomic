@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import services.NomicService;
+import services.RuleClassificationService;
 import uk.ac.imperial.presage2.core.Time;
 import uk.ac.imperial.presage2.core.db.StorageService;
 import uk.ac.imperial.presage2.core.db.persistent.PersistentEnvironment;
@@ -32,12 +33,14 @@ public class StoragePlugin implements Plugin {
 	
 	private final EnvironmentMembersService membersService;
 	private final NomicService nomicService;
+	private final RuleClassificationService ruleClassificationService;
 	
 	public StoragePlugin() {
 		super();
 		storage = null;
 		nomicService = null;
 		membersService = null;
+		ruleClassificationService = null;
 		logger.info("No storage service, no plugin.");
 	}
 	
@@ -47,6 +50,7 @@ public class StoragePlugin implements Plugin {
 		this.storage = null;
 		this.membersService = serviceProvider.getEnvironmentService(EnvironmentMembersService.class);
 		this.nomicService = serviceProvider.getEnvironmentService(NomicService.class);
+		this.ruleClassificationService = serviceProvider.getEnvironmentService(RuleClassificationService.class);
 	}
 	
 	@Inject(optional = true)
@@ -80,19 +84,34 @@ public class StoragePlugin implements Plugin {
 		env.setProperty("Proposer", ruleChange.getT(), ruleChange.getProposer().getName());
 		env.setProperty("Type", ruleChange.getT(), ruleChange.getRuleChangeType().toString());
 		env.setProperty("Success", ruleChange.getT(), "" + ruleChange.getSucceeded());
+		env.setProperty("Turn", ruleChange.getT(), nomicService.getTurnNumber().toString());
 		
 		if (ruleChange instanceof ProposeRuleAddition) {
+			
 			ProposeRuleAddition addition = (ProposeRuleAddition)ruleChange;
+			env.setProperty("NewRuleName", addition.getT(), addition.getNewRuleName());
 			env.setProperty("NewRule", ruleChange.getT(), addition.getNewRule());
+			
 		}
 		else if (ruleChange instanceof ProposeRuleModification) {
+			
 			ProposeRuleModification modification = (ProposeRuleModification)ruleChange;
+			
 			env.setProperty("OldRuleName", ruleChange.getT(), modification.getOldRuleName());
+			env.setProperty("OldRule", modification.getT(), 
+					ruleClassificationService.getRuleBody(modification.getOldRuleName()));
+			env.setProperty("NewRuleName", modification.getT(), 
+					modification.getNewRuleName());
 			env.setProperty("NewRule", ruleChange.getT(), modification.getNewRule());
+			
 		}
 		else if (ruleChange instanceof ProposeRuleRemoval) {
+			
 			ProposeRuleRemoval removal = (ProposeRuleRemoval)ruleChange;
 			env.setProperty("OldRuleName", ruleChange.getT(), removal.getOldRuleName());
+			env.setProperty("OldRule", removal.getT(), 
+					ruleClassificationService.getRuleBody(removal.getOldRuleName()));
+			
 		}
 	}
 	
@@ -126,6 +145,10 @@ public class StoragePlugin implements Plugin {
 			}
 			
 			// Store final simulation information
+			storage.getSimulation().addParameter("NumTurns", nomicService.getTurnNumber().toString());
+			storage.getSimulation().addParameter("NumRounds", nomicService.getRoundNumber().toString());
+			storage.getSimulation().addParameter("NumAgents", nomicService.getNumberOfAgents().toString());
+			
 			storage.getSimulation().addParameter("Won", "" + nomicService.isGameWon());
 			
 			if (nomicService.isGameWon())

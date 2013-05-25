@@ -45,6 +45,8 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		NomicAgent mockAgent = context.mock(NomicAgent.class);
 		
+		String newRuleName = "Test";
+		
 		String newRule = "Test rule";
 		
 		String oldRuleName = "Old Rule";
@@ -53,9 +55,10 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		Action genericAction = context.mock(Action.class);
 		
-		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
+		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRuleName, newRule);
 		
-		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
+		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRuleName, 
+				newRule, oldRuleName, oldRulePackage);
 		
 		ProposeRuleRemoval removal = new ProposeRuleRemoval(mockAgent, oldRuleName, oldRulePackage);
 		
@@ -108,13 +111,16 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		NomicAgent mockAgent = context.mock(NomicAgent.class);
 		
+		final String newRuleName = "Test";
+		
 		final String newRule = "Test rule";
 		
 		final String oldRuleName = "Old Rule";
 		
 		final String oldRulePackage = "Old rule package";
 		
-		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
+		final ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRuleName, 
+				newRule, oldRuleName, oldRulePackage);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
@@ -143,9 +149,11 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		
 		NomicAgent mockAgent = context.mock(NomicAgent.class);
 		
+		final String newRuleName = "Test";
+		
 		final String newRule = "Test rule";
 		
-		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
+		final ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRuleName, newRule);
 		
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));

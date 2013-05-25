@@ -12,6 +12,7 @@ public class RuleDefinition {
 	boolean replacesOther;
 	String otherName;
 	Map<RuleFlavor, Integer> Flavors;
+	boolean Active;
 	
 	public RuleDefinition(String name, String ruleContent) {
 		this.name = name;
@@ -75,5 +76,13 @@ public class RuleDefinition {
 
 	public void setOtherName(String otherName) {
 		this.otherName = otherName;
+	}
+
+	public boolean isActive() {
+		return Active;
+	}
+
+	public void setActive(boolean active) {
+		Active = active;
 	}
 }

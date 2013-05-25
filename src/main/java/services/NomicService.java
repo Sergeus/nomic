@@ -408,15 +408,15 @@ public class NomicService extends EnvironmentService {
 		return session;
 	}
 	
-	public int getTurnNumber() {
+	public Integer getTurnNumber() {
 		return currentTurn.getNumber();
 	}
 	
-	public int getRoundNumber() {
+	public Integer getRoundNumber() {
 		return (int) Math.floor(currentTurn.getNumber() / agents.size());
 	}
 	
-	public int getNumberOfAgents() {
+	public Integer getNumberOfAgents() {
 		return agents.size();
 	}
 	

@@ -5,6 +5,8 @@ import enums.RuleChangeType;
 import uk.ac.imperial.presage2.core.Action;
 
 public class ProposeRuleModification extends ProposeRuleChange implements Action {
+	String newRuleName;
+	
 	String newRule;
 	
 	String oldRuleName;
@@ -12,14 +14,19 @@ public class ProposeRuleModification extends ProposeRuleChange implements Action
 	String oldRulePackage;
 
 	public ProposeRuleModification(NomicAgent agent, 
-			String newRule, String oldRuleName, String oldRulePackage) {
+			String newRuleName, String newRule, String oldRuleName, String oldRulePackage) {
 		super(agent);
+		this.newRuleName = newRuleName;
 		this.newRule = newRule;
 		this.oldRuleName = oldRuleName;
 		this.oldRulePackage = oldRulePackage;
 		Type = RuleChangeType.MODIFICATION;
 	}
 
+	public String getNewRuleName() {
+		return newRuleName;
+	}
+	
 	public String getNewRule() {
 		return newRule;
 	}

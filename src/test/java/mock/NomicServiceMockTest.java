@@ -39,6 +39,8 @@ public class NomicServiceMockTest extends TestCase {
 	final EventBus e = context.mock(EventBus.class);
 	final KnowledgeBase base = context.mock(KnowledgeBase.class);
 	
+	final String correctRuleName = "Dynamic rule!";
+	
 	final String correctRule = "import agents.NomicAgent "
 			+ "rule \"Dynamic rule!\""
 			+ "when"
@@ -136,9 +138,11 @@ public class NomicServiceMockTest extends TestCase {
 		
 		final NomicAgent mockAgent = context.mock(NomicAgent.class);
 		
+		final String newRuleName = correctRuleName;
+		
 		final String newRule = correctRule;
 		
-		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRule);
+		ProposeRuleAddition addition = new ProposeRuleAddition(mockAgent, newRuleName, newRule);
 		
 		context.checking(new Expectations() {{
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
@@ -163,7 +167,7 @@ public class NomicServiceMockTest extends TestCase {
 		
 		context.assertIsSatisfied();
 		
-		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRule, oldRuleName, oldRulePackage);
+		ProposeRuleModification modification = new ProposeRuleModification(mockAgent, newRuleName, newRule, oldRuleName, oldRulePackage);
 		
 		context.checking(new Expectations() {{
 			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));

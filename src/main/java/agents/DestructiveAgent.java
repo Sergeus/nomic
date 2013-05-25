@@ -108,6 +108,7 @@ public class DestructiveAgent extends NomicAgent {
 					UpdateMajorityRule();
 					
 					ProposeRuleModification modification = new ProposeRuleModification(this, 
+							"Majority votes succeed after second round",
 							MajorityRule, rule.getName(), rule.getPackageName());
 					
 					logger.info("Trying to reduce the number of votes required from " 
@@ -123,7 +124,8 @@ public class DestructiveAgent extends NomicAgent {
 			}
 		}
 		else if (!success && votesRequired <= 1) {
-			ProposeRuleAddition addition = new ProposeRuleAddition(this, IWinRule);
+			ProposeRuleAddition addition = new ProposeRuleAddition(this,
+					"Agent " + getSequentialID() + " Wins", IWinRule);
 			logger.info("None of you can oppose me now! I propose a winning rule change!");
 			
 			try {

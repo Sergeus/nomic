@@ -37,7 +37,7 @@ public class RuleClassificationService extends EnvironmentService {
 		return RulePool.get(ruleName).getFlavors();
 	}
 	
-	public Collection<RuleDefinition> getRulesWithFlavor(RuleFlavor flavorType) {
+	public Collection<RuleDefinition> getAllRulesWithFlavor(RuleFlavor flavorType) {
 		Collection<RuleDefinition> rules = new ArrayList<RuleDefinition>();
 		for (String name : RulePool.keySet()) {
 			RuleDefinition currentRule = RulePool.get(name);
@@ -47,5 +47,9 @@ public class RuleClassificationService extends EnvironmentService {
 		}
 		
 		return rules;
+	}
+	
+	public String getRuleBody(String ruleName) {
+		return RulePool.get(ruleName).getRuleContent();
 	}
 }
