@@ -424,6 +424,15 @@ public class NomicService extends EnvironmentService {
 		return agentIDs;
 	}
 	
+	public String getAgentName(UUID pid) {
+		for (NomicAgent agent : agents) {
+			if (agent.getID() == pid)
+				return agent.getName();
+		}
+		
+		return "";
+	}
+	
 	public Collection<ProxyAgent> getProxyAgents() {
 		Collection<ProxyAgent> proxies = new ArrayList<ProxyAgent>();
 		for (NomicAgent agent : agents) {

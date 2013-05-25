@@ -65,8 +65,10 @@ public class StoragePlugin implements Plugin {
 			for (UUID pid : membersService.getParticipants()) {
 				Vote vote = nomicService.getVote(pid);
 				if (vote != null) {
-					TransientAgentState state = storage.getAgentState(pid, nomicService.getTurnNumber());
+					TransientAgentState state = storage.getAgentState(pid, vote.getT());
+					state.setProperty("CasterName", nomicService.getAgentName(pid));
 					state.setProperty("Vote", vote.getVote().toString());
+					state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
 				}
 			}
 			
