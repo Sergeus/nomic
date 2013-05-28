@@ -67,7 +67,7 @@ public class StoragePlugin implements Plugin {
 				for (UUID pid : membersService.getParticipants()) {
 					Vote vote = nomicService.getVote(pid);
 					if (vote != null) {
-						TransientAgentState state = storage.getAgentState(pid, nomicService.getSimTime());
+						TransientAgentState state = storage.getAgentState(pid, vote.getSimTime());
 						state.setProperty("CasterName", nomicService.getAgentName(pid));
 						state.setProperty("Vote", vote.getVote().toString());
 						state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
@@ -148,7 +148,6 @@ public class StoragePlugin implements Plugin {
 			
 			// Store final agent information
 			for (UUID pid : membersService.getParticipants()) {
-				storage.getAgent(pid).setProperty("Type", nomicService.getAgentType(pid));
 				storage.getAgent(pid).setProperty("NumSubSims", nomicService.getNumSubSimsRun(pid).toString());
 				storage.getAgent(pid).setProperty("AverageSubSimLength", nomicService.getAverageSubSimLength(pid).toString());
 			}

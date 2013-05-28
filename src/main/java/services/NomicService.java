@@ -197,15 +197,6 @@ public class NomicService extends EnvironmentService {
 		super.registerParticipant(req);
 	}
 	
-	public String getAgentType(UUID agentID) {
-		for (NomicAgent agent : agents) {
-			if (agent.getID() == agentID)
-				return agent.getAgentType();
-		}
-		
-		return "NomicAgent";
-	}
-	
 	public Integer getNumSubSimsRun(UUID agentID) {
 		for (NomicAgent agent : agents) {
 			if (agent.getID() == agentID)

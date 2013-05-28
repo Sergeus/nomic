@@ -174,9 +174,4 @@ public class DestructiveAgent extends NomicAgent {
 	public String getProxyRulesFile() {
 		return "src/main/resources/DestructiveProxy.drl";
 	}
-	
-	@Override
-	public String getAgentType() {
-		return "DestructiveAgent";
-	}
 }

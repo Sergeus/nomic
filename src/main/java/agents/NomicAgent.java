@@ -224,10 +224,6 @@ public class NomicAgent extends AbstractParticipant {
 		return "src/main/resources/TestProxy.drl";
 	}
 	
-	public String getAgentType() {
-		return "NomicAgent";
-	}
-	
 	public int getNumSubSimsRun() {
 		return scenarioService.getNumSubSimsRun();
 	}

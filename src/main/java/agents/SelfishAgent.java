@@ -33,9 +33,4 @@ public class SelfishAgent extends NomicAgent {
 	public String getProxyRulesFile() {
 		return "src/main/resources/SelfishProxy.drl";
 	}
-	
-	@Override
-	public String getAgentType() {
-		return "SelfishAgent";
-	}
 }
