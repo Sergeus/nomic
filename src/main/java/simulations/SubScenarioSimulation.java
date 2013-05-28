@@ -93,11 +93,4 @@ public class SubScenarioSimulation extends NomicSimulation {
 			logger.warn("Proxy rules for file " + filePath + " could not be parsed.", e);
 		}
 	}
-	
-	public <T extends EnvironmentService> T getEnvironmentService(Class<T> serviceType) 
-			throws UnavailableServiceException {
-		AbstractEnvironment env = (AbstractEnvironment) getScenario().getEnvironment();
-		
-		return env.getEnvironmentService(serviceType);
-	}
 }

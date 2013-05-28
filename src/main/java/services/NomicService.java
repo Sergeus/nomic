@@ -184,9 +184,17 @@ public class NomicService extends EnvironmentService {
 	public void refreshSession() {
 		logger.info("Refreshing shit.");
 		
-		logger.info(session.getKnowledgeBase().getStatefulKnowledgeSessions().size());
+		RemoveRule("defaultpkg", "Refresher");
 		
-		logger.info(session.getKnowledgeBase().getKnowledgePackage("Rules").getName());
+		try {
+			addRule(TestRule);
+		} catch (DroolsParserException e) {
+			logger.warn("Refreshing failed.", e);
+		}
+		
+//		logger.info(session.getKnowledgeBase().getStatefulKnowledgeSessions().size());
+//		
+//		logger.info(session.getKnowledgeBase().getKnowledgePackage("Rules").getName());
 	}
 	
 	@Override
