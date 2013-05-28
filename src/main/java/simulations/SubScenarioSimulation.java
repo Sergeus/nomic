@@ -8,16 +8,12 @@ import org.drools.runtime.StatefulKnowledgeSession;
 
 import services.NomicService;
 import services.ScenarioService;
-import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
-import uk.ac.imperial.presage2.core.event.EventListener;
-import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
-import uk.ac.imperial.presage2.util.environment.AbstractEnvironment;
+import uk.ac.imperial.presage2.rules.RuleModule;
+import uk.ac.imperial.presage2.rules.RuleStorage;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
-import EnvironmentModules.NomicRuleModule;
-import EnvironmentModules.NomicRuleStorage;
 import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
 import actions.ProposeRuleChange;
@@ -59,9 +55,9 @@ public class SubScenarioSimulation extends NomicSimulation {
 				.addParticipantEnvironmentService(ScenarioService.class)
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
-				.setStorage(NomicRuleStorage.class));
+				.setStorage(RuleStorage.class));
 		
-		modules.add(new NomicRuleModule());
+		modules.add(new RuleModule());
 		
 		modules.add(NetworkModule.noNetworkModule());
 		
