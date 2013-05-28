@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.drools.RuleBaseFactory;
@@ -56,6 +57,8 @@ import facts.Turn;
 public class NomicService extends EnvironmentService {
 
 	private final Logger logger = Logger.getLogger(this.getClass());
+	
+	public static Semaphore kBuilderSemaphore = new Semaphore(1);
 	
 	StatefulKnowledgeSession session;
 	int TurnNumber = 0;
@@ -116,6 +119,8 @@ public class NomicService extends EnvironmentService {
 	public void onIncrementTime(EndOfTimeCycle e) {
 		if (Winner != null) {
 			currentTurn.setType(TurnType.GAMEOVER);
+			currentRuleChange = null;
+			previousRuleChange = null;
 		}
 		else if (currentTurn.getType() == TurnType.INIT) {
 			currentTurn.setType(TurnType.PROPOSE);
@@ -123,9 +128,11 @@ public class NomicService extends EnvironmentService {
 		}
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
 			currentTurn.setType(TurnType.VOTE);
+			previousRuleChange = currentRuleChange;
 		}
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange == null) {
 			currentTurn.setNumber(++TurnNumber);
+			previousRuleChange = null;
 		}
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
@@ -190,6 +197,15 @@ public class NomicService extends EnvironmentService {
 		super.registerParticipant(req);
 	}
 	
+	public String getAgentType(UUID agentID) {
+		for (NomicAgent agent : agents) {
+			if (agent.getID() == agentID)
+				return agent.getAgentType();
+		}
+		
+		return "NomicAgent";
+	}
+	
 	public Integer getNumSubSimsRun(UUID agentID) {
 		for (NomicAgent agent : agents) {
 			if (agent.getID() == agentID)
@@ -215,6 +231,10 @@ public class NomicService extends EnvironmentService {
 	
 	public boolean canVoteNow(NomicAgent agent) {
 		return currentTurn.type == TurnType.VOTE;
+	}
+	
+	public boolean isAllVoted() {
+		return currentTurn.isAllVoted();
 	}
 	
 	public void RemoveRule(String packageName, String ruleName) {		
@@ -324,8 +344,18 @@ public class NomicService extends EnvironmentService {
 	public Collection<KnowledgePackage> parseRule(String rule) throws DroolsParserException {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		
+		while (!kBuilderSemaphore.tryAcquire()) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				logger.warn("Wait interrupted.", e);
+			}
+		}
+		
 		Resource myResource = ResourceFactory.newReaderResource(new StringReader(rule));
 		kbuilder.add(myResource, ResourceType.DRL);
+		kBuilderSemaphore.release();
+		
 		
 		if (kbuilder.hasErrors()) {
 			throw new DroolsParserException("Unable to parse new rule.\n"
@@ -341,8 +371,17 @@ public class NomicService extends EnvironmentService {
 		logger.info("Parsing rule file at " + filePath);
 		KnowledgeBuilder kBuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		
+		while (!kBuilderSemaphore.tryAcquire()) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				logger.warn("Wait interrupted.", e);
+			}
+		}
+		
 		Resource myResource = ResourceFactory.newFileResource(filePath);
 		kBuilder.add(myResource, ResourceType.DRL);
+		kBuilderSemaphore.release();
 		
 		if (kBuilder.hasErrors()) {
 			throw new DroolsParserException("Unable to parse new rule from file.\n"
@@ -408,12 +447,20 @@ public class NomicService extends EnvironmentService {
 		return session;
 	}
 	
+	public Integer getSimTime() {
+		return agents.get(0).getTime().intValue();
+	}
+	
 	public Integer getTurnNumber() {
 		return currentTurn.getNumber();
 	}
 	
 	public Integer getRoundNumber() {
 		return (int) Math.floor(currentTurn.getNumber() / agents.size());
+	}
+	
+	public TurnType getTurnType() {
+		return currentTurn.getType();
 	}
 	
 	public Integer getNumberOfAgents() {

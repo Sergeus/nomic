@@ -65,6 +65,7 @@ public class ProposeRuleChangeActionHandler implements ActionHandler {
 		
 		if (action instanceof TimeStampedAction) {
 			((TimeStampedAction) action).setT(service.getTurnNumber());
+			((TimeStampedAction) action).setSimTime(service.getSimTime());
 		}
 		
 		try {

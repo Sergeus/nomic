@@ -116,25 +116,25 @@ public class NomicAgent extends AbstractParticipant {
 			}
 		}
 		else {
-		for (Rule rule : rules) {
-			if (rule.getName().compareTo(oldRuleName) == 0) {
-				ProposeRuleModification ruleMod = 
-						new ProposeRuleModification(this, "Backwards Turns",
-								ReverseOrderRule, oldRuleName, rule.getPackageName());
-				
-				logger.info("Proposing turn order modification.");
-				
-				try {
-					environment.act(ruleMod, getID(), authkey);
-					success = true;
-				} catch (ActionHandlingException e) {
-					logger.info("Failed to modify rule.", e);
+			for (Rule rule : rules) {
+				if (rule.getName().compareTo(oldRuleName) == 0) {
+					ProposeRuleModification ruleMod = 
+							new ProposeRuleModification(this, "Backwards Turns",
+									ReverseOrderRule, oldRuleName, rule.getPackageName());
+					
+					logger.info("Proposing turn order modification.");
+					
+					try {
+						environment.act(ruleMod, getID(), authkey);
+						success = true;
+					} catch (ActionHandlingException e) {
+						logger.info("Failed to modify rule.", e);
+					}
+				}
+				if (rule.getName().compareTo(newRuleName) == 0) {
+					
 				}
 			}
-			if (rule.getName().compareTo(newRuleName) == 0) {
-				
-			}
-		}
 		}
 		
 		if (!success) {
@@ -222,6 +222,10 @@ public class NomicAgent extends AbstractParticipant {
 	
 	public String getProxyRulesFile() {
 		return "src/main/resources/TestProxy.drl";
+	}
+	
+	public String getAgentType() {
+		return "NomicAgent";
 	}
 	
 	public int getNumSubSimsRun() {

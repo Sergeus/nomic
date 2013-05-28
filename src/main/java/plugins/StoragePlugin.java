@@ -23,6 +23,7 @@ import actions.Vote;
 
 import com.google.inject.Inject;
 
+import enums.TurnType;
 import exceptions.NoExistentRuleChangeException;
 
 public class StoragePlugin implements Plugin {
@@ -62,57 +63,62 @@ public class StoragePlugin implements Plugin {
 	public void incrementTime() {
 		if (storage != null) {
 			// Vote section
-			for (UUID pid : membersService.getParticipants()) {
-				Vote vote = nomicService.getVote(pid);
-				if (vote != null) {
-					TransientAgentState state = storage.getAgentState(pid, vote.getT());
-					state.setProperty("CasterName", nomicService.getAgentName(pid));
-					state.setProperty("Vote", vote.getVote().toString());
-					state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
+			if (nomicService.getTurnType() == TurnType.VOTE) {
+				for (UUID pid : membersService.getParticipants()) {
+					Vote vote = nomicService.getVote(pid);
+					if (vote != null) {
+						TransientAgentState state = storage.getAgentState(pid, nomicService.getSimTime());
+						state.setProperty("CasterName", nomicService.getAgentName(pid));
+						state.setProperty("Vote", vote.getVote().toString());
+						state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
+					}
 				}
 			}
-			
-			// Rule change section
-			ProposeRuleChange ruleChange = nomicService.getPreviousRuleChange();
-			
-			if (ruleChange != null)
-				StoreChange(ruleChange);
+			else if (nomicService.getTurnType() == TurnType.PROPOSE) {
+				// Rule change section
+				ProposeRuleChange ruleChange = nomicService.getPreviousRuleChange();
+					
+				if (ruleChange != null)
+					StoreChange(ruleChange);
+			}
 		}
 	}
 	
 	private void StoreChange(ProposeRuleChange ruleChange) {
 		PersistentEnvironment env = storage.getSimulation().getEnvironment();
 		
-		env.setProperty("Proposer", ruleChange.getT(), ruleChange.getProposer().getName());
-		env.setProperty("Type", ruleChange.getT(), ruleChange.getRuleChangeType().toString());
-		env.setProperty("Success", ruleChange.getT(), "" + ruleChange.getSucceeded());
-		env.setProperty("Turn", ruleChange.getT(), nomicService.getTurnNumber().toString());
+		Integer time = ruleChange.getSimTime();
+		
+		env.setProperty("Proposer", time, ruleChange.getProposer().getName());
+		env.setProperty("Type", time, ruleChange.getRuleChangeType().toString());
+		env.setProperty("Success", time, "" + ruleChange.getSucceeded());
+		env.setProperty("Turn", time, nomicService.getTurnNumber().toString());
 		
 		if (ruleChange instanceof ProposeRuleAddition) {
 			
 			ProposeRuleAddition addition = (ProposeRuleAddition)ruleChange;
-			env.setProperty("NewRuleName", addition.getT(), addition.getNewRuleName());
-			env.setProperty("NewRule", ruleChange.getT(), addition.getNewRule());
+			env.setProperty("NewRuleName", time, addition.getNewRuleName());
+			env.setProperty("NewRule", time, addition.getNewRule());
 			
 		}
 		else if (ruleChange instanceof ProposeRuleModification) {
 			
 			ProposeRuleModification modification = (ProposeRuleModification)ruleChange;
 			
-			env.setProperty("OldRuleName", ruleChange.getT(), modification.getOldRuleName());
-			env.setProperty("OldRule", modification.getT(), 
-					ruleClassificationService.getRuleBody(modification.getOldRuleName()));
-			env.setProperty("NewRuleName", modification.getT(), 
+			env.setProperty("OldRuleName", time, modification.getOldRuleName());
+//			env.setProperty("OldRule", time, 
+//					ruleClassificationService.getRuleBody(modification.getOldRuleName()));
+			env.setProperty("NewRuleName", time, 
 					modification.getNewRuleName());
-			env.setProperty("NewRule", ruleChange.getT(), modification.getNewRule());
+			env.setProperty("NewRule", time, modification.getNewRule());
 			
 		}
 		else if (ruleChange instanceof ProposeRuleRemoval) {
 			
 			ProposeRuleRemoval removal = (ProposeRuleRemoval)ruleChange;
-			env.setProperty("OldRuleName", ruleChange.getT(), removal.getOldRuleName());
-			env.setProperty("OldRule", removal.getT(), 
-					ruleClassificationService.getRuleBody(removal.getOldRuleName()));
+			env.setProperty("OldRuleName", time, removal.getOldRuleName());
+//			env.setProperty("OldRule", time, 
+//					ruleClassificationService.getRuleBody(removal.getOldRuleName()));
 			
 		}
 	}
@@ -142,6 +148,7 @@ public class StoragePlugin implements Plugin {
 			
 			// Store final agent information
 			for (UUID pid : membersService.getParticipants()) {
+				storage.getAgent(pid).setProperty("Type", nomicService.getAgentType(pid));
 				storage.getAgent(pid).setProperty("NumSubSims", nomicService.getNumSubSimsRun(pid).toString());
 				storage.getAgent(pid).setProperty("AverageSubSimLength", nomicService.getAverageSubSimLength(pid).toString());
 			}

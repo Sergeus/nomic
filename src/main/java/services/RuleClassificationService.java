@@ -2,6 +2,7 @@ package services;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -20,7 +21,7 @@ public class RuleClassificationService extends EnvironmentService {
 	
 	private final StatefulKnowledgeSession session;
 	
-	private Map<String, RuleDefinition> RulePool;
+	private Map<String, RuleDefinition> RulePool = new HashMap<String, RuleDefinition>();
 	
 	@Inject
 	public RuleClassificationService(EnvironmentSharedStateAccess ss,

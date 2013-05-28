@@ -42,5 +42,10 @@ public class VindictiveAgent extends NomicAgent {
 		
 		return proxy;
 	}
+	
+	@Override
+	public String getAgentType() {
+		return "VindictiveAgent";
+	}
 
 }
