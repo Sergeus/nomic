@@ -10,10 +10,12 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import services.NomicService;
 import services.RuleClassificationService;
 import services.ScenarioService;
+import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
 import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.rules.RuleStorage;
+import uk.ac.imperial.presage2.util.environment.AbstractEnvironment;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.network.NetworkModule;
 import actionHandlers.ProposeRuleChangeActionHandler;
@@ -79,16 +81,6 @@ public class SubScenarioSimulation extends NomicSimulation {
 		session.setGlobal("logger", logger);
 		session.setGlobal("rand", superSession.getGlobal("rand"));
 		//session.setGlobal("storage", superSession.getGlobal("storage"));
-		
-		try {
-			// Load active settings from super sim definitions
-			getEnvironmentService(RuleClassificationService.class)
-					.LoadRuleDefinitions(scenarioService.getSuperClassificationService()
-							.getDefinitions());
-		} catch (UnavailableServiceException e) {
-			logger.warn("Unable to load super rule definitions for subsim run by "
-					+ scenarioService.getController().getName(), e);
-		}
 	}
 	
 	public void LoadProxyRules(ProxyAgent avatar) {
@@ -102,6 +94,18 @@ public class SubScenarioSimulation extends NomicSimulation {
 			logger.warn("Nomic service unavailable for proxy agent rule addition.", e);
 		} catch (DroolsParserException e) {
 			logger.warn("Proxy rules for file " + filePath + " could not be parsed.", e);
+		}
+		
+		try {
+			// Load active settings from super sim definitions
+			RuleClassificationService ruleClassificationService = 
+					getEnvironmentService(RuleClassificationService.class);
+					
+			ruleClassificationService.LoadRuleDefinitions(scenarioService.getSuperClassificationService()
+							.getDefinitions());
+		} catch (UnavailableServiceException e) {
+			logger.warn("Unable to load super rule definitions for subsim run by "
+					+ scenarioService.getController().getName(), e);
 		}
 	}
 }

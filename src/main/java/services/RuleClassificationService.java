@@ -35,10 +35,6 @@ public class RuleClassificationService extends EnvironmentService {
 		}
 	}
 	
-	public void Init() {
-
-	}
-	
 	public void LoadRuleDefinitions(Collection<RuleDefinition> collection) {
 		for (RuleDefinition definition : collection) {
 			RuleDefinition localDef = RulePool.get(definition.getName());

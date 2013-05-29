@@ -1,11 +1,8 @@
 package agents;
 
-import java.util.Collection;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-
-import org.drools.definition.rule.Rule;
 
 import services.NomicService;
 import services.RuleClassificationService;
@@ -16,28 +13,11 @@ import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeRuleChange;
-import actions.ProposeRuleModification;
-import actions.ProposeRuleRemoval;
 import actions.Vote;
 import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
 
 public class NomicAgent extends AbstractParticipant {
-
-	String ReverseOrderRule = "import agents.NomicAgent "
-			+ "import facts.* "
-			+ "global org.apache.log4j.Logger logger "
-			+ "rule \"Backwards Turns\" "
-			+ "when"
-			+ "	$agent : NomicAgent($ID : sequentialID)"
-			+ "	$n : Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) )"
-			+ "	$turn : Turn($n > 0 && (($n.intValue() - 1)  - (number % $n.intValue())) == ($ID) && activePlayer != $agent)"
-			+ "then"
-			+ "	logger.info(\"It's this guy's turn: \" + $agent.getName());"
-			+ "	modify ($turn) {"
-			+ "		setActivePlayer($agent)"
-			+ "	};"
-			+ "end";
 	
 	private int SequentialID;
 	

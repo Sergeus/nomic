@@ -20,8 +20,6 @@ public class RuleDefinition {
 	Map<RuleFlavor, Integer> Flavors;
 	boolean Active;
 	
-	ProposeRuleChange AssociatedRuleChange;
-	
 	public RuleDefinition(String name, String ruleContent) {
 		this.name = name;
 		this.ruleContent = ruleContent;
@@ -95,7 +93,7 @@ public class RuleDefinition {
 	
 	public void setFlavors(Integer complex, Integer destructive, Integer simple,
 			Integer desperation, Integer beneficial, Integer wincondition,
-			Integer stable) {
+			Integer stable, Integer detrimental) {
 		Flavors.put(RuleFlavor.COMPLEX, complex);
 		Flavors.put(RuleFlavor.DESTRUCTIVE, destructive);
 		Flavors.put(RuleFlavor.SIMPLE, simple);
@@ -103,6 +101,7 @@ public class RuleDefinition {
 		Flavors.put(RuleFlavor.BENEFICIAL, beneficial);
 		Flavors.put(RuleFlavor.WINCONDITION, wincondition);
 		Flavors.put(RuleFlavor.STABLE, stable);
+		Flavors.put(RuleFlavor.DETRIMENTAL, detrimental);
 	}
 	
 	public Map<RuleFlavor, Integer> getFlavors() {

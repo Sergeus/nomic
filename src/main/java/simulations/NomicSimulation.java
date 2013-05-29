@@ -66,9 +66,6 @@ public class NomicSimulation extends InjectedSimulation {
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
 			nomicService.AddRuleFile("src/main/resources/Basic.dslr");
-			
-			RuleClassificationService ruleClassificationService = getEnvironmentService(RuleClassificationService.class);
-			ruleClassificationService.Init();
 		} catch (UnavailableServiceException e) {
 			logger.warn("All is lost", e);
 		} catch (DroolsParserException e) {

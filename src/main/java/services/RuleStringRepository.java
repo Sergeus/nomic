@@ -26,7 +26,9 @@ public class RuleStringRepository {
 		String imports = " import agents.*; "
 				+ " import actions.*; "
 				+ " import facts.*; "
-				+ " import enums.*; ";
+				+ " import enums.*; "
+				+ " global org.apache.log4j.Logger logger; "
+				+ " global java.util.Random rand; ";
 		
 		// ----------------------------------------------------------------
 		String firstName = "Whose turn is it";
@@ -44,7 +46,9 @@ public class RuleStringRepository {
 		+ " end ";
 		
 		RuleDefinition firstDefinition = new RuleDefinition(firstName, firstRule);
-		firstDefinition.setFlavors(50, 0, 80, 50, 75, 50, 100);
+		firstDefinition.setFlavors(50, 0, 80, 50, 75, 50, 100, 0);
+		firstDefinition.setReplacesOther(true);
+		firstDefinition.setOtherName("Backwards Turns");
 		Rules.add(firstDefinition);
 		
 		// ----------------------------------------------------------------
@@ -66,7 +70,7 @@ public class RuleStringRepository {
 		+ " end ";
 		
 		RuleDefinition secondDefinition = new RuleDefinition(secondName, secondRule);
-		secondDefinition.setFlavors(60, 10, 50, 50, 55, 50, 60);
+		secondDefinition.setFlavors(60, 10, 50, 50, 55, 50, 60, 50);
 		Rules.add(secondDefinition);
 		
 		// ----------------------------------------------------------------
@@ -89,7 +93,7 @@ public class RuleStringRepository {
 			+ " end ";
 		
 		RuleDefinition thirdDefinition = new RuleDefinition(thirdName, thirdRule);
-		thirdDefinition.setFlavors(50, 0, 50, 50, 60, 50, 100);
+		thirdDefinition.setFlavors(50, 0, 50, 50, 60, 50, 100, 50);
 		Rules.add(thirdDefinition);
 		
 		// ----------------------------------------------------------------
@@ -109,7 +113,7 @@ public class RuleStringRepository {
 		+ " end ";
 		
 		RuleDefinition fourthDefinition = new RuleDefinition(fourthName, fourthRule);
-		fourthDefinition.setFlavors(50, 0, 55, 50, 60, 50, 100);
+		fourthDefinition.setFlavors(50, 0, 55, 50, 60, 50, 100, 50);
 		Rules.add(fourthDefinition);
 		
 		// ----------------------------------------------------------------
@@ -126,7 +130,7 @@ public class RuleStringRepository {
 		+ " end ";
 		
 		RuleDefinition fifthDefinition = new RuleDefinition(fifthName, fifthRule);
-		fifthDefinition.setFlavors(50, 10, 60, 50, 65, 50, 70);
+		fifthDefinition.setFlavors(50, 10, 60, 50, 65, 50, 70, 50);
 		Rules.add(fifthDefinition);
 		
 		// ----------------------------------------------------------------
@@ -141,7 +145,7 @@ public class RuleStringRepository {
 		+ " end ";
 		
 		RuleDefinition sixthDefinition = new RuleDefinition(sixthName, sixthRule);
-		sixthDefinition.setFlavors(20, 0, 80, 0, 80, 100, 50);
+		sixthDefinition.setFlavors(20, 0, 80, 0, 80, 100, 50, 50);
 		Rules.add(sixthDefinition);
 		
 		// ----------------------------------------------------------------
@@ -160,7 +164,7 @@ public class RuleStringRepository {
 			+ " end ";
 		
 		RuleDefinition seventhDefinition = new RuleDefinition(seventhName, seventhRule);
-		seventhDefinition.setFlavors(40, 60, 50, 50, 0, 50, 50);
+		seventhDefinition.setFlavors(40, 60, 50, 50, 0, 50, 50, 80);
 		Rules.add(seventhDefinition);
 		
 		// ----------------------------------------------------------------
@@ -180,7 +184,7 @@ public class RuleStringRepository {
 			+ " end ";
 		
 		RuleDefinition eighthDefinition = new RuleDefinition(eighthName, eighthRule);
-		eighthDefinition.setFlavors(80, 40, 30, 50, 30, 50, 50);
+		eighthDefinition.setFlavors(80, 40, 30, 50, 30, 50, 50, 0);
 		Rules.add(eighthDefinition);
 		
 		// ----------------------------------------------------------------
@@ -201,7 +205,7 @@ public class RuleStringRepository {
 			+ " end ";
 			
 		RuleDefinition ninthDefinition = new RuleDefinition(ninthName, ninthRule);
-		ninthDefinition.setFlavors(30, 20, 75, 50, 80, 50, 50);
+		ninthDefinition.setFlavors(30, 20, 75, 50, 80, 50, 50, 5);
 		Rules.add(ninthDefinition);
 		
 		// ALL INITIALLY ACTIVE RULES ARE ABOVE
@@ -228,7 +232,7 @@ public class RuleStringRepository {
 		RuleDefinition backwardsTurns = new RuleDefinition(ReverseOrderName, ReverseOrderRule);
 		backwardsTurns.setReplacesOther(true);
 		backwardsTurns.setOtherName("Whose turn is it");
-		backwardsTurns.setFlavors(60, 45, 50, 50, 50, 50, 100);
+		backwardsTurns.setFlavors(60, 45, 50, 50, 50, 50, 100, 50);
 		Rules.add(backwardsTurns);
 	}
 }

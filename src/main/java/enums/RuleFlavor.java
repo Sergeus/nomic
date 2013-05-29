@@ -38,4 +38,8 @@ public enum RuleFlavor {
 	 * Makes the game behave in a regular manner
 	 */
 	STABLE,
+	/**
+	 * Causes agents to get farther from winning the game
+	 */
+	DETRIMENTAL,
 }
