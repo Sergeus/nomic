@@ -29,7 +29,7 @@ public class RuleDefinition {
 		Flavors = new HashMap<RuleFlavor, Integer>();
 	}
 	
-	public ProposeRuleChange ConstructRuleChange(NomicAgent proposer) {
+	public ProposeRuleChange getRuleChange(NomicAgent proposer) {
 		if (replacesOther) {
 			return new ProposeRuleModification(proposer, name, ruleContent, otherName, RulePackage);
 		}

@@ -147,8 +147,10 @@ public class StoragePlugin implements Plugin {
 			
 			storage.getSimulation().addParameter("Won", "" + nomicService.isGameWon());
 			
-			if (nomicService.isGameWon())
+			if (nomicService.isGameWon()) {
 				storage.getSimulation().addParameter("Winner", nomicService.getWinner().getName());
+				storage.getSimulation().addParameter("WinTime", nomicService.getWinTime().toString());
+			}
 		}
 	}
 

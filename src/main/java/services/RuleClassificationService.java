@@ -35,6 +35,10 @@ public class RuleClassificationService extends EnvironmentService {
 		}
 	}
 	
+	public void Init() {
+
+	}
+	
 	public void LoadRuleDefinitions(Collection<RuleDefinition> collection) {
 		for (RuleDefinition definition : collection) {
 			RuleDefinition localDef = RulePool.get(definition.getName());
@@ -136,5 +140,9 @@ public class RuleClassificationService extends EnvironmentService {
 	
 	public boolean isActive(String ruleName) {
 		return RulePool.get(ruleName).isActive();
+	}
+	
+	public void setActive(String ruleName, boolean active) {
+		RulePool.get(ruleName).setActive(active);
 	}
 }

@@ -23,7 +23,9 @@ import org.drools.runtime.rule.FactHandle;
 import uk.ac.imperial.presage2.core.Time;
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
+import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
+import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.event.EventListener;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
@@ -52,6 +54,10 @@ public class NomicService extends EnvironmentService {
 	
 	public static Semaphore kBuilderSemaphore = new Semaphore(1);
 	
+	private EnvironmentServiceProvider serviceProvider;
+	
+	private RuleClassificationService ruleClassificationService;
+	
 	StatefulKnowledgeSession session;
 	int TurnNumber = 0;
 	
@@ -77,23 +83,18 @@ public class NomicService extends EnvironmentService {
 	
 	NomicAgent Winner;
 	
+	Integer WinTime = -1;
+	
 	EventBus eb;
 	
 	Integer SimTime;
 	
 	@Inject
-	public NomicService(EnvironmentSharedStateAccess sharedState,
+	public NomicService(EnvironmentSharedStateAccess sharedState, EnvironmentServiceProvider serviceProvider,
 			StatefulKnowledgeSession session) {
 		super(sharedState);
 		this.session = session;
-		
-//		logger.info("Receiving a stateful knowledge session with kbase sessions: ");
-//		
-//		for (StatefulKnowledgeSession sesh : session.getKnowledgeBase().getStatefulKnowledgeSessions()) {
-//			logger.info("ID: " + sesh.getId() + " ToString: " + sesh.toString());
-//		}
-//		
-//		logger.info("KnowledgeBase ToString: " + session.getKnowledgeBase().toString());
+		this.serviceProvider = serviceProvider;
 		
 		currentTurn = new Turn(0, TurnType.INIT, placeHolderAgent);
 		
@@ -109,6 +110,18 @@ public class NomicService extends EnvironmentService {
 	public void SetEventBus(EventBus e) {
 		e.subscribe(this);
 		this.eb = e;
+	}
+	
+	private RuleClassificationService getRuleClassificationService() {
+		if (ruleClassificationService == null) {
+			try {
+				ruleClassificationService = serviceProvider.getEnvironmentService(RuleClassificationService.class);
+			} catch (UnavailableServiceException e) {
+				logger.warn("My attempts to get the rule classification service have been fruitless.", e);
+			}
+		}
+		
+		return ruleClassificationService;
 	}
 	
 	@EventListener
@@ -253,6 +266,7 @@ public class NomicService extends EnvironmentService {
 	public void Win(NomicAgent agent) {
 		logger.info(agent.getName() + " has won!");
 		Winner = agent;
+		WinTime = getSimTime();
 	}
 	
 	public void ProposeRuleChange(ProposeRuleChange ruleChange) 
@@ -287,6 +301,9 @@ public class NomicService extends EnvironmentService {
 						+ "\'");
 				RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 				addRule(ruleMod.getNewRule());
+				
+				getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
+				getRuleClassificationService().setActive(ruleMod.getNewRuleName(), true);
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new version of existing rule.", e);
 				// TODO: add old rule back
@@ -296,6 +313,8 @@ public class NomicService extends EnvironmentService {
 			ProposeRuleAddition ruleMod = (ProposeRuleAddition)ruleChange;
 			try {
 				addRule(ruleMod.getNewRule());
+				
+				getRuleClassificationService().setActive(ruleMod.getNewRuleName(), true);
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new rule.", e);
 			}
@@ -303,6 +322,8 @@ public class NomicService extends EnvironmentService {
 		else if (change == RuleChangeType.REMOVAL) {
 			ProposeRuleRemoval ruleMod = (ProposeRuleRemoval)ruleChange;
 			RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
+			
+			getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
 		}
 	}
 	
@@ -517,6 +538,10 @@ public class NomicService extends EnvironmentService {
 	
 	public NomicAgent getWinner() {
 		return Winner;
+	}
+	
+	public Integer getWinTime() {
+		return WinTime;
 	}
 	
 	public Map<Integer, Integer> getPointsMap() {

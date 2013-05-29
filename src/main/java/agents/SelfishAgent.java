@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import actions.ProposeRuleChange;
+import enums.RuleFlavor;
 import enums.VoteType;
+import facts.RuleDefinition;
 
 public class SelfishAgent extends NomicAgent {
 
@@ -17,6 +19,23 @@ public class SelfishAgent extends NomicAgent {
 	@Override
 	public void incrementTime() {
 		super.incrementTime();
+	}
+	
+	@Override
+	protected ProposeRuleChange chooseProposal() {
+		RuleDefinition definition = ruleClassificationService.getInActiveRuleWithHighestFlavor(RuleFlavor.WINCONDITION);
+		
+		if (definition != null) {
+			ProposeRuleChange ruleChange = definition.getRuleChange(this);
+			
+			scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+			
+			if (isPreferred(scenarioService.getPreference())) {
+				return ruleChange;
+			}
+		}
+		
+		return super.chooseProposal();
 	}
 	
 	@Override

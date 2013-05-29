@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import services.NomicService;
+import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
@@ -38,6 +39,7 @@ public class NomicServiceMockTest extends TestCase {
 	final StatefulKnowledgeSession session = context.mock(StatefulKnowledgeSession.class);
 	final EventBus e = context.mock(EventBus.class);
 	final KnowledgeBase base = context.mock(KnowledgeBase.class);
+	final EnvironmentServiceProvider serviceProvider = context.mock(EnvironmentServiceProvider.class);
 	
 	final String correctRuleName = "Dynamic rule!";
 	
@@ -58,7 +60,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		final NomicService service = new NomicService(ss, session);
+		final NomicService service = new NomicService(ss, serviceProvider, session);
 		
 		try {
 			service.addRule(newRule);
@@ -77,7 +79,7 @@ public class NomicServiceMockTest extends TestCase {
 			exactly(3).of(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		final NomicService service = new NomicService(ss, session);
+		final NomicService service = new NomicService(ss, serviceProvider, session);
 		
 		ArrayList<String> imports = new ArrayList<String>();
 		imports.add("agents.NomicAgent");
@@ -126,7 +128,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(base).removeRule(packageName, ruleName);
 		}});
 		
-		NomicService service = new NomicService(ss, session);
+		NomicService service = new NomicService(ss, serviceProvider, session);
 		service.RemoveRule(packageName, ruleName);
 		
 		context.assertIsSatisfied();
@@ -149,7 +151,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
-		NomicService service = new NomicService(ss, session);
+		NomicService service = new NomicService(ss, serviceProvider, session);
 		service.ApplyRuleChange(addition);
 		
 		context.assertIsSatisfied();
@@ -195,7 +197,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(session).fireAllRules();
 		}});
 		
-		NomicService service = new NomicService(ss, session);
+		NomicService service = new NomicService(ss, serviceProvider, session);
 		
 		try {
 			service.ProposeRuleChange(ruleChange);
@@ -230,7 +232,7 @@ public class NomicServiceMockTest extends TestCase {
 			oneOf(session).fireAllRules();
 		}});
 		
-		NomicService service = new NomicService(ss, session);
+		NomicService service = new NomicService(ss, serviceProvider, session);
 		
 		try {
 			service.getCurrentRuleChange();

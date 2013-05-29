@@ -29,6 +29,7 @@ import actionHandlers.VoteActionHandler;
 import agents.DestructiveAgent;
 import agents.NomicAgent;
 import agents.SelfishAgent;
+import agents.VindictiveAgent;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -47,6 +48,9 @@ public class NomicSimulation extends InjectedSimulation {
 	
 	@Parameter(name="sagents")
 	public int sagents;
+	
+	@Parameter(name="vagents")
+	public int vagents;
 
 	public NomicSimulation(Set<AbstractModule> modules) {
 		super(modules);
@@ -62,6 +66,9 @@ public class NomicSimulation extends InjectedSimulation {
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
 			nomicService.AddRuleFile("src/main/resources/Basic.dslr");
+			
+			RuleClassificationService ruleClassificationService = getEnvironmentService(RuleClassificationService.class);
+			ruleClassificationService.Init();
 		} catch (UnavailableServiceException e) {
 			logger.warn("All is lost", e);
 		} catch (DroolsParserException e) {
@@ -96,6 +103,16 @@ public class NomicSimulation extends InjectedSimulation {
 		
 		for (int i=0; i < sagents; i++) {
 			SelfishAgent agent = new SelfishAgent(Random.randomUUID(), "agent" + id);
+			
+			agent.setSequentialID(id);
+			
+			s.addParticipant(agent);
+			session.insert(agent);
+			id++;
+		}
+		
+		for (int i=0; i < vagents; i++) {
+			VindictiveAgent agent = new VindictiveAgent(Random.randomUUID(), "agent" + id);
 			
 			agent.setSequentialID(id);
 			

@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.drools.definition.rule.Rule;
 
 import services.NomicService;
+import services.RuleClassificationService;
 import services.ScenarioService;
 import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
 import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
@@ -44,6 +45,8 @@ public class NomicAgent extends AbstractParticipant {
 	
 	ScenarioService scenarioService;
 	
+	RuleClassificationService ruleClassificationService;
+	
 	String MyRulesFile;
 	
 	Random rand = new Random();
@@ -73,6 +76,7 @@ public class NomicAgent extends AbstractParticipant {
 		try {
 			this.nomicService = getEnvironmentService(NomicService.class);
 			this.scenarioService = getEnvironmentService(ScenarioService.class);
+			this.ruleClassificationService = getEnvironmentService(RuleClassificationService.class);
 		} catch (UnavailableServiceException e) {
 			logger.warn("Couldn't get Nomic Environment Service.", e);
 		}
@@ -156,6 +160,15 @@ public class NomicAgent extends AbstractParticipant {
 		}
 		else {
 			return VoteType.NO;
+		}
+	}
+	
+	public boolean isPreferred(Integer chance) {
+		if (rand.nextInt(100) < chance) {
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 

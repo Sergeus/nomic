@@ -56,6 +56,7 @@ public class SubScenarioSimulation extends NomicSimulation {
 		
 		modules.add(new AbstractEnvironmentModule()
 				.addParticipantGlobalEnvironmentService(NomicService.class)
+				.addParticipantGlobalEnvironmentService(RuleClassificationService.class)
 				.addParticipantEnvironmentService(ScenarioService.class)
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
