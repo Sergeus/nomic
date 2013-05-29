@@ -1,22 +1,39 @@
 package facts;
 
-import java.util.Currency;
 import java.util.Map;
+
+import actions.ProposeRuleAddition;
+import actions.ProposeRuleChange;
+import actions.ProposeRuleModification;
+import agents.NomicAgent;
 
 import enums.RuleFlavor;
 
 
 public class RuleDefinition {
+	public static final String RulePackage = "defaultpkg";
+	
 	String name;
 	String ruleContent;
-	boolean replacesOther;
+	boolean replacesOther = false;
 	String otherName;
 	Map<RuleFlavor, Integer> Flavors;
 	boolean Active;
 	
+	ProposeRuleChange AssociatedRuleChange;
+	
 	public RuleDefinition(String name, String ruleContent) {
 		this.name = name;
 		this.ruleContent = ruleContent;
+	}
+	
+	public ProposeRuleChange ConstructRuleChange(NomicAgent proposer) {
+		if (replacesOther) {
+			return new ProposeRuleModification(proposer, name, ruleContent, otherName, RulePackage);
+		}
+		else {
+			return new ProposeRuleAddition(proposer, name, ruleContent);
+		}
 	}
 
 	public String getName() {
@@ -40,7 +57,7 @@ public class RuleDefinition {
 	}
 	
 	public RuleFlavor getPrevailingFlavor() {
-		Integer maxFlavor = -1;
+		Integer maxFlavor = 50;
 		RuleFlavor prevailingFlavor = null;
 		for (RuleFlavor flavor : Flavors.keySet()) {
 			
@@ -54,8 +71,36 @@ public class RuleDefinition {
 		return prevailingFlavor;
 	}
 	
+	public RuleFlavor getOpposingFlavor() {
+		Integer minFlavor = 50;
+		RuleFlavor lowFlavor = null;
+		
+		for (RuleFlavor flavor : Flavors.keySet()) {
+			Integer currentFlavor = Flavors.get(flavor);
+			
+			if (currentFlavor < minFlavor) {
+				minFlavor = currentFlavor;
+				lowFlavor = flavor;
+			}
+		}
+		
+		return lowFlavor;
+	}
+	
 	public void setFlavorAmount(RuleFlavor flavorType, Integer amount) {
 		Flavors.put(flavorType, amount);
+	}
+	
+	public void setFlavors(Integer complex, Integer destructive, Integer simple,
+			Integer desperation, Integer beneficial, Integer wincondition,
+			Integer stable) {
+		Flavors.put(RuleFlavor.COMPLEX, complex);
+		Flavors.put(RuleFlavor.DESTRUCTIVE, destructive);
+		Flavors.put(RuleFlavor.SIMPLE, simple);
+		Flavors.put(RuleFlavor.DESPERATION, desperation);
+		Flavors.put(RuleFlavor.BENEFICIAL, beneficial);
+		Flavors.put(RuleFlavor.WINCONDITION, wincondition);
+		Flavors.put(RuleFlavor.STABLE, stable);
 	}
 	
 	public Map<RuleFlavor, Integer> getFlavors() {

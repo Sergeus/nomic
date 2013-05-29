@@ -3,12 +3,14 @@ package simulations;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.drools.compiler.DroolsParserException;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import plugins.StoragePlugin;
 import services.NomicService;
 import services.RuleClassificationService;
+import services.RuleStringRepository;
 import services.ScenarioService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
@@ -35,6 +37,8 @@ public class NomicSimulation extends InjectedSimulation {
 	
 	StatefulKnowledgeSession session;
 	
+	private Logger logger = Logger.getLogger(getClass());
+	
 	@Parameter(name="agents")
 	public int agents;
 	
@@ -57,7 +61,6 @@ public class NomicSimulation extends InjectedSimulation {
 	protected void addToScenario(Scenario s) {
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
-			logger.info("It's happening!");
 			nomicService.AddRuleFile("src/main/resources/Basic.dslr");
 		} catch (UnavailableServiceException e) {
 			logger.warn("All is lost", e);

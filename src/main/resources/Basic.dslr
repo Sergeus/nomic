@@ -133,7 +133,6 @@ rule "You gain 1d6 points at the end of your turn"
 		modify($agent) {
 			setPoints($agent.getPoints() + r);
 		};
-		logger.info("Successful point gain.");
 end 
 
 rule "Selfish Agent Test"

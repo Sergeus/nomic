@@ -3,10 +3,12 @@ package simulations;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.drools.compiler.DroolsParserException;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import services.NomicService;
+import services.RuleClassificationService;
 import services.ScenarioService;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
@@ -22,6 +24,8 @@ import agents.ProxyAgent;
 import com.google.inject.AbstractModule;
 
 public class SubScenarioSimulation extends NomicSimulation {
+	
+	private Logger logger = Logger.getLogger(SubScenarioSimulation.class);
 	
 	ScenarioService scenarioService;
 	
@@ -71,9 +75,19 @@ public class SubScenarioSimulation extends NomicSimulation {
 				superSession.getKnowledgeBase()
 				.getKnowledgePackages());
 		
-		session.setGlobal("logger", superSession.getGlobal("logger"));
+		session.setGlobal("logger", logger);
 		session.setGlobal("rand", superSession.getGlobal("rand"));
 		//session.setGlobal("storage", superSession.getGlobal("storage"));
+		
+		try {
+			// Load active settings from super sim definitions
+			getEnvironmentService(RuleClassificationService.class)
+					.LoadRuleDefinitions(scenarioService.getSuperClassificationService()
+							.getDefinitions());
+		} catch (UnavailableServiceException e) {
+			logger.warn("Unable to load super rule definitions for subsim run by "
+					+ scenarioService.getController().getName(), e);
+		}
 	}
 	
 	public void LoadProxyRules(ProxyAgent avatar) {

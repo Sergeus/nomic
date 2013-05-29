@@ -1,5 +1,6 @@
 package services;
 
+import java.security.acl.Owner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +22,8 @@ import agents.NomicAgent;
 import agents.ProxyAgent;
 
 import com.google.inject.AbstractModule;
+
+import facts.RuleDefinition;
 
 public class ScenarioService extends EnvironmentService {
 	
@@ -69,6 +72,8 @@ public class ScenarioService extends EnvironmentService {
 	
 	private NomicService subNomicService;
 	
+	private RuleClassificationService superClassificationService;
+	
 	private StatefulKnowledgeSession testSession;
 	
 	private SubScenarioSimulation subScenarioSimulation;
@@ -91,13 +96,36 @@ public class ScenarioService extends EnvironmentService {
 		SubSimulationResults = new ArrayList<ScenarioService.SimResults>();
 	}
 	
+	public RuleClassificationService getSuperClassificationService() {
+		if (superClassificationService == null) {
+			try {
+				superClassificationService = serviceProvider.getEnvironmentService(RuleClassificationService.class);
+			} catch (UnavailableServiceException e) {
+				logger.warn("Unable to get superClassificationService for " + controller.getName(), e);
+			}
+		}
+		
+		return superClassificationService;
+	}
+	
+	public RuleClassificationService getSubClassificationService() {
+		if (superClassificationService == null) {
+			try {
+				superClassificationService = subScenarioSimulation.getEnvironmentService(RuleClassificationService.class);
+			} catch (UnavailableServiceException e) {
+				logger.warn("Unable to get subClassificationService for " + controller.getName(), e);
+			}
+		}
+		
+		return superClassificationService;
+	}
+	
 	public NomicService getSuperNomicService() {
 		if (superNomicService == null) {
 			try {
 				superNomicService = serviceProvider.getEnvironmentService(NomicService.class);
 			} catch (UnavailableServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Unable to get superNomicService for " + controller.getName(), e);
 			}
 		}
 		
@@ -109,8 +137,7 @@ public class ScenarioService extends EnvironmentService {
 			try {
 				subNomicService = subScenarioSimulation.getEnvironmentService(NomicService.class);
 			} catch (UnavailableServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Unable to get subNomicService for " + controller.getName(), e);
 			}
 		}
 		
@@ -184,6 +211,10 @@ public class ScenarioService extends EnvironmentService {
 	
 	public StatefulKnowledgeSession getReplacementSession() {
 		return testSession;
+	}
+	
+	public Collection<RuleDefinition> getSuperRuleDefinitions() {
+		return getSuperClassificationService().getDefinitions();
 	}
 	
 	public boolean IsController(NomicAgent agent) {

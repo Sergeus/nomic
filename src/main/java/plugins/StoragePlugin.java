@@ -58,31 +58,6 @@ public class StoragePlugin implements Plugin {
 	public void setStorage(StorageService storage) {
 		this.storage = storage;
 	}
-
-	@Override
-	public void incrementTime() {
-		if (storage != null) {
-			// Vote section
-			if (nomicService.getTurnType() == TurnType.VOTE) {
-				for (UUID pid : membersService.getParticipants()) {
-					Vote vote = nomicService.getVote(pid);
-					if (vote != null) {
-						TransientAgentState state = storage.getAgentState(pid, vote.getSimTime());
-						state.setProperty("CasterName", nomicService.getAgentName(pid));
-						state.setProperty("Vote", vote.getVote().toString());
-						state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
-					}
-				}
-			}
-			else if (nomicService.getTurnType() == TurnType.PROPOSE) {
-				// Rule change section
-				ProposeRuleChange ruleChange = nomicService.getPreviousRuleChange();
-					
-				if (ruleChange != null)
-					StoreChange(ruleChange);
-			}
-		}
-	}
 	
 	private void StoreChange(ProposeRuleChange ruleChange) {
 		PersistentEnvironment env = storage.getSimulation().getEnvironment();
@@ -123,6 +98,17 @@ public class StoragePlugin implements Plugin {
 		}
 	}
 	
+	private void StoreVote(Vote vote) {
+		UUID pid = vote.getVoter().getID();
+		
+		if (vote != null) {
+			TransientAgentState state = storage.getAgentState(pid, vote.getSimTime());
+			state.setProperty("CasterName", nomicService.getAgentName(pid));
+			state.setProperty("Vote", vote.getVote().toString());
+			state.setProperty("TurnNumber", nomicService.getTurnNumber().toString());
+		}
+	}
+	
 	@Override
 	public void initialise() {
 		// TODO Auto-generated method stub
@@ -139,11 +125,13 @@ public class StoragePlugin implements Plugin {
 	@Override
 	public void onSimulationComplete() {
 		if (storage != null) {
-			// Store last rule change
-			try {
-				StoreChange(nomicService.getCurrentRuleChange());
-			} catch (NoExistentRuleChangeException e) {
-				logger.warn("Final rule change not available.", e);
+			// Store all rule changes
+			for (ProposeRuleChange ruleChange : nomicService.getSimRuleChanges()) {
+				StoreChange(ruleChange);
+			}
+			
+			for (Vote vote : nomicService.getSimVotes()) {
+				StoreVote(vote);
 			}
 			
 			// Store final agent information
@@ -162,5 +150,10 @@ public class StoragePlugin implements Plugin {
 			if (nomicService.isGameWon())
 				storage.getSimulation().addParameter("Winner", nomicService.getWinner().getName());
 		}
+	}
+
+	@Override
+	public void incrementTime() {
+		
 	}
 }

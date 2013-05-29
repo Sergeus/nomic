@@ -51,7 +51,6 @@ public class VoteActionHandler implements ActionHandler {
 	@Override
 	public Input handle(Action action, UUID actor)
 			throws ActionHandlingException {
-		logger.info("Handling action " + action);
 		
 		NomicService service = getNomicService();
 		
@@ -62,6 +61,7 @@ public class VoteActionHandler implements ActionHandler {
 		
 		try {
 			Vote vote = (Vote)action;
+			logger.info("Handling vote " + vote.getVote() + " from " + vote.getVoter().getName() + " at time " + nomicService.getSimTime());
 			service.Vote(vote);
 			session.insert(vote);
 		} catch(ClassCastException e) {

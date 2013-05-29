@@ -1,7 +1,6 @@
 package services;
 
 import java.io.StringReader;
-import java.nio.channels.AcceptPendingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,24 +9,18 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
-import org.drools.RuleBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.DroolsParserException;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
-import org.drools.event.AgendaEventListener;
-import org.drools.event.rule.ActivationCancelledEvent;
-import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.Resource;
 import org.drools.io.ResourceFactory;
-import org.drools.rule.EntryPoint;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.drools.runtime.conf.KeepReferenceOption;
 import org.drools.runtime.rule.FactHandle;
-import org.drools.runtime.rule.WorkingMemoryEntryPoint;
 
+import uk.ac.imperial.presage2.core.Time;
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
@@ -44,7 +37,6 @@ import actions.ProposeRuleRemoval;
 import actions.Vote;
 import agents.NomicAgent;
 import agents.ProxyAgent;
-import agents.Test;
 
 import com.google.inject.Inject;
 
@@ -69,6 +61,10 @@ public class NomicService extends EnvironmentService {
 	
 	private Map<UUID,Vote> votesThisTurn;
 	
+	private ArrayList<Vote> SimVotes;
+	
+	private ArrayList<ProposeRuleChange> SimRuleChanges;
+	
 	Turn currentTurn;
 	
 	FactHandle turnHandle;
@@ -82,6 +78,8 @@ public class NomicService extends EnvironmentService {
 	NomicAgent Winner;
 	
 	EventBus eb;
+	
+	Integer SimTime;
 	
 	@Inject
 	public NomicService(EnvironmentSharedStateAccess sharedState,
@@ -102,6 +100,9 @@ public class NomicService extends EnvironmentService {
 		agents = new ArrayList<NomicAgent>();
 		agentIDs = new ArrayList<UUID>();
 		votesThisTurn = new HashMap<UUID, Vote>();
+		SimVotes = new ArrayList<Vote>();
+		SimRuleChanges = new ArrayList<ProposeRuleChange>();
+		SimTime = 0;
 	}
 	
 	@Inject
@@ -125,14 +126,17 @@ public class NomicService extends EnvironmentService {
 		else if (currentTurn.getType() == TurnType.INIT) {
 			currentTurn.setType(TurnType.PROPOSE);
 			currentTurn.setNumber(TurnNumber);
+			SimTime++;
 		}
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
 			currentTurn.setType(TurnType.VOTE);
 			previousRuleChange = currentRuleChange;
+			SimTime++;
 		}
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange == null) {
 			currentTurn.setNumber(++TurnNumber);
 			previousRuleChange = null;
+			SimTime++;
 		}
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
@@ -155,6 +159,7 @@ public class NomicService extends EnvironmentService {
 				currentTurn.setType(TurnType.PROPOSE);
 				currentTurn.setNumber(++TurnNumber);
 				currentTurn.setAllVoted(false);
+				SimTime++;
 			}
 		}
 		
@@ -242,6 +247,7 @@ public class NomicService extends EnvironmentService {
 	
 	public void Vote(Vote vote) {
 		votesThisTurn.put(vote.getVoter().getID(), vote);
+		SimVotes.add(vote);
 	}
 	
 	public void Win(NomicAgent agent) {
@@ -256,6 +262,7 @@ public class NomicService extends EnvironmentService {
 		}
 		
 		currentRuleChange = ruleChange;
+		SimRuleChanges.add(ruleChange);
 	}
 	
 	public ProposeRuleChange getCurrentRuleChange() throws NoExistentRuleChangeException {
@@ -447,7 +454,7 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public Integer getSimTime() {
-		return agents.get(0).getTime().intValue();
+		return SimTime;
 	}
 	
 	public Integer getTurnNumber() {
@@ -468,6 +475,14 @@ public class NomicService extends EnvironmentService {
 	
 	public Collection<UUID> getAgentIDs() {
 		return agentIDs;
+	}
+	
+	public ArrayList<Vote> getSimVotes() {
+		return SimVotes;
+	}
+	
+	public ArrayList<ProposeRuleChange> getSimRuleChanges() {
+		return SimRuleChanges;
 	}
 	
 	public String getAgentName(UUID pid) {
