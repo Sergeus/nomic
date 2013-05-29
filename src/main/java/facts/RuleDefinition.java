@@ -1,12 +1,12 @@
 package facts;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import agents.NomicAgent;
-
 import enums.RuleFlavor;
 
 
@@ -25,6 +25,8 @@ public class RuleDefinition {
 	public RuleDefinition(String name, String ruleContent) {
 		this.name = name;
 		this.ruleContent = ruleContent;
+		
+		Flavors = new HashMap<RuleFlavor, Integer>();
 	}
 	
 	public ProposeRuleChange ConstructRuleChange(NomicAgent proposer) {

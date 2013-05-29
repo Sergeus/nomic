@@ -1,16 +1,7 @@
 package agents;
 
-import java.util.Collection;
 import java.util.UUID;
 
-import org.drools.definition.rule.Rule;
-
-import com.google.inject.Inject;
-
-import uk.ac.imperial.presage2.core.Time;
-import uk.ac.imperial.presage2.core.environment.ActionHandlingException;
-
-import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
@@ -94,68 +85,6 @@ public class DestructiveAgent extends NomicAgent {
 		}
 		
 		super.incrementTime();
-	}
-	
-	@Override
-	protected void doRuleChanges() {
-		boolean success = false;
-		
-		if (!success && votesRequired > 1) {
-			Collection<Rule> rules = nomicService.getRules();
-			
-			for (Rule rule : rules) {
-				if (rule.getName().compareTo("Majority votes succeed after second round") == 0) {
-					UpdateMajorityRule();
-					
-					ProposeRuleModification modification = new ProposeRuleModification(this, 
-							"Majority votes succeed after second round",
-							MajorityRule, rule.getName(), rule.getPackageName());
-					
-					logger.info("Trying to reduce the number of votes required from " 
-					+ votesRequired + " to " + (votesRequired - 1) + ".");
-					
-					try {
-						environment.act(modification, getID(), authkey);
-						success = true;
-					} catch (ActionHandlingException e) {
-						logger.warn("My rule modification failed. :(", e);
-					}
-				}
-			}
-		}
-		else if (!success && votesRequired <= 1) {
-			ProposeRuleAddition addition = new ProposeRuleAddition(this,
-					"Agent " + getSequentialID() + " Wins", IWinRule);
-			logger.info("None of you can oppose me now! I propose a winning rule change!");
-			
-			try {
-				environment.act(addition, getID(), authkey);
-				success = true;
-			} catch (ActionHandlingException e) {
-				logger.warn("Oops, that was anticlimactic.", e);
-			}
-		}
-		else if (rand.nextBoolean() && !success) {
-			Collection<Rule> rules = nomicService.getRules();
-			
-			Rule removedRule = (Rule) rules.toArray()[rand.nextInt(rules.size())];
-			
-			ProposeRuleRemoval removal = new ProposeRuleRemoval(this, 
-					removedRule.getName(), removedRule.getPackageName());
-			
-			logger.info("I propose removing the rule \'" + removedRule.getName()
-					+ "\'.");
-			try {
-				environment.act(removal, getID(), authkey);
-				success = true;
-			} catch (ActionHandlingException e) {
-				logger.warn("Failed to modify rule.", e);
-			}
-		}
-		
-		if (!success) {
-			super.doRuleChanges();
-		}
 	}
 	
 	@Override

@@ -98,48 +98,25 @@ public class NomicAgent extends AbstractParticipant {
 		super.incrementTime();
 	}
 	
-	protected void doRuleChanges() {
-		Collection<Rule> rules= nomicService.getRules();
+	private void doRuleChanges() {
+		ProposeRuleChange myChange = chooseProposal();
 		
-		String oldRuleName = "Whose turn is it";
-		String newRuleName = "Backwards Turns";
-		boolean success = false;
-		
-		boolean test = false;
-		if (test) {
-			ProposeRuleRemoval removal = new ProposeRuleRemoval(this, "Test rule for agent insertions", "Rules");
-			logger.info("Proposing test removal");
-			try {
-				environment.act(removal, getID(), authkey);
-			} catch (ActionHandlingException e) {
-				logger.warn("Shit", e);
-			}
+		if (myChange == null) {
+			logger.info("No rule changes from me this turn.");
 		}
 		else {
-			for (Rule rule : rules) {
-				if (rule.getName().compareTo(oldRuleName) == 0) {
-					ProposeRuleModification ruleMod = 
-							new ProposeRuleModification(this, "Backwards Turns",
-									ReverseOrderRule, oldRuleName, rule.getPackageName());
-					
-					logger.info("Proposing turn order modification.");
-					
-					try {
-						environment.act(ruleMod, getID(), authkey);
-						success = true;
-					} catch (ActionHandlingException e) {
-						logger.info("Failed to modify rule.", e);
-					}
-				}
-				if (rule.getName().compareTo(newRuleName) == 0) {
-					
-				}
+			logger.info("I propose the following rule change: " + myChange);
+			
+			try {
+				environment.act(myChange, getID(), authkey);
+			} catch (ActionHandlingException e) {
+				logger.warn("My rule change proposal has failed. Proposal: " + myChange, e);
 			}
 		}
-		
-		if (!success) {
-			logger.info("No rule changes from me.");
-		}
+	}
+	
+	protected ProposeRuleChange chooseProposal() {
+		return null;
 	}
 	
 	private void doVoting() throws NoExistentRuleChangeException {
