@@ -1,10 +1,13 @@
 package agents;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 
+import actions.ProposeNoRuleChange;
 import actions.ProposeRuleChange;
+import actions.ProposeRuleRemoval;
 import enums.RuleFlavor;
 import enums.VoteType;
 import facts.RuleDefinition;
@@ -23,15 +26,49 @@ public class SelfishAgent extends NomicAgent {
 	
 	@Override
 	protected ProposeRuleChange chooseProposal() {
-		RuleDefinition definition = ruleClassificationService.getInActiveRuleWithHighestFlavor(RuleFlavor.WINCONDITION);
 		
-		if (definition != null) {
-			ProposeRuleChange ruleChange = definition.getRuleChange(this);
+		// first check to see if we like the current state of affairs
+		ProposeNoRuleChange noChange = new ProposeNoRuleChange(this);
+		scenarioService.RunQuerySimulation(noChange, getSubsimulationLength(noChange));
+		
+		// If we do, let's add/modify a rule
+		if (isPreferred(scenarioService.getPreference())) {
 			
-			scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+			RuleDefinition definition = ruleClassificationService.getInActiveRuleWithHighestFlavor(RuleFlavor.WINCONDITION);
 			
-			if (isPreferred(scenarioService.getPreference())) {
-				return ruleChange;
+			if (definition != null) {
+				ProposeRuleChange ruleChange = definition.getRuleChange(this);
+				
+				scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+				
+				if (isPreferred(scenarioService.getPreference())) {
+					return ruleChange;
+				}
+			}
+		}
+		// If we don't like the result of the current rule set, then let's remove a rule
+		else {
+			// If we don't like it and the subsim was won, someone else won, so let's remove the win conditions
+			if (scenarioService.isSimWon()) {
+				ArrayList<RuleDefinition> winRules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.WINCONDITION);
+				
+				// Choose a random win condition to remove, since we can't tell 'how' the subsim was won
+				RuleDefinition chosenRemoval = winRules.get(rand.nextInt(winRules.size()));
+				
+				ProposeRuleChange winRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
+				
+				return winRemove;
+			}
+			// Otherwise destructive rules might be stopping us from winning
+			else {
+				ArrayList<RuleDefinition> rules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.DESTRUCTIVE);
+				
+				RuleDefinition chosenRemoval = rules.get(rand.nextInt(rules.size()));
+				
+				ProposeRuleRemoval destructiveRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
+				
+				return destructiveRemove;
+				
 			}
 		}
 		

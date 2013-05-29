@@ -325,6 +325,9 @@ public class NomicService extends EnvironmentService {
 			
 			getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
 		}
+		else if (change == RuleChangeType.NONE) {
+			logger.info("Blank change for current forecasting has been 'applied'.");
+		}
 	}
 	
 	public void addRule(Collection<String> imports, String ruleName,
@@ -544,10 +547,10 @@ public class NomicService extends EnvironmentService {
 		return WinTime;
 	}
 	
-	public Map<Integer, Integer> getPointsMap() {
-		HashMap<Integer, Integer> agentsToPoints = new HashMap<Integer, Integer>();
+	public Map<String, Integer> getPointsMap() {
+		HashMap<String, Integer> agentsToPoints = new HashMap<String, Integer>();
 		for (NomicAgent agent : agents) {
-			agentsToPoints.put(agent.getSequentialID(), agent.getSequentialID());
+			agentsToPoints.put(agent.getName(), agent.getSequentialID());
 		}
 		
 		return agentsToPoints;

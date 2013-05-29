@@ -1,7 +1,9 @@
 package services;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -69,8 +71,6 @@ public class ScenarioService extends EnvironmentService {
 	
 	private NomicService superNomicService;
 	
-	private NomicService subNomicService;
-	
 	private RuleClassificationService superClassificationService;
 	
 	private StatefulKnowledgeSession testSession;
@@ -82,6 +82,8 @@ public class ScenarioService extends EnvironmentService {
 	private ProxyAgent avatar;
 	
 	private ArrayList<SimResults> SubSimulationResults;
+	
+	private ArrayList<ProxyAgent> currentProxies = new ArrayList<ProxyAgent>();
 
 	public ScenarioService(EnvironmentSharedStateAccess ss, EnvironmentServiceProvider provider,
 			Participant p) {
@@ -131,18 +133,6 @@ public class ScenarioService extends EnvironmentService {
 		return superNomicService;
 	}
 	
-	public NomicService getSubNomicService() {
-		if (superNomicService == null) {
-			try {
-				subNomicService = subScenarioSimulation.getEnvironmentService(NomicService.class);
-			} catch (UnavailableServiceException e) {
-				logger.warn("Unable to get subNomicService for " + controller.getName(), e);
-			}
-		}
-		
-		return subNomicService;
-	}
-	
 	public void setController(NomicAgent controller) {
 		this.controller = controller;
 	}
@@ -150,11 +140,15 @@ public class ScenarioService extends EnvironmentService {
 	public Collection<ProxyAgent> getProxyAgents() {
 		Collection<ProxyAgent> proxies = superNomicService.getProxyAgents();
 		
+		currentProxies.clear();
+		
 		for (ProxyAgent proxy : proxies) {
 			if (proxy.GetOwnerID() == controller.getID()) {
 				avatar = proxy;
 				avatar.SetAvatar(true);
 			}
+			
+			currentProxies.add(proxy);
 		}
 		
 		return proxies;
@@ -224,13 +218,21 @@ public class ScenarioService extends EnvironmentService {
 		return controller;
 	}
 	
-	public boolean IsWinner() {
-		return getSubNomicService().isGameWon();
+	public boolean isSimWon() {
+		for (ProxyAgent proxy : currentProxies) {
+			if (proxy.isWinner()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 	public ProxyAgent getWinner() {
-		if (IsWinner()) {
-			return (ProxyAgent) getSubNomicService().getWinner();
+		for (ProxyAgent proxy : currentProxies) {
+			if (proxy.isWinner()) {
+				return proxy;
+			}
 		}
 		
 		return null;
@@ -244,8 +246,14 @@ public class ScenarioService extends EnvironmentService {
 		return avatar.getPreference();
 	}
 	
-	public Map<Integer, Integer> getPointsAtEnd() {
-		return getSubNomicService().getPointsMap();
+	public Map<String, Integer> getPointsAtEnd() {
+		Map<String, Integer> pointsMap = new HashMap<String, Integer>();
+		
+		for (ProxyAgent proxy : currentProxies) {
+			pointsMap.put(proxy.getName(), proxy.getPoints());
+		}
+		
+		return pointsMap;
 	}
 
 	public int getNumSubSimsRun() {
