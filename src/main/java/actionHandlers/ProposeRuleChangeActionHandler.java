@@ -71,7 +71,8 @@ public class ProposeRuleChangeActionHandler implements ActionHandler {
 		try {
 			service.ProposeRuleChange((ProposeRuleChange)action);
 			
-			session.insert(action);
+			if (((ProposeRuleChange)action).getRuleChangeType() != RuleChangeType.NONE)
+				session.insert(action);
 		} catch(ClassCastException e) {
 			throw new ActionHandlingException("Supplied action is the wrong class." + e.getMessage());
 		} catch(InvalidRuleProposalException e) {
