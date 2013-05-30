@@ -15,6 +15,7 @@ import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.plugin.Plugin;
 import uk.ac.imperial.presage2.util.environment.EnvironmentMembersService;
+import actions.ProposeNoRuleChange;
 import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;

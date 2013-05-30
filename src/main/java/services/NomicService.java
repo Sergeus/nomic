@@ -46,6 +46,7 @@ import enums.RuleChangeType;
 import enums.TurnType;
 import exceptions.InvalidRuleProposalException;
 import exceptions.NoExistentRuleChangeException;
+import facts.RuleDefinition;
 import facts.Turn;
 
 public class NomicService extends EnvironmentService {
@@ -127,6 +128,10 @@ public class NomicService extends EnvironmentService {
 	@EventListener
 	public void onInitialize(Events.Initialised e) {
 		turnHandle = session.insert(currentTurn);
+		
+//		for (RuleDefinition definition : ruleClassificationService.getAllRules()) {
+//			session.insert(definition);
+//		}
 	}
 	
 	@EventListener
@@ -142,14 +147,15 @@ public class NomicService extends EnvironmentService {
 			SimTime++;
 		}
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
-			currentTurn.setType(TurnType.VOTE);
-			previousRuleChange = currentRuleChange;
-			SimTime++;
-		}
-		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange == null) {
-			currentTurn.setNumber(++TurnNumber);
-			previousRuleChange = null;
-			SimTime++;
+			if (currentRuleChange.getRuleChangeType() != RuleChangeType.NONE) {
+				currentTurn.setType(TurnType.VOTE);
+				previousRuleChange = currentRuleChange;
+				SimTime++;
+			}
+			else {
+				currentTurn.setNumber(++TurnNumber);
+				SimTime++;
+			}
 		}
 		else if (currentTurn.getType() == TurnType.VOTE) {
 			if (currentTurn.isAllVoted()) {
