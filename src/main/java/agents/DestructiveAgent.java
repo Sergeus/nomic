@@ -14,12 +14,6 @@ import facts.RuleDefinition;
 
 public class DestructiveAgent extends NomicAgent {
 	
-	int votesRequired;
-	
-	String MajorityRule;
-	
-	String IWinRule;
-	
 	public DestructiveAgent(UUID id, String name) {
 		super(id, name);
 	}
@@ -99,29 +93,6 @@ public class DestructiveAgent extends NomicAgent {
 		scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
 		
 		return chooseVoteFromProbability(scenarioService.getPreference());
-	}
-	
-	@Override
-	public void incrementTime() {
-		if (getTime().intValue() == 0) {
-			votesRequired = (int) (Math.floor(nomicService.getNumberOfAgents() / 2) + 1);
-			
-			logger.info("Setting votes required to " + votesRequired + ".");
-		}
-		
-		super.incrementTime();
-	}
-	
-	@Override
-	public void voteSucceeded(ProposeRuleChange ruleChange) {
-		if (ruleChange.getProposer().getID() == getID()
-				&& ruleChange instanceof ProposeRuleModification
-				&& ((ProposeRuleModification)ruleChange).getNewRule().compareTo(MajorityRule) == 0) {
-			votesRequired--;
-			logger.info("I see the number of votes required has decreased!");
-		}
-		
-		super.voteSucceeded(ruleChange);
 	}
 	
 	@Override
