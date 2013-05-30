@@ -84,6 +84,18 @@ public class SubScenarioSimulation extends NomicSimulation {
 	}
 	
 	public void LoadProxyRules(ProxyAgent avatar) {
+		try {
+			// Load active settings from super sim definitions
+			RuleClassificationService ruleClassificationService = 
+					getEnvironmentService(RuleClassificationService.class);
+					
+			ruleClassificationService.LoadRuleDefinitions(scenarioService.getSuperClassificationService()
+							.getAllRules());
+		} catch (UnavailableServiceException e) {
+			logger.warn("Unable to load super rule definitions for subsim run by "
+					+ scenarioService.getController().getName(), e);
+		}
+		
 		String filePath = avatar.getProxyRulesFile();
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
@@ -94,18 +106,6 @@ public class SubScenarioSimulation extends NomicSimulation {
 			logger.warn("Nomic service unavailable for proxy agent rule addition.", e);
 		} catch (DroolsParserException e) {
 			logger.warn("Proxy rules for file " + filePath + " could not be parsed.", e);
-		}
-		
-		try {
-			// Load active settings from super sim definitions
-			RuleClassificationService ruleClassificationService = 
-					getEnvironmentService(RuleClassificationService.class);
-					
-			ruleClassificationService.LoadRuleDefinitions(scenarioService.getSuperClassificationService()
-							.getDefinitions());
-		} catch (UnavailableServiceException e) {
-			logger.warn("Unable to load super rule definitions for subsim run by "
-					+ scenarioService.getController().getName(), e);
 		}
 	}
 }

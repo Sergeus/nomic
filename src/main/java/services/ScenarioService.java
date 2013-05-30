@@ -206,7 +206,7 @@ public class ScenarioService extends EnvironmentService {
 	}
 	
 	public Collection<RuleDefinition> getSuperRuleDefinitions() {
-		return getSuperClassificationService().getDefinitions();
+		return getSuperClassificationService().getAllRules();
 	}
 	
 	public boolean IsController(NomicAgent agent) {
