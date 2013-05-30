@@ -296,5 +296,26 @@ public class RuleStringRepository {
 		
 		RuleDefinition tenPointsWinsDefinition = new RuleDefinition(tenPointsWins, tenPointsWinsRule);
 		tenPointsWinsDefinition.setFlavors(50, 0, 50, 50, 70, 100, 50, 50);
+		Rules.add(tenPointsWinsDefinition);
+		
+		// ----------------------------------------------------------------
+		String unanimityStealsPoints = "Unanimous opposition steals points from proposers";
+		String unanimityStealsPointsRule = " rule \"Unanimous opposition steals points from proposers\" "
+				+ " when "
+				+ " Turn ( $turnNumber : number ) "
+				+ " ProposeRuleChange ( $proposer : proposer, t == $turnNumber ) "
+				+ " $totalAgents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
+				+ " $votesAgainst : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.NO, getVoter().getName() != $proposer.getName()) count( $sgc ) ) "
+				+ " eval ($votesAgainst.intValue() >= ($totalAgents.intValue() - 1) ) "
+				+ " $agent : NomicAgent ( getName() != $proposer.getName() ) "
+			+ " then "
+				+ " logger.info(\"Everyone else has voted against \" + $proposer.getName() + \"'s rule change, so \" + $agent.getName() + \" each steal 7 points from \" + $proposer.getName() + \".\"); "
+				+ " $agent.increasePoints(7); "
+				+ " $proposer.decreasePoints(7); "
+		+ " end ";
+		
+		RuleDefinition unanimityStealsDefinition = new RuleDefinition(unanimityStealsPoints, unanimityStealsPointsRule);
+		unanimityStealsDefinition.setFlavors(90, 50, 10, 75, 75, 50, 50, 55);
+		Rules.add(unanimityStealsDefinition);
 	}
 }
