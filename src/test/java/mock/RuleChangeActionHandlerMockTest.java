@@ -87,6 +87,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).getSimTime();
 			oneOf(service).ProposeRuleChange(removal);
 			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(removal);
@@ -125,6 +126,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).getSimTime();
 			oneOf(service).ProposeRuleChange(modification);
 			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(modification);
@@ -158,6 +160,7 @@ public class RuleChangeActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(serviceProvider).getEnvironmentService(with(NomicService.class)); will(returnValue(service));
 			oneOf(service).getTurnNumber();
+			oneOf(service).getSimTime();
 			oneOf(service).ProposeRuleChange(addition);
 			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(addition);
