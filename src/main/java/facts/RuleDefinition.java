@@ -1,6 +1,7 @@
 package facts;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,6 +102,19 @@ public class RuleDefinition {
 		return lowFlavor;
 	}
 	
+	public boolean isHasPositiveFlavor(RuleFlavor flavor) {
+		return Flavors.get(flavor) > 50;
+	}
+	
+	public boolean isHasPositiveForFlavors(Collection<RuleFlavor> flavors) {
+		for (RuleFlavor flavor : flavors) {
+			if (Flavors.get(flavor) < 50)
+				return false;
+		}
+		
+		return true;
+	}
+	
 	public void setFlavorAmount(RuleFlavor flavorType, Integer amount) {
 		Flavors.put(flavorType, amount);
 	}
@@ -133,6 +147,49 @@ public class RuleDefinition {
 		}
 		
 		return false;
+	}
+	
+	public boolean isReplacesAny(ArrayList<RuleDefinition> rules) {
+		if (!isReplacesOther())
+			return false;
+		
+		for (RuleDefinition definition : rules) {
+			if (isReplaces(definition.getName()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Thresholded check for this rule's propensity toward the parameter flavor.
+	 * Basically, it's more strict than "isHasPositiveFlavor", requiring a higher
+	 * affinity for the given flavor to return true.
+	 * @param flavor
+	 * @return
+	 */
+	public boolean is(RuleFlavor flavor) {
+		return Flavors.get(flavor) > 67;
+	}
+	
+	/**
+	 * Counterpart to "is", can be used to work out if this rule is relatively neutral to the
+	 * given flavor  
+	 * @param flavor
+	 * @return
+	 */
+	public boolean isNot(RuleFlavor flavor) {
+		return Flavors.get(flavor) < 33;
+	}
+	
+	/**
+	 * If this rule is within an acceptable threshold of 50 propensity toward the given flavor,
+	 * returns true.
+	 * @param flavor
+	 * @return
+	 */
+	public boolean isNeutral(RuleFlavor flavor) {
+		return !is(flavor) && !isNot(flavor);
 	}
 	
 	public void addReplacedRule(RuleDefinition rule) {
