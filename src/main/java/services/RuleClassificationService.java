@@ -51,7 +51,7 @@ public class RuleClassificationService extends EnvironmentService {
 		return RulePool.get(ruleName).getFlavors();
 	}
 	
-	public Collection<RuleDefinition> getDefinitions() {
+	public Collection<RuleDefinition> getAllRules() {
 		return RulePool.values();
 	}
 	
@@ -94,8 +94,8 @@ public class RuleClassificationService extends EnvironmentService {
 		return bestRuleDef;
 	}
 	
-	public Collection<RuleDefinition> getAllRulesWithFlavor(RuleFlavor flavorType) {
-		Collection<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+	public ArrayList<RuleDefinition> getAllRulesWithFlavor(RuleFlavor flavorType) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
 		for (String name : RulePool.keySet()) {
 			RuleDefinition currentRule = RulePool.get(name);
 			if (currentRule.getFlavorAmount(flavorType) > 50) {
@@ -118,6 +118,16 @@ public class RuleClassificationService extends EnvironmentService {
 		return rules;
 	}
 	
+	public ArrayList<RuleDefinition> getAllActiveRulesWithFlavors(ArrayList<RuleFlavor> flavors) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (RuleFlavor flavor : flavors) {
+			rules.addAll(getAllActiveRulesWithFlavor(flavor));
+		}
+		
+		return rules;
+	}
+	
 	public ArrayList<RuleDefinition> getAllInActiveRulesWithFlavor(RuleFlavor flavor) {
 		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
 		
@@ -130,6 +140,16 @@ public class RuleClassificationService extends EnvironmentService {
 		return rules;
 	}
 	
+	public ArrayList<RuleDefinition> getAllInActiveRulesWithFlavors(Collection<RuleFlavor> flavors) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (RuleFlavor flavor : flavors) {
+			rules.addAll(getAllInActiveRulesWithFlavor(flavor));
+		}
+		
+		return rules;
+	}
+	
 	public ArrayList<RuleDefinition> getRulesThatModify(String oldRuleName) {
 		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
 		
@@ -137,6 +157,55 @@ public class RuleClassificationService extends EnvironmentService {
 			RuleDefinition definition = RulePool.get(name);
 			if (definition.isReplaces(oldRuleName))
 				rules.add(definition);
+		}
+		
+		return rules;
+	}
+	
+	public ArrayList<RuleDefinition> getAllInActiveRules() {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (String name : RulePool.keySet()) {
+			RuleDefinition definition = RulePool.get(name);
+			if (!definition.isActive())
+				rules.add(definition);
+		}
+		
+		return rules;
+	}
+	
+	public ArrayList<RuleDefinition> getAllActiveRulesWithoutFlavors(ArrayList<RuleFlavor> flavors) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (String name : RulePool.keySet()) {
+			RuleDefinition definition = RulePool.get(name);
+			if (definition.isHasPositiveForFlavors(flavors))
+				rules.add(definition);
+		}
+		
+		return rules;
+	}
+	
+	public ArrayList<RuleDefinition> getInActiveRulesThatReplaceActiveRulesWithFlavor(RuleFlavor flavor) {
+		ArrayList<RuleDefinition> rulesWeWantToReplace = getAllActiveRulesWithFlavor(flavor);
+		
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (String name : RulePool.keySet()) {
+			RuleDefinition definition = RulePool.get(name);
+			
+			if (definition.isReplacesAny(rulesWeWantToReplace))
+				rules.add(definition);
+		}
+		
+		return rules;
+	}
+	
+	public ArrayList<RuleDefinition> getInActiveRulesThatReplaceActiveRulesWithFlavors(ArrayList<RuleFlavor> flavors) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (RuleFlavor flavor : flavors) {
+			rules.addAll(getInActiveRulesThatReplaceActiveRulesWithFlavor(flavor));
 		}
 		
 		return rules;
