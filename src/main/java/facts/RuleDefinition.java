@@ -1,5 +1,6 @@
 package facts;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import agents.NomicAgent;
 import enums.RuleFlavor;
+import exceptions.InvalidRuleStateException;
 
 
 public class RuleDefinition {
@@ -15,8 +17,7 @@ public class RuleDefinition {
 	
 	String name;
 	String ruleContent;
-	boolean replacesOther = false;
-	String otherName;
+	ArrayList<RuleDefinition> replacedRules;
 	Map<RuleFlavor, Integer> Flavors;
 	boolean Active;
 	
@@ -24,12 +25,25 @@ public class RuleDefinition {
 		this.name = name;
 		this.ruleContent = ruleContent;
 		
+		replacedRules = new ArrayList<RuleDefinition>();
 		Flavors = new HashMap<RuleFlavor, Integer>();
 	}
 	
 	public ProposeRuleChange getRuleChange(NomicAgent proposer) {
-		if (replacesOther) {
-			return new ProposeRuleModification(proposer, name, ruleContent, otherName, RulePackage);
+		if (isReplacesOther()) {
+			String replacedName = null;
+			
+			for (RuleDefinition replacedDef : replacedRules) {
+				if (replacedDef.isActive())
+					replacedName = replacedDef.getName();
+			}
+			
+			// the replaced rules might all have been removed
+			if (replacedName == null) {
+				return new ProposeRuleAddition(proposer, name, ruleContent);
+			}
+			
+			return new ProposeRuleModification(proposer, name, ruleContent, replacedName, RulePackage);
 		}
 		else {
 			return new ProposeRuleAddition(proposer, name, ruleContent);
@@ -109,19 +123,20 @@ public class RuleDefinition {
 	}
 
 	public boolean isReplacesOther() {
-		return replacesOther;
+		return replacedRules.size() > 0;
 	}
-
-	public void setReplacesOther(boolean replacesOther) {
-		this.replacesOther = replacesOther;
+	
+	public boolean isReplaces(String oldRuleName) {
+		for (RuleDefinition definition : replacedRules) {
+			if (definition.getName().equals(oldRuleName))
+				return true;
+		}
+		
+		return false;
 	}
-
-	public String getOtherName() {
-		return otherName;
-	}
-
-	public void setOtherName(String otherName) {
-		this.otherName = otherName;
+	
+	public void addReplacedRule(RuleDefinition rule) {
+		replacedRules.add(rule);
 	}
 
 	public boolean isActive() {

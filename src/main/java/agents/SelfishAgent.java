@@ -34,9 +34,12 @@ public class SelfishAgent extends NomicAgent {
 		// If we do, let's add/modify a rule
 		if (isPreferred(scenarioService.getPreference())) {
 			
-			RuleDefinition definition = ruleClassificationService.getInActiveRuleWithHighestFlavor(RuleFlavor.WINCONDITION);
+			ArrayList<RuleDefinition> rulesILike = ruleClassificationService.getAllInActiveRulesWithFlavor(RuleFlavor.WINCONDITION);
+			rulesILike.addAll(ruleClassificationService.getAllInActiveRulesWithFlavor(RuleFlavor.BENEFICIAL));
 			
-			if (definition != null) {
+			if (!rulesILike.isEmpty()) {
+				RuleDefinition definition = rulesILike.get(rand.nextInt(rulesILike.size()));
+				
 				ProposeRuleChange ruleChange = definition.getRuleChange(this);
 				
 				scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
@@ -52,27 +55,32 @@ public class SelfishAgent extends NomicAgent {
 			if (scenarioService.isSimWon()) {
 				ArrayList<RuleDefinition> winRules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.WINCONDITION);
 				
-				// Choose a random win condition to remove, since we can't tell 'how' the subsim was won
-				RuleDefinition chosenRemoval = winRules.get(rand.nextInt(winRules.size()));
-				
-				ProposeRuleChange winRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
-				
-				return winRemove;
+				if (!winRules.isEmpty()) {
+					// Choose a random win condition to remove, since we can't tell 'how' the subsim was won
+					RuleDefinition chosenRemoval = winRules.get(rand.nextInt(winRules.size()));
+					
+					ProposeRuleChange winRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
+					
+					return winRemove;
+				}
 			}
 			// Otherwise destructive or detrimental rules might be stopping us from winning
 			else {
 				ArrayList<RuleDefinition> rules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.DESTRUCTIVE);
 				rules.addAll(ruleClassificationService.getAllRulesWithFlavor(RuleFlavor.DETRIMENTAL));
 				
-				RuleDefinition chosenRemoval = rules.get(rand.nextInt(rules.size()));
-				
-				ProposeRuleRemoval destructiveRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
-				
-				return destructiveRemove;
+				if (!rules.isEmpty()) {
+					RuleDefinition chosenRemoval = rules.get(rand.nextInt(rules.size()));
+					
+					ProposeRuleRemoval destructiveRemove = new ProposeRuleRemoval(this, chosenRemoval.getName(), RuleDefinition.RulePackage);
+					
+					return destructiveRemove;
+				}
 				
 			}
 		}
 		
+		// If we've gotten this far, this agent can't decide what to propose, so we'll give up for this turn
 		return super.chooseProposal();
 	}
 	

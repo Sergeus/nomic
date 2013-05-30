@@ -47,8 +47,7 @@ public class RuleStringRepository {
 		
 		RuleDefinition firstDefinition = new RuleDefinition(firstName, firstRule);
 		firstDefinition.setFlavors(50, 0, 80, 50, 75, 50, 100, 0);
-		firstDefinition.setReplacesOther(true);
-		firstDefinition.setOtherName("Backwards Turns");
+		//firstDefinition.addReplacedRuleName("Backwards Turns");
 		Rules.add(firstDefinition);
 		
 		// ----------------------------------------------------------------
@@ -213,6 +212,7 @@ public class RuleStringRepository {
 			definition.setActive(true);
 		}
 		
+		// ----------------------------------------------------------------
 		String ReverseOrderName = "Backwards Turns";
 		String ReverseOrderRule = "import agents.NomicAgent "
 				+ "import facts.* "
@@ -230,9 +230,71 @@ public class RuleStringRepository {
 				+ "end";
 		
 		RuleDefinition backwardsTurns = new RuleDefinition(ReverseOrderName, ReverseOrderRule);
-		backwardsTurns.setReplacesOther(true);
-		backwardsTurns.setOtherName("Whose turn is it");
+		backwardsTurns.addReplacedRule(firstDefinition);
 		backwardsTurns.setFlavors(60, 45, 50, 50, 50, 50, 100, 50);
 		Rules.add(backwardsTurns);
+		
+		firstDefinition.addReplacedRule(backwardsTurns);
+		
+		// ----------------------------------------------------------------
+		String MajorityOfOne = "Majority of One";
+		String MajorityOfOneRule = "import agents.NomicAgent; "
+				+	"import actions.Vote; "
+				+	"import actions.ProposeRuleChange; "
+				+	"import enums.VoteType; "
+				+	"import facts.*; "
+				+	"global org.apache.log4j.Logger logger "
+				+"rule \"Majority of One\" "
+				+ "when "
+				+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
+				+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
+				+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
+				+ 	"eval($n.intValue() >= 1) "
+				+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
+				+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
+				+"then "
+				+	"logger.info(\"Majority vote succeeded\"); "
+				+	"modify($ruleChange) { "
+				+		"setSucceeded(true); "
+				+	"}; "
+				+	"end";
+		
+		RuleDefinition majorityOfOneDefinition = new RuleDefinition(MajorityOfOne, MajorityOfOneRule);
+		majorityOfOneDefinition.addReplacedRule(thirdDefinition);
+		majorityOfOneDefinition.setFlavors(60, 55, 50, 90, 30, 70, 75, 50);
+		Rules.add(majorityOfOneDefinition);
+		
+		thirdDefinition.addReplacedRule(majorityOfOneDefinition);
+		
+		// ----------------------------------------------------------------
+		String agentFourWins = "Agent4 wins";
+		String agentFourWinsRule = "import agents.NomicAgent; "
+				+ "import facts.*; "
+				+ "global org.apache.log4j.Logger logger "
+				+ "rule \"Agent4 Wins\""
+				+ "when "
+				+ 	"$agent : NomicAgent($id : sequentialID, $id == 4) "
+				+ "then "
+				+	"logger.info(\"Agent4 Wins\"); "
+				+	"insert(new Win($agent)); "
+				+ "end";
+		
+		RuleDefinition agentFourWinsDef = new RuleDefinition(agentFourWins, agentFourWinsRule);
+		agentFourWinsDef.setFlavors(20, 0, 100, 100, 50, 100, 0, 50);
+		Rules.add(agentFourWinsDef);
+		
+		// ----------------------------------------------------------------
+		String tenPointsWins = "Ten points means you win";
+		String tenPointsWinsRule = imports
+				+ " rule \"Ten points means you win\" "
+				+ " when "
+				+ " $agent : NomicAgent ( points >= 10 ) "
+			+ " then "
+				+ " logger.info($agent.getName() + \" has obtained 10 points and won!\"); "
+				+ " insert(new Win($agent)); "
+		+ " end ";
+		
+		RuleDefinition tenPointsWinsDefinition = new RuleDefinition(tenPointsWins, tenPointsWinsRule);
+		tenPointsWinsDefinition.setFlavors(50, 0, 50, 50, 70, 100, 50, 50);
 	}
 }

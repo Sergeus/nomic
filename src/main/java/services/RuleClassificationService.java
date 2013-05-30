@@ -130,6 +130,18 @@ public class RuleClassificationService extends EnvironmentService {
 		return rules;
 	}
 	
+	public ArrayList<RuleDefinition> getRulesThatModify(String oldRuleName) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (String name : RulePool.keySet()) {
+			RuleDefinition definition = RulePool.get(name);
+			if (definition.isReplaces(oldRuleName))
+				rules.add(definition);
+		}
+		
+		return rules;
+	}
+	
 	public String getRuleBody(String ruleName) {
 		return RulePool.get(ruleName).getRuleContent();
 	}
@@ -139,6 +151,8 @@ public class RuleClassificationService extends EnvironmentService {
 	}
 	
 	public void setActive(String ruleName, boolean active) {
+		logger.info("Setting rule " + ruleName + " activity to " + active);
+		
 		RulePool.get(ruleName).setActive(active);
 	}
 }

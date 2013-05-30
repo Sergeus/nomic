@@ -1,11 +1,16 @@
 package agents;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.UUID;
 
+import actions.ProposeNoRuleChange;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import actions.ProposeRuleRemoval;
+import enums.RuleFlavor;
 import enums.VoteType;
+import facts.RuleDefinition;
 
 public class DestructiveAgent extends NomicAgent {
 	
@@ -20,60 +25,80 @@ public class DestructiveAgent extends NomicAgent {
 	}
 	
 	@Override
-	public void initialise() {
-		super.initialise();
+	protected ProposeRuleChange chooseProposal() {
+		// First we'll check if we like the current state of affairs
+		ProposeNoRuleChange noChange = new ProposeNoRuleChange(this);
+		scenarioService.RunQuerySimulation(noChange, getSubsimulationLength(noChange));
 		
-		IWinRule = "import agents.NomicAgent; "
-				+ "import facts.*; "
-				+ "global org.apache.log4j.Logger logger "
-				+ "rule \"Agent " + getSequentialID() + " Wins\""
-				+ "when "
-				+ 	"$agent : NomicAgent($id : sequentialID, $id == " + getSequentialID() + ") "
-				+ "then "
-				+	"logger.info(\"Agent" + getSequentialID() + " Wins\"); "
-				+	"insert(new Win($agent)); "
-				+ "end";
-	}
-	
-	private void UpdateMajorityRule() {
-		MajorityRule = "import agents.NomicAgent; "
-				+	"import actions.Vote; "
-				+	"import actions.ProposeRuleChange; "
-				+	"import enums.VoteType; "
-				+	"import facts.*; "
-				+	"global org.apache.log4j.Logger logger "
-				+"rule \"Majority votes succeed after second round\" "
-				+ "when "
-				+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
-				+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
-				+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
-				+ 	"eval($n.intValue() >= " + (votesRequired - 1) + ") "
-				+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
-				+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
-				+"then "
-				+	"logger.info(\"Majority vote succeeded\"); "
-				+	"modify($ruleChange) { "
-				+		"setSucceeded(true); "
-				+	"}; "
-				+	"end";
+		// We're happy with what everything's like now, so let's add some destructive rules
+		if (isPreferred(scenarioService.getPreference())) {
+			ArrayList<RuleDefinition> rules = ruleClassificationService.getAllInActiveRulesWithFlavor(RuleFlavor.DESTRUCTIVE);
+			
+			if (!rules.isEmpty()) {
+				RuleDefinition definition = rules.get(rand.nextInt(rules.size()));
+				
+				ProposeRuleChange ruleChange = definition.getRuleChange(this);
+				
+				scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+				
+				if (isPreferred(scenarioService.getPreference())) {
+					return ruleChange;
+				}
+			}
+			// Nothing destructive to do? How about desperation?
+			else {
+				ArrayList<RuleDefinition> desperationRules = ruleClassificationService.getAllInActiveRulesWithFlavor(RuleFlavor.DESPERATION);
+				
+				if (!desperationRules.isEmpty()) {
+					RuleDefinition definition = desperationRules.get(rand.nextInt(desperationRules.size()));
+					
+					ProposeRuleChange ruleChange = definition.getRuleChange(this);
+					
+					scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+					
+					if (isPreferred(scenarioService.getPreference())) {
+						return ruleChange;
+					}
+				}
+			}
+		}
+		// We're unhappy with the current state of affairs
+		else {
+			// We're destructive, we don't want anyone to win! Remove the win conditions!
+			if (scenarioService.isSimWon()) {
+				ArrayList<RuleDefinition> winRules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.WINCONDITION);
+				
+				if (!winRules.isEmpty()) {
+					RuleDefinition definition = winRules.get(rand.nextInt(winRules.size()));
+					
+					ProposeRuleRemoval winRemoval = new ProposeRuleRemoval(this, definition.getName(), RuleDefinition.RulePackage);
+					return winRemoval;
+				}
+			}
+			// Otherwise this sim could do with some instability, let's remove some stable rules
+			else {
+				ArrayList<RuleDefinition> stableRules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.STABLE);
+				
+				if (!stableRules.isEmpty()) {
+					RuleDefinition definition = stableRules.get(rand.nextInt(stableRules.size()));
+					
+					ProposeRuleRemoval stableRemoval = new ProposeRuleRemoval(this, definition.getName(), RuleDefinition.RulePackage);
+					return stableRemoval;
+				}
+			}
+		}
+		
+		// If we've gotten this far, this agent can't decide what to do, so give up on proposals for this turn
+		return super.chooseProposal();
 	}
 	
 	@Override
 	public VoteType chooseVote(ProposeRuleChange ruleChange) {
-		if (ruleChange.getProposer().getID() == getID())
-			return VoteType.YES;
 		
-		if (ruleChange instanceof ProposeRuleRemoval) {
-			if (rand.nextInt(100) > 32) {
-				return VoteType.YES;
-			}
-			else {
-				return VoteType.NO;
-			}
-		}
-		else {
-			return super.chooseVote(ruleChange);
-		}
+		// Let's see if we like this proposal
+		scenarioService.RunQuerySimulation(ruleChange, getSubsimulationLength(ruleChange));
+		
+		return chooseVoteFromProbability(scenarioService.getPreference());
 	}
 	
 	@Override
