@@ -11,7 +11,9 @@ rule "Someone who isn't my nemesis winning is great"
 
     when
         Win ( $agent : winner )
-        $avatar : VindictiveProxyAgent ( IsAvatar(), nemesisName != $agent.getOwner().getName() )
+        eval ( $agent instanceof ProxyAgent )
+        $proxy : ProxyAgent ( ) from $agent
+        $avatar : VindictiveProxyAgent ( IsAvatar(), nemesisName != $proxy.getOwner().getName() )
     then
     	logger.info("Someone who isn't my nemesis has won and this is good.");
     	$avatar.setPreference(100);
@@ -22,7 +24,9 @@ rule "My nemesis winning is terrible"
 
     when
     	Win ( $agent : winner )
-        $avatar : VindictiveProxyAgent( IsAvatar(), nemesisName == $agent.getOwner().getName() )
+    	eval ( $agent instanceof ProxyAgent )
+    	$proxy : ProxyAgent ( ) from $agent
+        $avatar : VindictiveProxyAgent( IsAvatar(), nemesisName == $proxy.getOwner().getName() )
     then
         logger.info("My nemesis has won! This is terrible!");
         $avatar.setPreference(0);

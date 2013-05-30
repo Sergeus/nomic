@@ -1,0 +1,73 @@
+//created on: 30-May-2013
+package HarmoniousProxy
+
+import agents.*;
+import facts.*;
+import actions*;
+
+
+global org.apache.log4j.Logger logger
+
+
+
+rule "Someone who isn't me winning is great"
+
+    when
+        Win ( $agent : winner )
+        $avatar : ProxyAgent ( IsAvatar(), name != $agent.getName())
+    then
+    	logger.info("Someone else has won, good for them.");
+        $avatar.setPreference(100);
+        $avatar.setPreferenceLocked(true);
+end
+
+rule "Me winning is bad"
+    
+    when
+        Win ( $agent : winner )
+        $avatar : ProxyAgent ( IsAvatar(), name == $agent.getName() )
+    then
+    	logger.info("Oh no, I've won. I mustn't be selfish.");
+        $avatar.setPreference(0);
+        $avatar.setPreferenceLocked(true);
+end
+
+rule "Other people gaining points is good"
+
+	when
+		$proxy : ProxyAgent ( !IsAvatar(), points > getOwner().getPoints() )
+		$avatar : ProxyAgent ( IsAvatar() )
+	then
+		logger.info("Someone else is gaining points, which is good.");
+		$avatar.increasePreference(10);
+end
+
+rule "Other people losing points is bad"
+
+	when
+		$proxy : ProxyAgent ( !IsAvatar(), points < getOwner().getPoints() )
+		$avatar : ProxyAgent ( IsAvatar() )
+	then
+		logger.info("Oh no, someone else has lost points! I must stop this!");
+		$avatar.decreasePreference(15);
+end
+
+rule "Other people having less points than me is bad"
+
+	when
+		$proxy : ProxyAgent ( !IsAvatar(), $proxyPoints : points )
+		$avatar : ProxyAgent ( IsAvatar(), points > $proxyPoints )
+	then
+		logger.info("Oh no, I have more points than someone. I must help them!");
+		$avatar.decreasePreference(7);
+end
+
+rule "Other people having more points than me is good"
+
+	when
+		$proxy : ProxyAgent ( !IsAvatar(), $proxyPoints : points )
+		$avatar : ProxyAgent ( IsAvatar(), points < $proxyPoints )
+	then
+		logger.info("Someone else has more points than me. Good for them.");
+		$avatar.increasePreference(9);
+end
