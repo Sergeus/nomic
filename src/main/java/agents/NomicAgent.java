@@ -1,5 +1,8 @@
 package agents;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -12,8 +15,10 @@ import uk.ac.imperial.presage2.core.environment.ParticipantSharedState;
 import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
+import actions.ProposeNoRuleChange;
 import actions.ProposeRuleChange;
 import actions.Vote;
+import enums.RuleFlavor;
 import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
 
@@ -32,9 +37,15 @@ public class NomicAgent extends AbstractParticipant {
 	Random rand = new Random();
 	
 	int points = 0;
+	
+	Map<RuleFlavor, Integer> Flavors;
 
 	public NomicAgent(UUID id, String name) {
 		super(id, name);
+	}
+	
+	protected Map<RuleFlavor, Integer> chooseFlavorPreferences() {
+		return new HashMap<RuleFlavor, Integer>();
 	}
 
 	@Override
@@ -100,7 +111,7 @@ public class NomicAgent extends AbstractParticipant {
 	}
 	
 	protected ProposeRuleChange chooseProposal() {
-		return null;
+		return new ProposeNoRuleChange(this);
 	}
 	
 	private void doVoting() throws NoExistentRuleChangeException {
@@ -200,5 +211,16 @@ public class NomicAgent extends AbstractParticipant {
 	
 	public int getAverageSubSimLength() {
 		return scenarioService.getAverageSubSimLength();
+	}
+	
+	public ArrayList<RuleFlavor> getPositiveFlavors() {
+		ArrayList<RuleFlavor> positives = new ArrayList<RuleFlavor>();
+		
+		for (RuleFlavor flavor : Flavors.keySet()) {
+			if (Flavors.get(flavor) > 50)
+				positives.add(flavor);
+		}
+		
+		return positives;
 	}
 }
