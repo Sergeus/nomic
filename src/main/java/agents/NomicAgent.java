@@ -175,6 +175,14 @@ public class NomicAgent extends AbstractParticipant {
 		this.points = points;
 	}
 	
+	public void increasePoints(int points) {
+		this.points += points;
+	}
+	
+	public void decreasePoints(int points) {
+		this.points -= points;
+	}
+	
 	public void voteSucceeded(ProposeRuleChange ruleChange) {
 		
 	}
