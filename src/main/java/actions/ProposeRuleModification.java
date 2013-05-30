@@ -38,4 +38,9 @@ public class ProposeRuleModification extends ProposeRuleChange implements Action
 	public String getOldRulePackage() {
 		return oldRulePackage;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + getOldRuleName() + " replaced by " + getNewRuleName();
+	}
 }

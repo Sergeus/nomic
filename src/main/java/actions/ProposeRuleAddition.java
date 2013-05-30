@@ -22,4 +22,9 @@ public class ProposeRuleAddition extends ProposeRuleChange {
 	public String getNewRule() {
 		return newRule;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + getNewRuleName();
+	}
 }

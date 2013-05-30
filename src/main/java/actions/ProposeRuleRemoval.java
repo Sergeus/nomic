@@ -20,4 +20,9 @@ public class ProposeRuleRemoval extends ProposeRuleChange {
 	public String getOldRulePackage() {
 		return oldRulePackage;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + getOldRuleName();
+	}
 }

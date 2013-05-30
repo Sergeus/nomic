@@ -31,4 +31,9 @@ public abstract class ProposeRuleChange extends TimeStampedAction {
 	public NomicAgent getProposer() {
 		return proposer;
 	}
+	
+	@Override
+	public String toString() {
+		return getRuleChangeType().toString() + " ";
+	}
 }
