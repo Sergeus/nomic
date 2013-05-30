@@ -1,9 +1,12 @@
 package agents;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import actions.ProposeRuleChange;
+import enums.RuleFlavor;
 import enums.VoteType;
+import facts.RuleDefinition;
 
 public class ProxyAgent extends NomicAgent {
 	
@@ -57,6 +60,35 @@ public class ProxyAgent extends NomicAgent {
 	@Override
 	public String getProxyRulesFile() {
 		return owner.getProxyRulesFile();
+	}
+	
+	@Override
+	protected ProposeRuleChange chooseProposal() {
+		// Random proposal strategy for subsims, since we're actually testing the first rule change
+		// but we need the simulation to proceed, which requires proposals
+		if (rand.nextBoolean()) {
+			ArrayList<RuleDefinition> rules = ruleClassificationService.getAllInActiveRules();
+			
+			if (!rules.isEmpty()) {
+				RuleDefinition definition = rules.get(rand.nextInt(rules.size()));
+				
+				return definition.getRuleChange(this);
+			}
+		}
+		else {
+			ArrayList<RuleFlavor> flavors = new ArrayList<RuleFlavor>();
+			flavors.add(RuleFlavor.STABLE);
+			
+			ArrayList<RuleDefinition> rules = ruleClassificationService.getAllActiveRulesWithoutFlavors(flavors);
+			
+			if (!rules.isEmpty()) {
+				RuleDefinition definition = rules.get(rand.nextInt(rules.size()));
+				
+				return definition.getRuleChange(this);
+			}
+		}
+		
+		return super.chooseProposal();
 	}
 	
 	@Override
