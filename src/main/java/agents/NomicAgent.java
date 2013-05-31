@@ -16,11 +16,15 @@ import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.messaging.Input;
 import uk.ac.imperial.presage2.util.participant.AbstractParticipant;
 import actions.ProposeNoRuleChange;
+import actions.ProposeRuleAddition;
 import actions.ProposeRuleChange;
+import actions.ProposeRuleModification;
+import actions.ProposeRuleRemoval;
 import actions.Vote;
 import enums.RuleFlavor;
 import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
+import facts.RuleDefinition;
 
 public class NomicAgent extends AbstractParticipant {
 	
@@ -206,7 +210,43 @@ public class NomicAgent extends AbstractParticipant {
 	}
 	
 	public int getSubsimulationLength(ProposeRuleChange ruleChange) {
-		return 10;
+		Integer complexity = 50;
+		
+		switch (ruleChange.getRuleChangeType()) {
+		case MODIFICATION :
+			ProposeRuleModification modification = (ProposeRuleModification)ruleChange;
+			
+			RuleDefinition definition = ruleClassificationService.getRule(modification.getNewRuleName());
+			complexity = definition.getFlavorAmount(RuleFlavor.COMPLEX);
+			break;
+		case ADDITION :
+			ProposeRuleAddition addition = (ProposeRuleAddition)ruleChange;
+			
+			RuleDefinition addDefinition = ruleClassificationService.getRule(addition.getNewRuleName());
+			complexity = addDefinition.getFlavorAmount(RuleFlavor.COMPLEX);
+			break;
+		case REMOVAL :
+			ProposeRuleRemoval removal = (ProposeRuleRemoval)ruleChange;
+			
+			RuleDefinition remDefinition = ruleClassificationService.getRule(removal.getOldRuleName());
+			complexity = remDefinition.getFlavorAmount(RuleFlavor.COMPLEX);
+			break;
+		}
+		
+		Integer NumAgents = nomicService.getNumberOfAgents();
+		
+		if (complexity < 33) {
+			// Low complexity, only predict one round (plus our own turn again)
+			return NumAgents * 2 + 2;
+		}
+		else if (complexity < 67) {
+			// Middling complexity, let's do two rounds
+			return NumAgents * 4 + 2;
+		}
+		else {
+			// High complexity, three rounds!
+			return NumAgents * 6 + 2;
+		}
 	}
 	
 	public String getProxyRulesFile() {
