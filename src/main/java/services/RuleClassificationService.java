@@ -55,6 +55,10 @@ public class RuleClassificationService extends EnvironmentService {
 		return RulePool.values();
 	}
 	
+	public RuleDefinition getRule(String ruleName) {
+		return RulePool.get(ruleName);
+	}
+	
 	public RuleDefinition getAnyRuleWithHighestFlavor(RuleFlavor flavorType) {
 		RuleDefinition bestRuleDef = null;
 		
