@@ -79,6 +79,7 @@ rule "All Agents Must Vote"
 end
 
 rule "Each Agent Can Only Vote Once Per Turn"
+	salience 40
 	when
 		$vote : Vote($turnNumber : t, $agent: voter, $id : voteID)
 		$vote2 : Vote(t == $turnNumber, voter.getID() == $agent.getID(), voteID != $id)
