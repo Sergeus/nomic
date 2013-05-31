@@ -53,7 +53,7 @@ public class NomicService extends EnvironmentService {
 	
 	public static Semaphore kBuilderSemaphore = new Semaphore(1);
 	
-	public Semaphore refreshSemaphore = new Semaphore(1);
+	public static Semaphore refreshSemaphore = new Semaphore(1);
 	
 	private EnvironmentServiceProvider serviceProvider;
 	
@@ -237,6 +237,15 @@ public class NomicService extends EnvironmentService {
 		agentIDs.add(req.getParticipantID());
 		//session.insert(req.getParticipant());
 		super.registerParticipant(req);
+	}
+	
+	public Integer getSequentialID(UUID agentID) {
+		for (NomicAgent agent : agents) {
+			if (agent.getID() == agentID)
+				return agent.getSequentialID();
+		}
+		
+		return -1;
 	}
 	
 	public Integer getNumSubSimsRun(UUID agentID) {

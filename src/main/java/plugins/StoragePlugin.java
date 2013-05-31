@@ -139,6 +139,7 @@ public class StoragePlugin implements Plugin {
 			
 			// Store final agent information
 			for (UUID pid : membersService.getParticipants()) {
+				storage.getAgent(pid).setProperty("SeqID", nomicService.getSequentialID(pid).toString());
 				storage.getAgent(pid).setProperty("NumSubSims", nomicService.getNumSubSimsRun(pid).toString());
 				storage.getAgent(pid).setProperty("AverageSubSimLength", nomicService.getAverageSubSimLength(pid).toString());
 			}
