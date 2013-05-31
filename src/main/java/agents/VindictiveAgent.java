@@ -18,13 +18,6 @@ public class VindictiveAgent extends NomicAgent {
 		super(id, name);
 	}
 	
-	@Override
-	public void initialise() {
-		//ChooseNemesis();
-		
-		super.initialise();
-	}
-	
 	public void ChooseNemesis() {
 		ArrayList<UUID> IDs = new ArrayList<UUID>();
 		
@@ -38,6 +31,15 @@ public class VindictiveAgent extends NomicAgent {
 		nemesisName = nomicService.getAgentName(nemesis);
 		
 		logger.info(nemesisName + " is my nemesis! Damn you, " + nemesisName + "!");
+	}
+	
+	@Override
+	public void incrementTime() {
+		if (nemesisName == null) {
+			ChooseNemesis();
+		}
+		
+		super.incrementTime();
 	}
 	
 	@Override
