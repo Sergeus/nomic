@@ -27,6 +27,7 @@ import uk.ac.imperial.presage2.util.network.NetworkModule;
 import actionHandlers.ProposeRuleChangeActionHandler;
 import actionHandlers.VoteActionHandler;
 import agents.DestructiveAgent;
+import agents.HarmoniousAgent;
 import agents.NomicAgent;
 import agents.SelfishAgent;
 import agents.VindictiveAgent;
@@ -51,6 +52,9 @@ public class NomicSimulation extends InjectedSimulation {
 	
 	@Parameter(name="vagents")
 	public int vagents;
+	
+	@Parameter(name="hagents")
+	public int hagents;
 
 	public NomicSimulation(Set<AbstractModule> modules) {
 		super(modules);
@@ -110,6 +114,16 @@ public class NomicSimulation extends InjectedSimulation {
 		
 		for (int i=0; i < vagents; i++) {
 			VindictiveAgent agent = new VindictiveAgent(Random.randomUUID(), "agent" + id);
+			
+			agent.setSequentialID(id);
+			
+			s.addParticipant(agent);
+			session.insert(agent);
+			id++;
+		}
+		
+		for (int i=0; i < hagents; i++) {
+			HarmoniousAgent agent = new HarmoniousAgent(Random.randomUUID(), "agent" + id);
 			
 			agent.setSequentialID(id);
 			

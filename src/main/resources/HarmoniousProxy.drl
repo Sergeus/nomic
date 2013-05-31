@@ -3,7 +3,7 @@ package HarmoniousProxy
 
 import agents.*;
 import facts.*;
-import actions*;
+import actions.*;
 
 
 global org.apache.log4j.Logger logger

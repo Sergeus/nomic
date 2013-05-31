@@ -210,8 +210,10 @@ public class NomicAgent extends AbstractParticipant {
 	}
 	
 	public int getSubsimulationLength(ProposeRuleChange ruleChange) {
-		Integer complexity = 50;
+		// Default to 0 complexity for 'ProposeNoRuleChange' proposals
+		Integer complexity = 0;
 		
+		// Grab the complexity from the rule definitions
 		switch (ruleChange.getRuleChangeType()) {
 		case MODIFICATION :
 			ProposeRuleModification modification = (ProposeRuleModification)ruleChange;

@@ -110,6 +110,18 @@ public class RuleClassificationService extends EnvironmentService {
 		return rules;
 	}
 	
+	public ArrayList<RuleDefinition> getAllActiveRulesWithLowFlavor(RuleFlavor flavor) {
+		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
+		
+		for (String name : RulePool.keySet()) {
+			RuleDefinition current = RulePool.get(name);
+			if (current.isActive() && current.isNot(flavor))
+				rules.add(current);
+		}
+		
+		return rules;
+	}
+	
 	public ArrayList<RuleDefinition> getAllActiveRulesWithFlavor(RuleFlavor flavor) {
 		ArrayList<RuleDefinition> rules = new ArrayList<RuleDefinition>();
 		
