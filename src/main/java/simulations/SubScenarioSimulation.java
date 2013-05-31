@@ -102,6 +102,8 @@ public class SubScenarioSimulation extends NomicSimulation {
 			nomicService.AddRuleFile(filePath);
 			
 			nomicService.ApplyRuleChange(testedRuleChange);
+			
+			nomicService.refreshSession();
 		} catch (UnavailableServiceException e) {
 			logger.warn("Nomic service unavailable for proxy agent rule addition.", e);
 		} catch (DroolsParserException e) {
