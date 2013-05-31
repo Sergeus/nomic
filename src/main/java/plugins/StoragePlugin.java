@@ -126,6 +126,8 @@ public class StoragePlugin implements Plugin {
 	@Override
 	public void onSimulationComplete() {
 		if (storage != null) {
+			logger.info("Storing the universe.");
+			
 			// Store all rule changes
 			for (ProposeRuleChange ruleChange : nomicService.getSimRuleChanges()) {
 				StoreChange(ruleChange);
