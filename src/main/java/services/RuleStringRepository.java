@@ -300,7 +300,8 @@ public class RuleStringRepository {
 		
 		// ----------------------------------------------------------------
 		String unanimityStealsPoints = "Unanimous opposition steals points from proposers";
-		String unanimityStealsPointsRule = " rule \"Unanimous opposition steals points from proposers\" "
+		String unanimityStealsPointsRule = imports
+				+ " rule \"Unanimous opposition steals points from proposers\" "
 				+ " when "
 				+ " Turn ( $turnNumber : number ) "
 				+ " ProposeRuleChange ( $proposer : proposer, t == $turnNumber ) "
