@@ -20,7 +20,6 @@ import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 
-import uk.ac.imperial.presage2.core.Time;
 import uk.ac.imperial.presage2.core.environment.EnvironmentRegistrationRequest;
 import uk.ac.imperial.presage2.core.environment.EnvironmentService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
@@ -46,7 +45,6 @@ import enums.RuleChangeType;
 import enums.TurnType;
 import exceptions.InvalidRuleProposalException;
 import exceptions.NoExistentRuleChangeException;
-import facts.RuleDefinition;
 import facts.Turn;
 
 public class NomicService extends EnvironmentService {
@@ -54,6 +52,8 @@ public class NomicService extends EnvironmentService {
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
 	public static Semaphore kBuilderSemaphore = new Semaphore(1);
+	
+	public Semaphore refreshSemaphore = new Semaphore(1);
 	
 	private EnvironmentServiceProvider serviceProvider;
 	
@@ -208,6 +208,14 @@ public class NomicService extends EnvironmentService {
 	public void refreshSession() {
 		logger.info("Refreshing shit.");
 		
+		while (!refreshSemaphore.tryAcquire()) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				logger.warn("Waiting for refresh semaphore interrupted.", e);
+			}
+		}
+		
 		RemoveRule("defaultpkg", "Refresher");
 		
 		try {
@@ -215,6 +223,8 @@ public class NomicService extends EnvironmentService {
 		} catch (DroolsParserException e) {
 			logger.warn("Refreshing failed.", e);
 		}
+		
+		refreshSemaphore.release();
 		
 //		logger.info(session.getKnowledgeBase().getStatefulKnowledgeSessions().size());
 //		
@@ -318,6 +328,8 @@ public class NomicService extends EnvironmentService {
 		else if (change == RuleChangeType.ADDITION) {
 			ProposeRuleAddition ruleMod = (ProposeRuleAddition)ruleChange;
 			try {
+				logger.info("Adding new rule " + ruleMod.getNewRuleName());
+				
 				addRule(ruleMod.getNewRule());
 				
 				getRuleClassificationService().setActive(ruleMod.getNewRuleName(), true);
@@ -327,6 +339,9 @@ public class NomicService extends EnvironmentService {
 		}
 		else if (change == RuleChangeType.REMOVAL) {
 			ProposeRuleRemoval ruleMod = (ProposeRuleRemoval)ruleChange;
+			
+			logger.info("Removing old rule " + ruleMod.getOldRuleName());
+			
 			RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 			
 			getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
