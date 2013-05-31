@@ -67,7 +67,7 @@ public class SelfishAgent extends NomicAgent {
 			// Otherwise destructive or detrimental rules might be stopping us from winning
 			else {
 				ArrayList<RuleDefinition> rules = ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.DESTRUCTIVE);
-				rules.addAll(ruleClassificationService.getAllRulesWithFlavor(RuleFlavor.DETRIMENTAL));
+				rules.addAll(ruleClassificationService.getAllActiveRulesWithFlavor(RuleFlavor.DETRIMENTAL));
 				
 				if (!rules.isEmpty()) {
 					RuleDefinition chosenRemoval = rules.get(rand.nextInt(rules.size()));
