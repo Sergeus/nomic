@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import actions.ProposeRuleChange;
+import actions.ProposeRuleRemoval;
 import enums.RuleFlavor;
 import enums.VoteType;
 import facts.RuleDefinition;
@@ -84,7 +85,9 @@ public class ProxyAgent extends NomicAgent {
 			if (!rules.isEmpty()) {
 				RuleDefinition definition = rules.get(rand.nextInt(rules.size()));
 				
-				return definition.getRuleChange(this);
+				ProposeRuleRemoval removal = new ProposeRuleRemoval(this, definition.getName(), RuleDefinition.RulePackage);
+				
+				return removal;
 			}
 		}
 		
