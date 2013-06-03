@@ -25,6 +25,8 @@ import agents.ProxyAgent;
 
 import com.google.inject.AbstractModule;
 
+import facts.RuleDefinition;
+
 public class SubScenarioSimulation extends NomicSimulation {
 	
 	private Logger logger = Logger.getLogger(SubScenarioSimulation.class);
@@ -74,12 +76,24 @@ public class SubScenarioSimulation extends NomicSimulation {
 	public void LoadSuperState() {
 		StatefulKnowledgeSession superSession = scenarioService.getReplacementSession();
 		
-		session.getKnowledgeBase().addKnowledgePackages(
-				superSession.getKnowledgeBase()
-				.getKnowledgePackages());
+		while (!NomicService.refreshSemaphore.tryAcquire()) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				logger.warn("Waiting for refresh semaphore to spawn subsim interrupted", e);
+			}
+		}
 		
-		session.setGlobal("logger", logger);
-		session.setGlobal("rand", superSession.getGlobal("rand"));
+		try {
+			session.getKnowledgeBase().addKnowledgePackages(
+					superSession.getKnowledgeBase()
+					.getKnowledgePackages());
+			
+			session.setGlobal("logger", logger);
+			session.setGlobal("rand", superSession.getGlobal("rand"));
+		} finally {
+			NomicService.refreshSemaphore.release();
+		}
 		//session.setGlobal("storage", superSession.getGlobal("storage"));
 	}
 	
@@ -99,6 +113,7 @@ public class SubScenarioSimulation extends NomicSimulation {
 		String filePath = avatar.getProxyRulesFile();
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
+			
 			nomicService.AddRuleFile(filePath);
 			
 			nomicService.ApplyRuleChange(testedRuleChange);
