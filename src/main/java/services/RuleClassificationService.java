@@ -195,7 +195,7 @@ public class RuleClassificationService extends EnvironmentService {
 		
 		for (String name : RulePool.keySet()) {
 			RuleDefinition definition = RulePool.get(name);
-			if (definition.isHasPositiveForFlavors(flavors))
+			if (definition.isActive() && definition.isHasPositiveForFlavors(flavors))
 				rules.add(definition);
 		}
 		
@@ -210,7 +210,7 @@ public class RuleClassificationService extends EnvironmentService {
 		for (String name : RulePool.keySet()) {
 			RuleDefinition definition = RulePool.get(name);
 			
-			if (definition.isReplacesAny(rulesWeWantToReplace))
+			if (!definition.isActive() && definition.isReplacesAny(rulesWeWantToReplace))
 				rules.add(definition);
 		}
 		
