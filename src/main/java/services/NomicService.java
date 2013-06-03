@@ -182,6 +182,8 @@ public class NomicService extends EnvironmentService {
 			}
 		}
 		
+		refreshSession();
+		
 		session.update(session.getFactHandle(currentTurn), currentTurn);
 		
 		session.fireAllRules();
@@ -216,15 +218,17 @@ public class NomicService extends EnvironmentService {
 			}
 		}
 		
-		RemoveRule("defaultpkg", "Refresher");
-		
 		try {
-			addRule(TestRule);
-		} catch (DroolsParserException e) {
-			logger.warn("Refreshing failed.", e);
+			RemoveRule("defaultpkg", "Refresher");
+			
+			try {
+				addRule(TestRule);
+			} catch (DroolsParserException e) {
+				logger.warn("Refreshing failed.", e);
+			}
+		} finally {
+			refreshSemaphore.release();
 		}
-		
-		refreshSemaphore.release();
 		
 //		logger.info(session.getKnowledgeBase().getStatefulKnowledgeSessions().size());
 //		
@@ -470,6 +474,8 @@ public class NomicService extends EnvironmentService {
 	}
 	
 	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
+		refreshSession();
+		
 		StatefulKnowledgeSession newSession = session.getKnowledgeBase().newStatefulKnowledgeSession();
 		
 		newSession.setGlobal("logger", session.getGlobal("logger"));
@@ -575,6 +581,15 @@ public class NomicService extends EnvironmentService {
 	
 	public Integer getWinTime() {
 		return WinTime;
+	}
+	
+	public boolean isActive(String ruleName) {
+		for (Rule rule : getRules()) {
+			if (rule.getName().equals(ruleName))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	public Map<String, Integer> getPointsMap() {
