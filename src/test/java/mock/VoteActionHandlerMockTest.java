@@ -88,6 +88,9 @@ public class VoteActionHandlerMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(service).Vote(no);
 			oneOf(service).getTurnNumber();
+			exactly(2).of(service).getSimTime();
+			oneOf(mockAgent).getName();
+			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(no);
 		}});
 		
