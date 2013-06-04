@@ -53,7 +53,7 @@ public class RuleClassificationServiceMockTest extends TestCase {
 		for (RuleFlavor flavor : allFlavors) {
 			RuleDefinition definition = ruleClassService.getAnyRuleWithHighestFlavor(flavor);
 			
-			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) > 50);
+			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) >= 50);
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class RuleClassificationServiceMockTest extends TestCase {
 		for (RuleFlavor flavor : allFlavors) {
 			RuleDefinition definition = ruleClassService.getActiveRuleWithHighestFlavor(flavor);
 			
-			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) > 50);
+			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) >= 50);
 			assertTrue("Rule " + definition.getName() + " should be active.", definition.isActive());
 		}
 	}
@@ -80,7 +80,7 @@ public class RuleClassificationServiceMockTest extends TestCase {
 		for (RuleFlavor flavor : allFlavors) {
 			RuleDefinition definition = ruleClassService.getInActiveRuleWithHighestFlavor(flavor);
 			
-			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) > 50);
+			assertTrue("Flavor " + flavor.toString() + " for rule " + definition.getName() + " should be more than 50.", definition.getFlavorAmount(flavor) >= 50);
 			assertFalse("Rule " + definition.getName() + " should be inactive.", definition.isActive());
 		}
 	}
