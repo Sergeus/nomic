@@ -262,7 +262,7 @@ public class RuleStringRepository {
 		
 		RuleDefinition majorityOfOneDefinition = new RuleDefinition(MajorityOfThree, MajorityOfThreeRule);
 		majorityOfOneDefinition.addReplacedRule(thirdDefinition);
-		majorityOfOneDefinition.setFlavors(60, 55, 50, 90, 30, 70, 75, 50);
+		majorityOfOneDefinition.setFlavors(60, 50, 50, 60, 30, 70, 75, 50);
 		Rules.add(majorityOfOneDefinition);
 		
 		thirdDefinition.addReplacedRule(majorityOfOneDefinition);

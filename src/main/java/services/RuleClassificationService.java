@@ -59,6 +59,8 @@ public class RuleClassificationService extends EnvironmentService {
 		return RulePool.get(ruleName);
 	}
 	
+	// Ideally all of these getters could be a single function that takes a comparator as an argument
+	
 	public RuleDefinition getAnyRuleWithHighestFlavor(RuleFlavor flavorType) {
 		RuleDefinition bestRuleDef = null;
 		
