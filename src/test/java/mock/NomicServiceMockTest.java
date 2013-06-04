@@ -171,7 +171,6 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
-			will(returnValue(mockRuleClass));
 			oneOf(mockRuleClass).setActive(oldRuleName, false);
 		}});
 		
@@ -185,7 +184,6 @@ public class NomicServiceMockTest extends TestCase {
 			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
-			will(returnValue(mockRuleClass));
 			oneOf(mockRuleClass).setActive(oldRuleName, false);
 			oneOf(mockRuleClass).setActive(newRuleName, true);
 		}});
