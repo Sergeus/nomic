@@ -210,6 +210,10 @@ public class NomicServiceMockTest extends TestCase {
 			will(returnValue(mockHandle));
 			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 			oneOf(session).fireAllRules();
+			
+			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
+			oneOf(base).removeRule("defaultpkg", "Refresher");
+			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, serviceProvider, session);
