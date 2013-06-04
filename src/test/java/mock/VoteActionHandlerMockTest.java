@@ -71,7 +71,8 @@ public class VoteActionHandlerMockTest extends TestCase {
 			will(returnValue(service));
 			oneOf(service).Vote(yes);
 			oneOf(service).getTurnNumber();
-			oneOf(service).getSimTime();
+			exactly(2).of(service).getSimTime();
+			oneOf(mockAgent).getName();
 			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(yes);
 		}});
