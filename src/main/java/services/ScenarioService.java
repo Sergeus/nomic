@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.drools.definition.KnowledgePackage;
 import org.drools.runtime.StatefulKnowledgeSession;
 
 import simulations.SubScenarioSimulation;

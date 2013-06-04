@@ -2,6 +2,7 @@ package services;
 
 import java.util.ArrayList;
 
+import facts.RandomAgentWinsRule;
 import facts.RuleDefinition;
 
 public class RuleStringRepository {
@@ -237,19 +238,19 @@ public class RuleStringRepository {
 		firstDefinition.addReplacedRule(backwardsTurns);
 		
 		// ----------------------------------------------------------------
-		String MajorityOfOne = "Majority of One";
-		String MajorityOfOneRule = "import agents.NomicAgent; "
+		String MajorityOfThree = "Majority of Three";
+		String MajorityOfThreeRule = "import agents.NomicAgent; "
 				+	"import actions.Vote; "
 				+	"import actions.ProposeRuleChange; "
 				+	"import enums.VoteType; "
 				+	"import facts.*; "
 				+	"global org.apache.log4j.Logger logger "
-				+"rule \"Majority of One\" "
+				+"rule \"Majority of Three\" "
 				+ "when "
 				+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
 				+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
 				+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
-				+ 	"eval($n.intValue() >= 1) "
+				+ 	"eval($n.intValue() >= 3) "
 				+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
 				+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
 				+"then "
@@ -259,7 +260,7 @@ public class RuleStringRepository {
 				+	"}; "
 				+	"end";
 		
-		RuleDefinition majorityOfOneDefinition = new RuleDefinition(MajorityOfOne, MajorityOfOneRule);
+		RuleDefinition majorityOfOneDefinition = new RuleDefinition(MajorityOfThree, MajorityOfThreeRule);
 		majorityOfOneDefinition.addReplacedRule(thirdDefinition);
 		majorityOfOneDefinition.setFlavors(60, 55, 50, 90, 30, 70, 75, 50);
 		Rules.add(majorityOfOneDefinition);
@@ -318,5 +319,49 @@ public class RuleStringRepository {
 		RuleDefinition unanimityStealsDefinition = new RuleDefinition(unanimityStealsPoints, unanimityStealsPointsRule);
 		unanimityStealsDefinition.setFlavors(90, 50, 10, 75, 75, 50, 50, 55);
 		Rules.add(unanimityStealsDefinition);
+		
+		// ----------------------------------------------------------------
+		String randomAgentWinsName = "Random agent wins";
+		
+		RuleDefinition randomAgentWins = new RandomAgentWinsRule(randomAgentWinsName);
+		randomAgentWins.setFlavors(0, 50, 100, 80, 70, 100, 50, 70);
+		//Rules.add(randomAgentWins);
+		
+		// ----------------------------------------------------------------
+		String PerpetualUnanimity = "Perpetual Unanimity";
+		String PerpetualUnanimityRule = "import agents.NomicAgent; "
+				+	"import actions.Vote; "
+				+	"import actions.ProposeRuleChange; "
+				+	"import enums.VoteType; "
+				+	"import facts.*; "
+				+	"global org.apache.log4j.Logger logger "
+				+"rule \"Majority of Three\" "
+				+ "when "
+				+	"$vote : Vote($turnNumber : t, vote == VoteType.YES) "
+				+	"$n : Number() from accumulate ( $sgc : Vote(t == $turnNumber, vote == VoteType.YES) count( $sgc ) )" 
+				+	"$agents :  Number() from accumulate ( $sgc : NomicAgent( ) count( $sgc ) ) "
+				+ 	"eval($n.intValue() >= $agents.intValue()) "
+				+	"$turn : Turn(number == $turnNumber, $turnNumber >= ($agents.intValue() * 2)) "
+				+	"$ruleChange : ProposeRuleChange(t == $turnNumber, succeeded == false) "
+				+"then "
+				+	"logger.info(\"Majority vote succeeded\"); "
+				+	"modify($ruleChange) { "
+				+		"setSucceeded(true); "
+				+	"}; "
+				+	"end";
+		
+		RuleDefinition perpetualUnanimityDefinition = new RuleDefinition(PerpetualUnanimity, PerpetualUnanimityRule);
+		perpetualUnanimityDefinition.setFlavors(60, 40, 50, 30, 50, 30, 80, 60);
+		
+		perpetualUnanimityDefinition.addReplacedRule(majorityOfOneDefinition);
+		perpetualUnanimityDefinition.addReplacedRule(thirdDefinition);
+		
+		majorityOfOneDefinition.addReplacedRule(perpetualUnanimityDefinition);
+		thirdDefinition.addReplacedRule(perpetualUnanimityDefinition);
+		
+		Rules.add(perpetualUnanimityDefinition);
+		
+		// ----------------------------------------------------------------
+		
 	}
 }
