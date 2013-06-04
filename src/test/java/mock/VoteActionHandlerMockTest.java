@@ -90,7 +90,6 @@ public class VoteActionHandlerMockTest extends TestCase {
 			oneOf(service).getTurnNumber();
 			exactly(2).of(service).getSimTime();
 			oneOf(mockAgent).getName();
-			oneOf(service).getActiveStatefulKnowledgeSession(); will(returnValue(session));
 			oneOf(session).insert(no);
 		}});
 		
