@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.drools.KnowledgeBase;
 import org.drools.compiler.DroolsParserException;
+import org.drools.definition.KnowledgePackage;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 import org.jmock.Expectations;
@@ -18,8 +19,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import services.NomicService;
+import services.RuleClassificationService;
 import uk.ac.imperial.presage2.core.environment.EnvironmentServiceProvider;
 import uk.ac.imperial.presage2.core.environment.EnvironmentSharedStateAccess;
+import uk.ac.imperial.presage2.core.environment.UnavailableServiceException;
 import uk.ac.imperial.presage2.core.event.EventBus;
 import uk.ac.imperial.presage2.core.simulator.EndOfTimeCycle;
 import actions.ProposeRuleAddition;
@@ -135,10 +138,12 @@ public class NomicServiceMockTest extends TestCase {
 	}
 	
 	@Test
-	public void ApplyProposedRuleTest() {
+	public void ApplyProposedRuleTest() throws UnavailableServiceException {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		
 		final NomicAgent mockAgent = context.mock(NomicAgent.class);
+		
+		final RuleClassificationService mockRuleClass = context.mock(RuleClassificationService.class);
 		
 		final String newRuleName = correctRuleName;
 		
@@ -149,6 +154,9 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
+			oneOf(serviceProvider).getEnvironmentService(with(RuleClassificationService.class));
+			will(returnValue(mockRuleClass));
+			oneOf(mockRuleClass).setActive(newRuleName, true);
 		}});
 		
 		NomicService service = new NomicService(ss, serviceProvider, session);
@@ -163,6 +171,9 @@ public class NomicServiceMockTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
+			oneOf(serviceProvider).getEnvironmentService(with(RuleClassificationService.class));
+			will(returnValue(mockRuleClass));
+			oneOf(mockRuleClass).setActive(oldRuleName, false);
 		}});
 		
 		service.ApplyRuleChange(removal);
@@ -175,6 +186,10 @@ public class NomicServiceMockTest extends TestCase {
 			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
 			oneOf(base).removeRule(oldRulePackage, oldRuleName);
 			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
+			oneOf(serviceProvider).getEnvironmentService(RuleClassificationService.class);
+			will(returnValue(mockRuleClass));
+			oneOf(mockRuleClass).setActive(oldRuleName, false);
+			oneOf(mockRuleClass).setActive(newRuleName, true);
 		}});
 		
 		service.ApplyRuleChange(modification);
@@ -230,6 +245,10 @@ public class NomicServiceMockTest extends TestCase {
 			will(returnValue(mockHandle));
 			oneOf(session).update(with(mockHandle),with(any(Turn.class)));
 			oneOf(session).fireAllRules();
+			
+			exactly(2).of(session).getKnowledgeBase(); will(returnValue(base));
+			oneOf(base).removeRule("defaultpkg", "Refresher");
+			oneOf(base).addKnowledgePackages(with(any(Collection.class)));
 		}});
 		
 		NomicService service = new NomicService(ss, serviceProvider, session);
