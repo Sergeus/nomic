@@ -12,14 +12,36 @@ import agents.NomicAgent;
 import enums.RuleFlavor;
 import exceptions.InvalidRuleStateException;
 
-
+/**
+ * Contains all relevant information about a specific rule of Nomic.
+ * @author Stuart Holland
+ *
+ */
 public class RuleDefinition {
+	/**
+	 * Package for all default rules and any rules added dynamically during a simulation.
+	 */
 	public static final String RulePackage = "defaultpkg";
 	
+	/**
+	 * The name of the rule, as recognized by Drools. Must match the name specified in ruleContent.
+	 */
 	String name;
+	/**
+	 * The body of that rule, formatted to be wrapped in a StringReader and parsed by the Drools engine
+	 */
 	String ruleContent;
+	/**
+	 * A list of all rules (if any) that this rule 'replaces' or modifies.
+	 */
 	ArrayList<RuleDefinition> replacedRules;
+	/**
+	 * The flavors that define this rule's characteristics. For reference of flavor characteristics, see <code>RuleFlavor</code>.
+	 */
 	Map<RuleFlavor, Integer> Flavors;
+	/**
+	 * Whether or not this rule is currently active.
+	 */
 	boolean Active;
 	
 	public RuleDefinition(String name, String ruleContent) {
@@ -30,7 +52,16 @@ public class RuleDefinition {
 		Flavors = new HashMap<RuleFlavor, Integer>();
 	}
 	
+	/**
+	 * Automatically generates a valid addition or modification proposal based on this rule definition,
+	 * ready for an agent to propose immediately. 
+	 * Rule removals must be constructed manually.
+	 * @param proposer The agent to propose the change.
+	 * @return A valid rule change action corresponding to this definition.
+	 */
 	public ProposeRuleChange getRuleChange(NomicAgent proposer) {
+		// This could be made to work out removals too by using isActive() to work out when
+		// it should remove itself.
 		if (isReplacesOther()) {
 			String replacedName = null;
 			
@@ -71,6 +102,10 @@ public class RuleDefinition {
 		return Flavors.get(flavorType);
 	}
 	
+	/**
+	 * Finds the flavor with the highest value for this rule.
+	 * @return
+	 */
 	public RuleFlavor getPrevailingFlavor() {
 		Integer maxFlavor = 50;
 		RuleFlavor prevailingFlavor = null;
@@ -86,6 +121,10 @@ public class RuleDefinition {
 		return prevailingFlavor;
 	}
 	
+	/**
+	 * Finds the flavor with the lowest value for this rule.
+	 * @return
+	 */
 	public RuleFlavor getOpposingFlavor() {
 		Integer minFlavor = 50;
 		RuleFlavor lowFlavor = null;
@@ -102,10 +141,20 @@ public class RuleDefinition {
 		return lowFlavor;
 	}
 	
+	/**
+	 * True if the flavor amount for this rule of the parameter flavor is greater than 50.
+	 * @param flavor
+	 * @return
+	 */
 	public boolean isHasPositiveFlavor(RuleFlavor flavor) {
 		return Flavors.get(flavor) > 50;
 	}
 	
+	/**
+	 * Returns true if all flavors in the parameter collection have non-negative values (>= 50) for this rule.
+	 * @param flavors
+	 * @return
+	 */
 	public boolean isHasPositiveForFlavors(Collection<RuleFlavor> flavors) {
 		for (RuleFlavor flavor : flavors) {
 			if (Flavors.get(flavor) < 50)
@@ -136,10 +185,19 @@ public class RuleDefinition {
 		return Flavors;
 	}
 
+	/**
+	 * True if this rule replaces another rule (whether or not that rule is currently active)
+	 * @return
+	 */
 	public boolean isReplacesOther() {
 		return replacedRules.size() > 0;
 	}
 	
+	/**
+	 * True if this rule replaces the rule with the parameter name.
+	 * @param oldRuleName
+	 * @return
+	 */
 	public boolean isReplaces(String oldRuleName) {
 		for (RuleDefinition definition : replacedRules) {
 			if (definition.getName().equals(oldRuleName))
@@ -149,6 +207,11 @@ public class RuleDefinition {
 		return false;
 	}
 	
+	/**
+	 * True if this rule replaces any of the rules in the parameter list.
+	 * @param rules
+	 * @return
+	 */
 	public boolean isReplacesAny(ArrayList<RuleDefinition> rules) {
 		if (!isReplacesOther())
 			return false;
@@ -192,6 +255,10 @@ public class RuleDefinition {
 		return !is(flavor) && !isNot(flavor);
 	}
 	
+	/**
+	 * Registers this rule as replacing the parameter rule. (Relationship should be reflexive in mot normal cases.)
+	 * @param rule
+	 */
 	public void addReplacedRule(RuleDefinition rule) {
 		replacedRules.add(rule);
 	}

@@ -26,6 +26,12 @@ import enums.VoteType;
 import exceptions.NoExistentRuleChangeException;
 import facts.RuleDefinition;
 
+/**
+ * Parent class for all agents that wish to play Nomic. For an example of which functions should be overriden
+ * to define agent AI behavior, see <code>ExampleAgent</code>.
+ * @author Stuart Holland
+ *
+ */
 public class NomicAgent extends AbstractParticipant {
 	
 	private int SequentialID;
@@ -35,8 +41,6 @@ public class NomicAgent extends AbstractParticipant {
 	ScenarioService scenarioService;
 	
 	RuleClassificationService ruleClassificationService;
-	
-	String MyRulesFile;
 	
 	Random rand = new Random();
 	
@@ -48,13 +52,18 @@ public class NomicAgent extends AbstractParticipant {
 		super(id, name);
 	}
 	
+	/**
+	 * This is part of an incomplete functionality set that allows agents to define their preferences for certain
+	 * flavors at a class level.
+	 * @return
+	 */
 	protected Map<RuleFlavor, Integer> chooseFlavorPreferences() {
 		return new HashMap<RuleFlavor, Integer>();
 	}
 
 	@Override
 	protected void processInput(Input arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
@@ -76,7 +85,11 @@ public class NomicAgent extends AbstractParticipant {
 			logger.warn("Couldn't get Nomic Environment Service.", e);
 		}
 	}
-	
+	/**
+	 * Most agent AIs should not override this function (though it is left non-final for cases where that may be
+	 * useful). The default behavior will query chooseProposal() and chooseVote(ProposeRuleChange) for information
+	 * when it is relevant.
+	 */
 	@Override
 	public void incrementTime() {
 		logger.info("I have " + getPoints() + " points.");
@@ -114,6 +127,11 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
+	/**
+	 * New Agent AIs should override this function and use it to decide on a new rule change proposal.
+	 * By default it will return a blank proposal that leads to this agent's turn to propose changes being skipped.
+	 * @return
+	 */
 	protected ProposeRuleChange chooseProposal() {
 		return new ProposeNoRuleChange(this);
 	}
@@ -140,6 +158,13 @@ public class NomicAgent extends AbstractParticipant {
 		return SequentialID;
 	}
 	
+	/**
+	 * New agent AIs should override this function to decide on their vote for the parameter proposed rule change.
+	 * 
+	 * By default, voting will be random 50/50 for Yes/No.
+	 * @param ruleChange
+	 * @return
+	 */
 	public VoteType chooseVote(ProposeRuleChange ruleChange) {
 		if (rand.nextBoolean()) {
 			return VoteType.YES;
@@ -149,6 +174,12 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
+	/**
+	 * Given an integer, x, where 0 <= x <= 100, this function will return YES or NO
+	 * as a function of that number treated as a probability. (Eg. 40 is 40%)
+	 * @param chance
+	 * @return
+	 */
 	public VoteType chooseVoteFromProbability(Integer chance) {
 		if (rand.nextInt(100) < chance) {
 			return VoteType.YES;
@@ -158,6 +189,12 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
+	/**
+	 * Given an integer, x, where 0 <= x <= 100, this function will return true or
+	 * false defined by that probability. (Eg. a parameter of 60 means 60% chance of true)
+	 * @param chance
+	 * @return
+	 */
 	public boolean isPreferred(Integer chance) {
 		if (rand.nextInt(100) < chance) {
 			return true;
@@ -187,10 +224,24 @@ public class NomicAgent extends AbstractParticipant {
 		this.points -= points;
 	}
 	
+	/**
+	 * New agent AIs should override this function if they wish to have new behavior defined by any proposals
+	 * succeeding.
+	 * 
+	 * Does nothing by default.
+	 * @param ruleChange
+	 */
 	public void voteSucceeded(ProposeRuleChange ruleChange) {
 		
 	}
 	
+	/**
+	 * New agent AIs should override this function if they wish to have new behavior defined by any proposals
+	 * failing.
+	 * 
+	 * Does nothing by default.
+	 * @param ruleChange
+	 */
 	public void voteFailed(ProposeRuleChange ruleChange) {
 		
 	}
@@ -199,6 +250,13 @@ public class NomicAgent extends AbstractParticipant {
 		nomicService.Win(this);
 	}
 	
+	/**
+	 * New agent AIs should override this function if they want the proxy that represents their agent
+	 * to have any special characteristics.
+	 * 
+	 * Creates a simple random voter and random proposer (instance of <code>ProxyAgent</code>) by default.
+	 * @return
+	 */
 	public ProxyAgent getRepresentativeProxy() {
 		ProxyAgent proxy = new ProxyAgent(uk.ac.imperial.presage2.core.util.random.Random.randomUUID(), 
 				"proxy " + getName());
@@ -209,6 +267,14 @@ public class NomicAgent extends AbstractParticipant {
 		return proxy;
 	}
 	
+	/**
+	 * New agent AIs should override this function if they wish to have an easily defined function for 
+	 * deciding on subsimulation length based on rule changes.
+	 * 
+	 * By default, uses the rule's COMPLEXITY flavor to decide length.
+	 * @param ruleChange
+	 * @return
+	 */
 	public int getSubsimulationLength(ProposeRuleChange ruleChange) {
 		// Default to 0 complexity for 'ProposeNoRuleChange' proposals
 		Integer complexity = 0;
@@ -251,6 +317,11 @@ public class NomicAgent extends AbstractParticipant {
 		}
 	}
 	
+	/**
+	 * New agent AIs should override this function to tell the <code>ScenarioService</code> where to find
+	 * the rules file that defines this AI's preferences.
+	 * @return
+	 */
 	public String getProxyRulesFile() {
 		return "src/main/resources/TestProxy.drl";
 	}

@@ -2,6 +2,11 @@ package facts;
 
 import agents.NomicAgent;
 
+/**
+ * Simple object that triggers a win for the agent given in its constructor parameter.
+ * @author Stuart Holland
+ *
+ */
 public class Win {
 	NomicAgent winner;
 

@@ -5,6 +5,17 @@ import java.util.ArrayList;
 import facts.RandomAgentWinsRule;
 import facts.RuleDefinition;
 
+/**
+ * The RuleStringRepository should only be instantiated by the RuleClassificationService.
+ * It moves all of the 'icky' work in creating the string literals for loading/unloading rules
+ * at runtime into one place. New rules that the agents interact with should be added to the Rules collection
+ * in the init function below.
+ * 
+ * If any rules are removed from the default set (or new ones added) then their 'active' settings
+ * must be updated below or the <code>RuleClassificationService</code> will give incorrect information.
+ * @author Stuart Holland
+ *
+ */
 public class RuleStringRepository {
 	
 	private ArrayList<RuleDefinition> Rules;

@@ -27,6 +27,12 @@ import com.google.inject.AbstractModule;
 
 import facts.RuleDefinition;
 
+/**
+ * Simulation run by agents via their instance of <code>ScenarioService</code> to explore the effects
+ * of rule changes and their preference toward those changes.
+ * @author Stuart Holland
+ *
+ */
 public class SubScenarioSimulation extends NomicSimulation {
 	
 	private Logger logger = Logger.getLogger(SubScenarioSimulation.class);
@@ -65,6 +71,8 @@ public class SubScenarioSimulation extends NomicSimulation {
 				.addActionHandler(ProposeRuleChangeActionHandler.class)
 				.addActionHandler(VoteActionHandler.class)
 				.setStorage(RuleStorage.class));
+		
+		// No storage plugin for subsims, since they are 'conjecture,' rather than 'reality'.
 		
 		modules.add(new RuleModule());
 		

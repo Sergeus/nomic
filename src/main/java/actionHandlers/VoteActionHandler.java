@@ -17,6 +17,13 @@ import actions.Vote;
 
 import com.google.inject.Inject;
 
+/**
+ * Handler for voting actions, informs the nomic service and Drools knowledge session of votes that have occurred.
+ * 
+ * Also timestamps votes for later storage.
+ * @author Stuart Holland
+ *
+ */
 public class VoteActionHandler implements ActionHandler {
 
 	StatefulKnowledgeSession session;

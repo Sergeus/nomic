@@ -3,6 +3,11 @@ package actions;
 import agents.NomicAgent;
 import enums.RuleChangeType;
 
+/**
+ * Rule change proposal action for adding a new rule.
+ * @author Stuart Holland
+ *
+ */
 public class ProposeRuleAddition extends ProposeRuleChange {
 	String newRuleName;
 	

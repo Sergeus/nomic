@@ -35,21 +35,39 @@ import agents.VindictiveAgent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 
+/**
+ * Default simulation for simulating a game of Nomic.
+ * @author Stuart
+ *
+ */
 public class NomicSimulation extends InjectedSimulation {
 	
 	StatefulKnowledgeSession session;
 	
 	private Logger logger = Logger.getLogger(getClass());
 	
+	/**
+	 * Instances of <code>NomicAgent</code>, random voters, do not make proposals.
+	 */
 	@Parameter(name="agents")
 	public int agents;
 	
+	/**
+	 * Instances of <code>DestructiveAgent</code>, attempt to undermine the game.
+	 */
 	@Parameter(name="dagents")
 	public int dagents;
 	
+	/**
+	 * Instances of <code>SelfishAgent</code>, attempt to win for themselves.
+	 */
 	@Parameter(name="sagents")
 	public int sagents;
 	
+	/**
+	 * Instances of <code>VindictiveAgent</code>, attempt to prevent a
+	 * specific other agent from succeeding at the game.
+	 */
 	@Parameter(name="vagents")
 	public int vagents;
 	
@@ -67,6 +85,7 @@ public class NomicSimulation extends InjectedSimulation {
 
 	@Override
 	protected void addToScenario(Scenario s) {
+		// Adds the basic rules of Nomic to the simulation.
 		try {
 			NomicService nomicService = getEnvironmentService(NomicService.class);
 			nomicService.AddRuleFile("src/main/resources/Basic.dslr");
@@ -76,10 +95,11 @@ public class NomicSimulation extends InjectedSimulation {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		// Sets relevant rule globals.
 		session.setGlobal("logger", this.logger);
 		session.setGlobal("storage", this.storage);
 		
+		// Instantiate agents
 		int id = 0;
 		
 		for (int i=0; i < agents; i++) {

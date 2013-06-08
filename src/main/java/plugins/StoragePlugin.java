@@ -27,6 +27,11 @@ import com.google.inject.Inject;
 import enums.TurnType;
 import exceptions.NoExistentRuleChangeException;
 
+/**
+ * Plugin that stores all data relevant to Nomic from a single simulation. All data is stored when the simulation ends.
+ * @author Stuart Holland
+ *
+ */
 public class StoragePlugin implements Plugin {
 	
 	private final Logger logger = Logger.getLogger(StoragePlugin.class);

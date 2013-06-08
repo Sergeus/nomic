@@ -3,6 +3,16 @@ package actions;
 import agents.NomicAgent;
 import enums.RuleChangeType;
 
+/**
+ * Parent class to structure common elements in all rule change proposals.
+ * If trying to make a new proposal, you want to use <code>ProposeRuleAddition</code>,
+ * <code>ProposeRuleRemoval</code>, <code>ProposalRuleModification</code>, or <code>ProposeNoRuleChange</code>.
+ * 
+ * Proposals are only that, proposals. They will not be applied to the currently active rules until voting
+ * has taken place (unless some previous inventive rule changes has removed the need to vote).
+ * @author Stuart Holland
+ *
+ */
 public abstract class ProposeRuleChange extends TimeStampedAction {
 	protected NomicAgent proposer;
 	

@@ -16,6 +16,16 @@ import com.google.inject.Inject;
 import enums.RuleFlavor;
 import facts.RuleDefinition;
 
+/**
+ * Service that manages the definitions of all rules available to agents within a simulation.
+ * Provides helper functions for accessing rules based on certain restrictions so that agents don't
+ * have to manually sort by availability, inactivity, etc.
+ * 
+ * Also allows other simulation components to look up rule information based on the names available 
+ * through the Drools knowledge base.
+ * @author Stuart Holland
+ *
+ */
 public class RuleClassificationService extends EnvironmentService {
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
@@ -35,6 +45,10 @@ public class RuleClassificationService extends EnvironmentService {
 		}
 	}
 	
+	/**
+	 * Loading function used to transfer activity settings from supersimulations to subsimulations.
+	 * @param collection
+	 */
 	public void LoadRuleDefinitions(Collection<RuleDefinition> collection) {
 		for (RuleDefinition definition : collection) {
 			RuleDefinition localDef = RulePool.get(definition.getName());

@@ -26,6 +26,12 @@ import com.google.inject.AbstractModule;
 
 import facts.RuleDefinition;
 
+/**
+ * Participant environment service, each agent has a separate instance of this service.
+ * Most frequently used function is RunQuerySimulation.
+ * @author Stuart
+ *
+ */
 public class ScenarioService extends EnvironmentService {
 	
 	class SimResults {
@@ -109,18 +115,6 @@ public class ScenarioService extends EnvironmentService {
 		return superClassificationService;
 	}
 	
-	public RuleClassificationService getSubClassificationService() {
-		if (superClassificationService == null) {
-			try {
-				superClassificationService = subScenarioSimulation.getEnvironmentService(RuleClassificationService.class);
-			} catch (UnavailableServiceException e) {
-				logger.warn("Unable to get subClassificationService for " + controller.getName(), e);
-			}
-		}
-		
-		return superClassificationService;
-	}
-	
 	public NomicService getSuperNomicService() {
 		if (superNomicService == null) {
 			try {
@@ -154,6 +148,12 @@ public class ScenarioService extends EnvironmentService {
 		return proxies;
 	}
 	
+	/**
+	 * Runs a subsimulation of length timeIntoFuture, applying the rule change ruleChange at the beginning
+	 * of the simulation. The subsimulation's initial state will be based on the state of the supersimulation.
+	 * @param ruleChange
+	 * @param timeIntoFuture
+	 */
 	public void RunQuerySimulation(ProposeRuleChange ruleChange, int timeIntoFuture) {
 		testSession = getSuperNomicService().getNewStatefulKnowledgeSession();
 		
@@ -202,6 +202,10 @@ public class ScenarioService extends EnvironmentService {
 		SubSimulationResults.add(results);
 	}
 	
+	/**
+	 * Used by subsimulations to access supersimulation state data for initialization.
+	 * @return
+	 */
 	public StatefulKnowledgeSession getReplacementSession() {
 		return testSession;
 	}
@@ -210,6 +214,11 @@ public class ScenarioService extends EnvironmentService {
 		return getSuperClassificationService().getAllRules();
 	}
 	
+	/**
+	 * True if the parameter agent is this scenario service's controller.
+	 * @param agent
+	 * @return
+	 */
 	public boolean IsController(NomicAgent agent) {
 		return agent.getID() == controller.getID();
 	}
@@ -218,6 +227,10 @@ public class ScenarioService extends EnvironmentService {
 		return controller;
 	}
 	
+	/**
+	 * Returns true if the most recently run subsimulation had a winner.
+	 * @return
+	 */
 	public boolean isSimWon() {
 		for (ProxyAgent proxy : currentProxies) {
 			if (proxy.isWinner()) {
@@ -228,6 +241,12 @@ public class ScenarioService extends EnvironmentService {
 		return false;
 	}
 	
+	/**
+	 * Returns the proxy agent who won the most recently run subsimulation.
+	 * 
+	 * Returns null if the most recent subsimulation had no winner.
+	 * @return
+	 */
 	public ProxyAgent getWinner() {
 		for (ProxyAgent proxy : currentProxies) {
 			if (proxy.isWinner()) {

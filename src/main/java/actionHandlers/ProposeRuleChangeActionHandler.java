@@ -24,6 +24,14 @@ import com.google.inject.Inject;
 import enums.RuleChangeType;
 import exceptions.InvalidRuleProposalException;
 
+/**
+ * Action handler for all rule change proposals. Informs the nomic service and the current Drools
+ * knowledge session about the proposal that has been received.
+ * 
+ * Also time stamps the action for storage later.
+ * @author Stuart Holland
+ *
+ */
 public class ProposeRuleChangeActionHandler implements ActionHandler {
 	
 	StatefulKnowledgeSession session;

@@ -51,8 +51,15 @@ public class NomicService extends EnvironmentService {
 
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
+	/**
+	 * Controls access to the Drools KnowledgeBuilder class, because there were concurrency
+	 * issues with creating many new knowledge packages simultaneously.
+	 */
 	public static Semaphore kBuilderSemaphore = new Semaphore(1);
 	
+	/**
+	 * Controls 'refreshing' of the simulation. See refreshSession() for more details.
+	 */
 	public static Semaphore refreshSemaphore = new Semaphore(1);
 	
 	private EnvironmentServiceProvider serviceProvider;
@@ -62,32 +69,72 @@ public class NomicService extends EnvironmentService {
 	StatefulKnowledgeSession session;
 	int TurnNumber = 0;
 	
+	/**
+	 * List of all agents in this simulation.
+	 */
 	private ArrayList<NomicAgent> agents;
 	
+	/**
+	 * List of all agent IDs in this simulation.
+	 */
 	private ArrayList<UUID> agentIDs;
 	
+	/**
+	 * Map of votes made this turn.
+	 */
 	private Map<UUID,Vote> votesThisTurn;
 	
+	/**
+	 * List of all votes made during this simulation.
+	 */
 	private ArrayList<Vote> SimVotes;
 	
+	/**
+	 * List of all proposals from this simulation.
+	 */
 	private ArrayList<ProposeRuleChange> SimRuleChanges;
 	
+	/**
+	 * Object that defines the state of the current turn.
+	 */
 	Turn currentTurn;
 	
+	/**
+	 * Drools facthandle for above object.
+	 */
 	FactHandle turnHandle;
 	
+	/**
+	 * Place holder agent used to instantiate the turn object at initialization without artificially choosing
+	 * which agent will move first.
+	 */
 	NomicAgent placeHolderAgent = new NomicAgent(Random.randomUUID(), "placeholder");
 	
+	/**
+	 * The rule change currently up for voting.
+	 */
 	ProposeRuleChange currentRuleChange;
 	
+	/**
+	 * Previous rule change, from last turn.
+	 */
 	ProposeRuleChange previousRuleChange;
 	
+	/**
+	 * The winner of this game of Nomic.
+	 */
 	NomicAgent Winner;
 	
+	/**
+	 * The time this game was won.
+	 */
 	Integer WinTime = -1;
 	
 	EventBus eb;
 	
+	/**
+	 * Nomic SimTime (not Presage2 time), maps to the defined phases of Nomic turns.
+	 */
 	Integer SimTime;
 	
 	@Inject
@@ -136,30 +183,38 @@ public class NomicService extends EnvironmentService {
 	
 	@EventListener
 	public void onIncrementTime(EndOfTimeCycle e) {
+		// If someone has won, this game is over, let's stop everything.
 		if (Winner != null) {
 			currentTurn.setType(TurnType.GAMEOVER);
 			currentRuleChange = null;
 			previousRuleChange = null;
 		}
+		// If we're in initialization mode, then set up the first turn.
 		else if (currentTurn.getType() == TurnType.INIT) {
 			currentTurn.setType(TurnType.PROPOSE);
 			currentTurn.setNumber(TurnNumber);
 			SimTime++;
 		}
+		// Deals with proposal phase of a turn when we've received a proposal
 		else if (currentTurn.getType() == TurnType.PROPOSE && currentRuleChange != null) {
+			// If this is a non-blank proposal, move on to voting phase
 			if (currentRuleChange.getRuleChangeType() != RuleChangeType.NONE) {
 				currentTurn.setType(TurnType.VOTE);
 				previousRuleChange = currentRuleChange;
 				SimTime++;
 			}
+			// If this is a blank proposal, the agent couldn't decide what to do, so we skip them.
 			else {
 				currentTurn.setNumber(++TurnNumber);
 				SimTime++;
 			}
 		}
+		// Deals with voting phase of a turn
 		else if (currentTurn.getType() == TurnType.VOTE) {
+			// If the required number of agents have voted, let's evaluate the current proposal
 			if (currentTurn.isAllVoted()) {
 				votesThisTurn.clear();
+				// Success is defined in the rules files, so we just need to check its value.
 				if (currentRuleChange.getSucceeded()) {
 					logger.info("This proposal has succeeded.");
 					ApplyRuleChange(currentRuleChange);
@@ -173,6 +228,7 @@ public class NomicService extends EnvironmentService {
 						agent.voteFailed(currentRuleChange);
 					}
 				}
+				// Move on to propose phase of the next turn.
 				previousRuleChange = currentRuleChange;
 				currentRuleChange = null;
 				currentTurn.setType(TurnType.PROPOSE);
@@ -184,6 +240,7 @@ public class NomicService extends EnvironmentService {
 		
 		refreshSession();
 		
+		// Update turn object for new turn (there may be no change if some agents are taking long)
 		session.update(session.getFactHandle(currentTurn), currentTurn);
 		
 		session.fireAllRules();
@@ -207,6 +264,15 @@ public class NomicService extends EnvironmentService {
 			+ " then "
 			+ " end ";
 	
+	/**
+	 * Workaround to deal with a bug in Drools. Moving between multiple instances of the Drools rule engine
+	 * which share some rule definitions can lead to some cached data in the engine reporting incorrect
+	 * loaded class definitions for those shared rules when the state differs between the two.
+	 * 
+	 * Loading and unloading a rule from the current knowledge base forces Drools to update its records of
+	 * which rules are currently active. This reduces the prevalence of class definition errors, but does not
+	 * eliminate them.
+	 */
 	public void refreshSession() {
 		logger.info("Refreshing shit.");
 		
@@ -270,15 +336,29 @@ public class NomicService extends EnvironmentService {
 		return 0;
 	}
 	
+	/**
+	 * True if the parameter agent is the active agent and we are in the proposal phase of any turn.
+	 * @param agent
+	 * @return
+	 */
 	public boolean canProposeNow(NomicAgent agent) {
 		return currentTurn.getType() == TurnType.PROPOSE &&
 				currentTurn.getActivePlayer().getID() == agent.getID();
 	}
 	
+	/**
+	 * True if we are in the voting phase of any turn.
+	 * @param agent
+	 * @return
+	 */
 	public boolean canVoteNow(NomicAgent agent) {
 		return currentTurn.type == TurnType.VOTE;
 	}
 	
+	/**
+	 * True if all required agents have voted for the success of the current proposal to be evaluated.
+	 * @return
+	 */
 	public boolean isAllVoted() {
 		return currentTurn.isAllVoted();
 	}
@@ -298,6 +378,11 @@ public class NomicService extends EnvironmentService {
 		WinTime = getSimTime();
 	}
 	
+	/**
+	 * Called by the <code>ProposeRuleChangeActionHandler</code> to register a proposal with the Nomic service.
+	 * @param ruleChange
+	 * @throws InvalidRuleProposalException If we are not in the proposal phase.
+	 */
 	public void ProposeRuleChange(ProposeRuleChange ruleChange) 
 			throws InvalidRuleProposalException {
 		if (currentTurn.type != TurnType.PROPOSE) {
@@ -308,6 +393,11 @@ public class NomicService extends EnvironmentService {
 		SimRuleChanges.add(ruleChange);
 	}
 	
+	/**
+	 * Returns the current rule change proposal.
+	 * @return
+	 * @throws NoExistentRuleChangeException If there is no valid rule change.
+	 */
 	public ProposeRuleChange getCurrentRuleChange() throws NoExistentRuleChangeException {
 		if (currentRuleChange == null)
 			throw new NoExistentRuleChangeException("There is no valid rule change proposition.");
@@ -315,6 +405,10 @@ public class NomicService extends EnvironmentService {
 			return currentRuleChange;
 	}
 	
+	/**
+	 * Applies the parameter rule change to the currently active Drools knowledge base.
+	 * @param ruleChange
+	 */
 	public void ApplyRuleChange(ProposeRuleChange ruleChange) {
 		logger.info("I am a Nomic Service applying a rule change.");
 		logger.info("My agents are: ");
@@ -405,6 +499,12 @@ public class NomicService extends EnvironmentService {
 		session.getKnowledgeBase().addKnowledgePackages(packages);
 	}
 	
+	/**
+	 * Constructs Drools <code>KnowledgePackage</code>s for the parameter rule.
+	 * @param rule
+	 * @return
+	 * @throws DroolsParserException If the rule cannot be parsed.
+	 */
 	public Collection<KnowledgePackage> parseRule(String rule) throws DroolsParserException {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		
@@ -429,6 +529,12 @@ public class NomicService extends EnvironmentService {
 		return kbuilder.getKnowledgePackages();
 	}
 	
+	/**
+	 * Constructs Drools <code>KnowledgePackage</code>s from the rules in the file from the parameter file path.
+	 * @param filePath
+	 * @return
+	 * @throws DroolsParserException
+	 */
 	public Collection<KnowledgePackage> parseRuleFile(String filePath)
 			throws DroolsParserException {
 		
@@ -473,6 +579,11 @@ public class NomicService extends EnvironmentService {
 		return rules;
 	}
 	
+	/**
+	 * Creates a new <code>StatefulKnowledgeSession</code> based on the current state of the game,
+	 * with all valid rules, facts, and globals for subsimulation execution.
+	 * @return
+	 */
 	public StatefulKnowledgeSession getNewStatefulKnowledgeSession() {
 		refreshSession();
 		
@@ -513,6 +624,10 @@ public class NomicService extends EnvironmentService {
 		return session;
 	}
 	
+	/**
+	 * This is not actual Presage2 simulation time, it corresponds instead to phases in the turns of a game of Nomic.
+	 * @return
+	 */
 	public Integer getSimTime() {
 		return SimTime;
 	}

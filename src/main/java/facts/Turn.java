@@ -3,6 +3,12 @@ package facts;
 import enums.TurnType;
 import agents.NomicAgent;
 
+/**
+ * Defines the current turn of the game of Nomic. A single turn object is managed and updated
+ * by the Nomic service to keep track of turn numbers over the course of a simulation.
+ * @author Stuart Holland
+ *
+ */
 public class Turn {
 	public int number;
 
@@ -40,6 +46,10 @@ public class Turn {
 		return activePlayer;
 	}
 	
+	/**
+	 * True if the game can move on to evaluating proposal success.
+	 * @return
+	 */
 	public boolean isAllVoted() {
 		return allVoted;
 	}
