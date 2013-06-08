@@ -6,6 +6,7 @@ import java.util.UUID;
 import actions.ProposeNoRuleChange;
 import actions.ProposeRuleChange;
 import actions.ProposeRuleRemoval;
+import actions.Vote;
 import enums.RuleFlavor;
 import enums.VoteType;
 import facts.RuleDefinition;
@@ -149,6 +150,29 @@ public class VindictiveAgent extends NomicAgent {
 		logger.info("This vindictive subsimulation had a preference of: " + scenarioService.getPreference());
 		
 		return chooseVoteFromProbability(scenarioService.getPreference());
+	}
+	
+	@Override
+	public void voteFailed(ProposeRuleChange ruleChange) {
+		// If someone votes against my proposal, they become my nemesis
+		if (ruleChange.getProposer().getID() == getID()) {
+			ArrayList<Vote> votes = nomicService.getVotesThisTurn();
+			
+			ArrayList<Vote> noVotes = new ArrayList<Vote>();
+			
+			for (Vote vote : votes) {
+				if (vote.getVoter().getID() != getID() && vote.getVote() == VoteType.NO)
+					noVotes.add(vote);
+			}
+			
+			if (!noVotes.isEmpty()) {
+				Vote nemesisVote = noVotes.get(rand.nextInt(noVotes.size()));
+				
+				nemesisName = nemesisVote.getVoter().getName();
+				
+				logger.info("For voting against my proposal " + nemesisName + " has become my nemesis! Damn you, " + nemesisName + "!");
+			}
+		}
 	}
 	
 	@Override
