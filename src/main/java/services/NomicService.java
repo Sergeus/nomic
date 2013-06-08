@@ -567,6 +567,17 @@ public class NomicService extends EnvironmentService {
 		return votesThisTurn.get(pid);
 	}
 	
+	public ArrayList<Vote> getVotesThisTurn() {
+		ArrayList<Vote> thisTurn = new ArrayList<Vote>();
+		
+		for (Vote vote : SimVotes) {
+			if (vote.getT() == currentTurn.getNumber())
+				thisTurn.add(vote);
+		}
+		
+		return thisTurn;
+	}
+	
 	public ProposeRuleChange getPreviousRuleChange() {
 		return previousRuleChange;
 	}
