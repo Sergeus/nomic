@@ -23,7 +23,6 @@ public class ProxyAgent extends NomicAgent {
 
 	public ProxyAgent(UUID id, String name) {
 		super(id, name);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
@@ -124,10 +123,20 @@ public class ProxyAgent extends NomicAgent {
 			this.preference -= amount;
 	}
 
+	/**
+	 * If true, preference will not be changed by setPreference(Integer),
+	 * increasePreference(Integer), or decreasePreference(Integer)
+	 * @return
+	 */
 	public boolean isPreferenceLocked() {
 		return preferenceLocked;
 	}
 
+	/**
+	 * Fixes current preference value when set to true.
+	 * Useful if certain events fix preference at some value, regardless of what happens after.
+	 * @param preferenceLocked
+	 */
 	public void setPreferenceLocked(boolean preferenceLocked) {
 		this.preferenceLocked = preferenceLocked;
 	}
