@@ -293,7 +293,7 @@ public class RuleStringRepository {
 		
 		RuleDefinition agentFourWinsDef = new RuleDefinition(agentFourWins, agentFourWinsRule);
 		agentFourWinsDef.setFlavors(20, 0, 100, 100, 50, 100, 0, 50);
-		Rules.add(agentFourWinsDef);
+		//Rules.add(agentFourWinsDef);
 		
 		// ----------------------------------------------------------------
 		String tenPointsWins = "Ten points means you win";
