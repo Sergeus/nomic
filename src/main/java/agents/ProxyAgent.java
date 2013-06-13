@@ -28,6 +28,7 @@ public class ProxyAgent extends NomicAgent {
 	@Override
 	public void Win() {
 		Winner = true;
+		super.Win();
 	}
 	
 	public void setOwner(NomicAgent owner) {
