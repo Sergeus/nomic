@@ -50,14 +50,7 @@ public class ProxyAgent extends NomicAgent {
 	public void setWinner(boolean winner) {
 		Winner = winner;
 	}
-	
-	@Override
-	public void incrementTime() {
-		logger.info("EPIC PROXY LOLZ");
-		
-		super.incrementTime();
-	}
-	
+
 	@Override
 	public String getProxyRulesFile() {
 		return owner.getProxyRulesFile();

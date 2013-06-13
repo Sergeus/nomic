@@ -1,7 +1,6 @@
 //created on: 31-Jan-2013
 package defaultpkg
 
-//list any import classes here.
 import agents.NomicAgent;
 import agents.SelfishAgent;
 import agents.Test;
@@ -10,7 +9,6 @@ import actions.ProposeRuleChange;
 import enums.VoteType;
 import facts.*;
 
-//declare any global variables here
 global org.apache.log4j.Logger logger
 global uk.ac.imperial.presage2.core.db.StorageService storage
 global java.util.Random rand;
@@ -25,13 +23,6 @@ rule "Whose turn is it"
 		modify ($turn) {
 			setActivePlayer($agent)
 		};
-end
-
-rule "Test rule for agent insertions"
-	when
-		$agent : NomicAgent($ID : sequentialID)
-	then
-		logger.info("Found agent with seq ID " + $ID + " and name " + $agent.getName());
 end
 
 rule "Unanimous votes succeed for first two rounds"
@@ -135,14 +126,6 @@ rule "You gain 1d6 points at the end of your turn"
 			setPoints($agent.getPoints() + r);
 		};
 end 
-
-rule "Selfish Agent Test"
-	when
-		Test ( )
-		$agent : SelfishAgent ( )
-	then
-		System.out.println("Lololol" + $agent.getName());
-end
 
 rule "Refresher"
 	when

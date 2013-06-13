@@ -274,7 +274,7 @@ public class NomicService extends EnvironmentService {
 	 * eliminate them.
 	 */
 	public void refreshSession() {
-		logger.info("Refreshing shit.");
+		logger.info("Refreshing session.");
 		
 		while (!refreshSemaphore.tryAcquire()) {
 			try {
