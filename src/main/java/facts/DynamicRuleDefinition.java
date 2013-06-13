@@ -5,6 +5,14 @@ import actions.ProposeRuleChange;
 import actions.ProposeRuleModification;
 import agents.NomicAgent;
 
+/**
+ * Early implementation of a dynamic rule definition that allows inheriting classes to
+ * implement specific types of rules that could have varying effects at runtime.
+ * 
+ * For specific example see <code>RandomAgentWinsRule</code>.
+ * @author Stuart Holland
+ *
+ */
 public abstract class DynamicRuleDefinition extends RuleDefinition {
 	
 	public DynamicRuleDefinition(String name) {
@@ -17,7 +25,6 @@ public abstract class DynamicRuleDefinition extends RuleDefinition {
 	
 	@Override
 	public ProposeRuleChange getRuleChange(NomicAgent proposer) {
-		String name = generateRuleName(proposer);
 		String ruleContent = generateRuleBody(proposer);
 		
 		if (isReplacesOther()) {

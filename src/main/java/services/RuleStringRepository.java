@@ -336,7 +336,7 @@ public class RuleStringRepository {
 		
 		RuleDefinition randomAgentWins = new RandomAgentWinsRule(randomAgentWinsName);
 		randomAgentWins.setFlavors(0, 50, 100, 80, 70, 100, 50, 70);
-		//Rules.add(randomAgentWins);
+		Rules.add(randomAgentWins);
 		
 		// ----------------------------------------------------------------
 		String PerpetualUnanimity = "Perpetual Unanimity";

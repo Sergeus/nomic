@@ -422,11 +422,11 @@ public class NomicService extends EnvironmentService {
 			try {
 				logger.info("Modifying rule \'" + ruleMod.getOldRuleName()
 						+ "\'");
-				RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
-				addRule(ruleMod.getNewRule());
-				
 				getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
 				getRuleClassificationService().setActive(ruleMod.getNewRuleName(), true);
+				
+				RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
+				addRule(ruleMod.getNewRule());
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new version of existing rule.", e);
 				// TODO: add old rule back
@@ -437,9 +437,9 @@ public class NomicService extends EnvironmentService {
 			try {
 				logger.info("Adding new rule " + ruleMod.getNewRuleName());
 				
-				addRule(ruleMod.getNewRule());
-				
 				getRuleClassificationService().setActive(ruleMod.getNewRuleName(), true);
+				
+				addRule(ruleMod.getNewRule());
 			} catch (DroolsParserException e) {
 				logger.warn("Unable to parse new rule.", e);
 			}
@@ -449,9 +449,9 @@ public class NomicService extends EnvironmentService {
 			
 			logger.info("Removing old rule " + ruleMod.getOldRuleName());
 			
-			RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
-			
 			getRuleClassificationService().setActive(ruleMod.getOldRuleName(), false);
+			
+			RemoveRule(ruleMod.getOldRulePackage(), ruleMod.getOldRuleName());
 		}
 		else if (change == RuleChangeType.NONE) {
 			logger.info("Blank change for current forecasting has been 'applied'.");
